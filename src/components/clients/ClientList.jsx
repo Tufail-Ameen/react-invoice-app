@@ -36,14 +36,14 @@ export default function ClientList({ clients, onEdit, onDelete }) {
                     <button
                       onClick={() => onEdit(index)}
                       type="button"
-                      className="btn btn-warning"
+                      className="btn edit"
                     >
                       Edit
                     </button>
                     <button
                       onClick={() => onDelete(index)}
                       type="button"
-                      className="btn btn-danger"
+                      className="btn delete"
                     >
                       Delete
                     </button>

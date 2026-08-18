@@ -194,7 +194,7 @@ export default function InvoiceForm() {
             >
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <div className="edit-text">
-                  <span style={{ color: "#7e829b" }}>#</span>
+                  <span className="hash-clr">#</span>
                   {filterdata.length ? filterdata[0].id : randomId}
                 </div>
                 <button

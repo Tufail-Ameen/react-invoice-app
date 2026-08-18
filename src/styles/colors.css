@@ -1,0 +1,46 @@
+:root {
+  /* Backgrounds */
+  --color-bg: #08111c;
+  --color-bg-mist: #12324a;
+  --color-bg-glow: #0d2a28;
+  --color-surface: #101c2c;
+  --color-surface-2: #162436;
+  --color-surface-3: #1c2d44;
+  --color-sidebar: #0c1826;
+  --color-input: #122033;
+
+  /* Text */
+  --color-text: #eef4fb;
+  --color-text-muted: #9fb0c8;
+  --color-text-subtle: #6e829c;
+  --color-text-on-primary: #04241f;
+  --color-placeholder: #6e829c;
+
+  /* Brand */
+  --color-primary: #2dd4bf;
+  --color-primary-hover: #5eead4;
+  --color-primary-pressed: #14b8a6;
+  --color-primary-soft: rgba(45, 212, 191, 0.16);
+  --color-accent: #38bdf8;
+  --color-accent-soft: rgba(56, 189, 248, 0.14);
+
+  /* Status */
+  --color-paid: #34d399;
+  --color-paid-soft: rgba(52, 211, 153, 0.14);
+  --color-pending: #fbbf24;
+  --color-pending-soft: rgba(251, 191, 36, 0.14);
+  --color-draft: #cbd5e1;
+  --color-draft-soft: rgba(148, 163, 184, 0.14);
+  --color-danger: #fb7185;
+  --color-danger-hover: #fda4af;
+  --color-danger-soft: rgba(251, 113, 133, 0.14);
+  --color-edit: #f8d57e;
+  --color-edit-text: #3a2d08;
+
+  /* Borders / overlays */
+  --color-border: #27405c;
+  --color-border-strong: #3a5a7a;
+  --color-overlay: rgba(4, 10, 18, 0.64);
+  --color-white: #ffffff;
+  --color-black: #020617;
+}

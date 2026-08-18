@@ -91,7 +91,7 @@ export default function InvoicesPage() {
           </Dropdown>
 
           <button type="button" className="new-invoice-btn" onClick={openinvoice}>
-            <FontAwesomeIcon icon={faCirclePlus} style={{ color: "#ffffff", fontSize: "22px" }} />
+            <FontAwesomeIcon icon={faCirclePlus} style={{ fontSize: "22px" }} />
             <span className="mx-2">New Invoice</span>
           </button>
         </div>

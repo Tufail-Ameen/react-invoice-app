@@ -16,28 +16,19 @@ export default function InvoiceCard({ invoice, index }) {
         navigate(`/invoices/${invoiceIndex}`);
       }}
     >
-      <div className="d-flex justify-content-between align-items-center mb-2">
+      <div className="d-flex justify-content-between align-items-center mb-3">
         <span className="hash-clr fw-semibold">#{invoice.id}</span>
         <StatusBadge status={invoice.btnCP} compact />
       </div>
-      <p className="mb-1">
-        <strong className="text-accent">Client:</strong>
-        <span className="ms-2">{invoice.name}</span>
-      </p>
-      <div className="row">
-        <div className="col-6">
-          <strong className="text-accent">Date:</strong>
-          <span className="ms-2">{invoice.date}</span>
+      <p className="mb-2 fw-semibold">{invoice.name}</p>
+      <div className="d-flex justify-content-between align-items-end">
+        <div>
+          <div className="textcklr mb-1 table-text-size">
+            {invoice.date}
+          </div>
+          <div className="price">{formatAmount(invoice.currency, invoice.total)}</div>
         </div>
-        <div className="col-6">
-          <strong className="text-accent">Amount:</strong>
-          <span className="ms-2 fw-semibold">
-            {formatAmount(invoice.currency, invoice.total)}
-          </span>
-        </div>
-      </div>
-      <div className="text-end mt-2">
-        <span className="down-icon goicon">
+        <span className="down-icon">
           <FontAwesomeIcon icon={faChevronRight} />
         </span>
       </div>

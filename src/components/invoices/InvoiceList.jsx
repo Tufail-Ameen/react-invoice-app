@@ -30,7 +30,7 @@ export default function InvoiceList({ invoices }) {
         {invoices.map((invoice, index) => (
           <div
             key={`${invoice.id}-${index}`}
-            className="row mt-3 py-3 ps-3 rounded datalist cursor"
+            className="row mt-3 py-3 ps-3 invoice-row datalist cursor"
             onClick={() => openInvoice(invoice, index)}
           >
             <div className="col-md-1 position-table table-text-size">
