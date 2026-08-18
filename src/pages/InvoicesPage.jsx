@@ -51,7 +51,7 @@ export default function InvoicesPage() {
         <div className="invoices-header-actions">
           <Dropdown>
             <Dropdown.Toggle
-              className="btn text-white filter p-0"
+              className="btn filter p-0"
               id="dropdown-basic"
               style={{ border: "none", background: "none" }}
             >
