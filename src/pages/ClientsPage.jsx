@@ -8,6 +8,7 @@ import "sweetalert2/dist/sweetalert2.min.css";
 import * as Yup from "yup";
 import ClientList from "../components/clients/ClientList";
 import CountryDatalist from "../components/ui/CountryDatalist";
+import { useCreateClientMutation } from "../services/clientApi";
 import { printclientdata } from "../state/Atom";
 
 const initialValues = {
@@ -36,10 +37,11 @@ const validationSchema = Yup.object({
 
 export default function ClientsPage() {
   const [formData, setFormData] = useRecoilState(printclientdata);
+  const [createClient, { isLoading }] = useCreateClientMutation();
   const [buttonUpdate, setButtonUpdate] = useState("");
   const [editingIndex, setEditingIndex] = useState(-1);
 
-  const onSubmit = (values, { resetForm }) => {
+  const onSubmit = async (values, { resetForm }) => {
     if (editingIndex !== -1) {
       const storedData = JSON.parse(localStorage.getItem("clientData")) || [];
       storedData[editingIndex] = values;
@@ -48,14 +50,17 @@ export default function ClientsPage() {
       setEditingIndex(-1);
       setButtonUpdate("");
       toast.success("Updated Successfully");
-    } else {
-      toast.success("Added Successfully");
-      const storeData = JSON.parse(localStorage.getItem("clientData")) || [];
-      const clientData = [...storeData, values];
-      setFormData(clientData);
-      localStorage.setItem("clientData", JSON.stringify(clientData));
+      resetForm();
+      return;
     }
-    resetForm();
+
+    try {
+      await createClient(values).unwrap();
+      toast.success("Added Successfully");
+      resetForm();
+    } catch (err) {
+      toast.error("Failed to add client");
+    }
   };
 
   const handeleditbtn = (index) => {
@@ -160,8 +165,12 @@ export default function ClientsPage() {
               <ErrorMessage name="country" component="div" className="text-danger fw-bold" />
             </div>
             <div className="col-12 col-md-6">
-              <button type="submit" className="btn input-clr1 save-changes py-2 btn-responsive-width">
-                {buttonUpdate || "Submit"}
+              <button
+                type="submit"
+                className="btn input-clr1 save-changes py-2 btn-responsive-width"
+                disabled={isLoading}
+              >
+                {isLoading ? "Saving..." : buttonUpdate || "Submit"}
               </button>
             </div>
           </div>
