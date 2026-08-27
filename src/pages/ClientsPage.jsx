@@ -1,15 +1,9 @@
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import { useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useRecoilState } from "recoil";
-import Swal from "sweetalert2";
-import "sweetalert2/dist/sweetalert2.min.css";
 import * as Yup from "yup";
-import ClientList from "../components/clients/ClientList";
 import CountryDatalist from "../components/ui/CountryDatalist";
 import { useCreateClientMutation } from "../services/clientApi";
-import { printclientdata } from "../state/Atom";
 
 const initialValues = {
   name: "",
@@ -36,24 +30,9 @@ const validationSchema = Yup.object({
 });
 
 export default function ClientsPage() {
-  const [formData, setFormData] = useRecoilState(printclientdata);
   const [createClient, { isLoading }] = useCreateClientMutation();
-  const [buttonUpdate, setButtonUpdate] = useState("");
-  const [editingIndex, setEditingIndex] = useState(-1);
 
   const onSubmit = async (values, { resetForm }) => {
-    if (editingIndex !== -1) {
-      const storedData = JSON.parse(localStorage.getItem("clientData")) || [];
-      storedData[editingIndex] = values;
-      localStorage.setItem("clientData", JSON.stringify(storedData));
-      setFormData(storedData);
-      setEditingIndex(-1);
-      setButtonUpdate("");
-      toast.success("Updated Successfully");
-      resetForm();
-      return;
-    }
-
     try {
       await createClient(values).unwrap();
       toast.success("Added Successfully");
@@ -63,40 +42,12 @@ export default function ClientsPage() {
     }
   };
 
-  const handeleditbtn = (index) => {
-    setEditingIndex(index);
-    setButtonUpdate("Update");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const handeldeletebtn = (index) => {
-    Swal.fire({
-      title: "Do you want to delete?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Yes!",
-      cancelButtonText: "No!",
-      reverseButtons: true,
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const storedData = JSON.parse(localStorage.getItem("clientData")) || [];
-        storedData.splice(index, 1);
-        localStorage.setItem("clientData", JSON.stringify(storedData));
-        setFormData(storedData);
-        toast.success("Deleted Successfully");
-      } else if (result.dismiss === Swal.DismissReason.cancel) {
-        toast.error("Cancel Successfully");
-      }
-    });
-  };
-
   return (
     <div className="page-wrap">
       <Formik
-        initialValues={editingIndex !== -1 ? formData[editingIndex] : initialValues}
+        initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={onSubmit}
-        enableReinitialize
       >
         <Form className="form-card">
           <h1 className="page-title">Add New Client</h1>
@@ -170,16 +121,12 @@ export default function ClientsPage() {
                 className="btn input-clr1 save-changes py-2 btn-responsive-width"
                 disabled={isLoading}
               >
-                {isLoading ? "Saving..." : buttonUpdate || "Submit"}
+                {isLoading ? "Saving..." : "Submit"}
               </button>
             </div>
           </div>
         </Form>
       </Formik>
-
-      <div className="mt-4">
-        <ClientList clients={formData} onEdit={handeleditbtn} onDelete={handeldeletebtn} />
-      </div>
 
       <ToastContainer
         position="top-center"
