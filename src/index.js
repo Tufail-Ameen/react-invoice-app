@@ -1,21 +1,22 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { Provider } from 'react-redux';
+import { RecoilRoot } from 'recoil';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
 import './styles/colors.css';
 import App from './App';
+import { store } from './app/store';
 import reportWebVitals from './reportWebVitals';
-import { RecoilRoot } from 'recoil';
-
-
-
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <RecoilRoot>
-      <App />
-    </RecoilRoot>
+    <Provider store={store}>
+      <RecoilRoot>
+        <App />
+      </RecoilRoot>
+    </Provider>
   </React.StrictMode>
 );
 
