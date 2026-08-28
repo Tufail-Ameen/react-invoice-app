@@ -57,14 +57,6 @@ export function AuthProvider({ children }) {
     [clearSession]
   )
 
-  const login = useCallback(async (credentials) => {
-    const { user: me, tokens } = await authApi.login(credentials)
-    tokenStore.set(tokens)
-    setUser(me)
-    setStatus('authenticated')
-    return me
-  }, [])
-
   const establishSession = useCallback(({ user: me, tokens }) => {
     if (!tokens) return me
     tokenStore.set(tokens)
@@ -93,12 +85,11 @@ export function AuthProvider({ children }) {
       isAdmin: permissions.length > 0,
       can: (permission) => hasPermission(permissions, permission),
       canAll: (list) => hasEveryPermission(permissions, list),
-      login,
       establishSession,
       logout,
       setUser,
     }
-  }, [user, status, login, establishSession, logout])
+  }, [user, status, establishSession, logout])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

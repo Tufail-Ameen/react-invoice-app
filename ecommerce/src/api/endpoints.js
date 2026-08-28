@@ -5,11 +5,10 @@ import { del, get, patch, post } from '@/lib/apiClient'
  * Jab aap asli backend banayein, sirf ye file dekh kar pata chal jayega ki
  * kaun kaun se routes banane hain.
  *
- * Register RTK Query se handle hota hai — dekhein `src/api/authApi.js`.
+ * Register aur login RTK Query se handle hote hain — dekhein `src/api/authApi.js`.
  */
 
 export const authApi = {
-  login: (body) => post('/auth/login', body),
   logout: (refreshToken) => post('/auth/logout', { refreshToken }),
   me: () => get('/auth/me'),
   updateProfile: (body) => patch('/auth/profile', body),

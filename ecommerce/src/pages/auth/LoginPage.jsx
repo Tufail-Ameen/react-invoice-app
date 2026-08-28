@@ -5,9 +5,10 @@ import { useForm } from 'react-hook-form'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import * as z from 'zod'
+import { useLoginMutation } from '@/api/authApi'
+import { useAuth } from '@/auth/useAuth'
 import { Button } from '@/components/ui/Button'
 import { Checkbox, FormInput } from '@/components/ui/Field'
-import { useAuth } from '@/auth/useAuth'
 import { applyServerErrors } from '@/lib/formErrors'
 import { AuthShell } from './AuthShell'
 
@@ -25,7 +26,8 @@ const DEMO_ACCOUNTS = [
 ]
 
 export function LoginPage() {
-  const { login } = useAuth()
+  const { establishSession } = useAuth()
+  const [loginUser, { isLoading }] = useLoginMutation()
   const navigate = useNavigate()
   const location = useLocation()
   const [showPassword, setShowPassword] = useState(false)
@@ -35,7 +37,7 @@ export function LoginPage() {
     handleSubmit,
     setValue,
     setError,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm({
     resolver: zodResolver(schema),
     defaultValues: { email: '', password: '' },
@@ -43,7 +45,8 @@ export function LoginPage() {
 
   const onSubmit = async (values) => {
     try {
-      const user = await login(values)
+      const result = await loginUser(values).unwrap()
+      const user = establishSession(result)
       toast.success(`Khush aamdeed, ${user.firstName}!`)
       const fallback = user.permissions?.length ? '/admin' : '/'
       navigate(location.state?.from?.pathname ?? fallback, { replace: true })
@@ -120,7 +123,7 @@ export function LoginPage() {
 
         <Checkbox label="Mujhe yaad rakhein" defaultChecked />
 
-        <Button type="submit" loading={isSubmitting} className="w-full" size="lg">
+        <Button type="submit" loading={isLoading} className="w-full" size="lg">
           Log in
         </Button>
       </form>
