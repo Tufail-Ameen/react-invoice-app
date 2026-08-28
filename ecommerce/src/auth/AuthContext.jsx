@@ -65,8 +65,8 @@ export function AuthProvider({ children }) {
     return me
   }, [])
 
-  const register = useCallback(async (payload) => {
-    const { user: me, tokens } = await authApi.register(payload)
+  const establishSession = useCallback(({ user: me, tokens }) => {
+    if (!tokens) return me
     tokenStore.set(tokens)
     setUser(me)
     setStatus('authenticated')
@@ -94,11 +94,11 @@ export function AuthProvider({ children }) {
       can: (permission) => hasPermission(permissions, permission),
       canAll: (list) => hasEveryPermission(permissions, list),
       login,
-      register,
+      establishSession,
       logout,
       setUser,
     }
-  }, [user, status, login, register, logout])
+  }, [user, status, login, establishSession, logout])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

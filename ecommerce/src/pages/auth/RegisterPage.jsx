@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import * as z from 'zod'
+import { useRegisterMutation } from '@/api/authApi'
 import { useAuth } from '@/auth/useAuth'
 import { Button } from '@/components/ui/Button'
 import { FormInput } from '@/components/ui/Field'
@@ -20,8 +21,8 @@ const schema = z
     email: z.string().min(1, 'Email required hai.').email('Valid email likhein.'),
     phone: z
       .string()
-      .optional()
-      .refine((value) => !value || /^[\d\s+()-]{7,20}$/.test(value), 'Phone number theek nahi hai.'),
+      .min(1, 'Phone required hai.')
+      .regex(/^[\d\s+()-]{7,20}$/, 'Phone number theek nahi hai.'),
     password: z
       .string()
       .min(8, 'Kam se kam 8 characters.')
@@ -35,14 +36,15 @@ const schema = z
   })
 
 export function RegisterPage() {
-  const { register: signUp } = useAuth()
+  const { establishSession } = useAuth()
+  const [registerUser, { isLoading }] = useRegisterMutation()
   const navigate = useNavigate()
 
   const {
     register,
     handleSubmit,
     setError,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -57,9 +59,10 @@ export function RegisterPage() {
 
   const onSubmit = async (values) => {
     try {
-      await signUp(values)
-      toast.success('Account ban gaya! Ab shopping shuru karein.')
-      navigate('/', { replace: true })
+      const result = await registerUser(values).unwrap()
+      establishSession(result)
+      toast.success('Account ban gaya! Ab login karein.')
+      navigate('/login', { replace: true })
     } catch (error) {
       applyServerErrors(error, setError)
     }
@@ -111,7 +114,7 @@ export function RegisterPage() {
           type="tel"
           autoComplete="tel"
           placeholder="+92 300 1234567"
-          hint="Optional"
+          required
           error={errors.phone?.message}
           {...register('phone')}
         />
@@ -135,7 +138,7 @@ export function RegisterPage() {
           {...register('passwordConfirmation')}
         />
 
-        <Button type="submit" loading={isSubmitting} className="w-full" size="lg">
+        <Button type="submit" loading={isLoading} className="w-full" size="lg">
           Account banayein
         </Button>
       </form>
