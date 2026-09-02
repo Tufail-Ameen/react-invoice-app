@@ -1,15 +1,15 @@
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 import EmptyState from "../components/ui/EmptyState";
+import { useProducts } from "../hooks/useProducts";
 import { getErrorMessage } from "../lib/rtkBaseQuery";
 import {
   useAdjustInventoryMutation,
   useCreateProductMutation,
   useDeleteProductMutation,
   useGetMovementsQuery,
-  useGetProductsQuery,
   useUpdateProductMutation,
 } from "../services/invoiceApi";
 import { formatAmount } from "../utils/invoice";
@@ -34,12 +34,8 @@ export default function StockPage() {
   const [editing, setEditing] = useState(null);
   const [tab, setTab] = useState("products");
 
-  const {
-    data: productsData,
-    isLoading,
-    isError,
-    error,
-  } = useGetProductsQuery({ per_page: 100 });
+  // GET /products (RTK Query) — list below form
+  const { products, isLoading } = useProducts();
   const { data: movementsData } = useGetMovementsQuery({ per_page: 30 });
 
   const [createProduct] = useCreateProductMutation();
@@ -47,12 +43,7 @@ export default function StockPage() {
   const [deleteProduct] = useDeleteProductMutation();
   const [adjustInventory] = useAdjustInventoryMutation();
 
-  const products = productsData?.products || [];
   const movements = movementsData?.movements || [];
-
-  useEffect(() => {
-    if (isError) toast.error(getErrorMessage(error, "Failed to load stock"));
-  }, [isError, error]);
 
   const saveProduct = async (values, { resetForm }) => {
     try {
@@ -202,6 +193,8 @@ export default function StockPage() {
             )}
           </Formik>
 
+          <h2 className="page-title mb-3">Products</h2>
+
           {isLoading ? (
             <p className="textcklr">Loading…</p>
           ) : !products.length ? (
@@ -209,7 +202,7 @@ export default function StockPage() {
           ) : (
             <div className="d-flex flex-column gap-2">
               {products.map((p) => (
-                <div key={p.id} className="row align-items-center invoice-row datalist py-3 px-2 m-0">
+                <div key={p.key || p.id} className="row align-items-center invoice-row datalist py-3 px-2 m-0">
                   <div className="col-6 col-md-4 table-text-size">{p.name}</div>
                   <div className="col-4 col-md-2 price">{formatAmount("Rs", p.price)}</div>
                   <div className="col-4 col-md-2 textcklr">

@@ -1,5 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { normalizeClient, normalizeClientsResponse } from "../lib/normalizeClient";
+import { normalizeProductsResponse } from "../lib/normalizeProduct";
 import { axiosBaseQuery } from "../lib/rtkBaseQuery";
 
 /**
@@ -65,9 +66,10 @@ export const invoiceApi = createApi({
       invalidatesTags: [{ type: "Client", id: "LIST" }],
     }),
 
-    // ---- Products ----
+    // ---- Products (GET /products → raw array from Express) ----
     getProducts: builder.query({
-      query: (params = {}) => ({ url: "/products", params }),
+      query: () => ({ url: "/products" }),
+      transformResponse: normalizeProductsResponse,
       providesTags: (result) =>
         result?.products
           ? [
