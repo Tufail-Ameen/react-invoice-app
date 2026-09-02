@@ -1,5 +1,7 @@
-import { ErrorMessage, Field, Form, Formik } from "formik";
-import { useState } from "react";
+import { faPen, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ErrorMessage, Field, Form, Formik, useFormikContext } from "formik";
+import { useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 import EmptyState from "../components/ui/EmptyState";
@@ -15,11 +17,219 @@ import {
 import { formatAmount } from "../utils/invoice";
 
 const productSchema = Yup.object({
+  category: Yup.string().trim().required("Category required"),
   name: Yup.string().required("Name required"),
-  price: Yup.number().min(0).required("Price required"),
+  tpRate: Yup.number().min(0).required("TP rate required"),
+  discountPercent: Yup.number().min(0).max(100).required("Discount % required"),
+  printRate: Yup.number().min(0).required("Price required"),
   stock: Yup.number().integer().min(0).required("Stock required"),
   unit: Yup.string().default("pcs"),
 });
+
+const productEditSchema = productSchema.omit(["stock"]);
+
+function calcNetRate(tpRate, discountPercent) {
+  const tp = Number(tpRate);
+  const pct = Number(discountPercent);
+  if (!Number.isFinite(tp) || tp < 0) return "";
+  if (!Number.isFinite(pct) || pct < 0) return tp;
+  return Math.round(tp * (1 - pct / 100) * 100) / 100;
+}
+
+const emptyProductForm = {
+  category: "",
+  name: "",
+  tpRate: "",
+  discountPercent: 0,
+  netRate: "",
+  printRate: "",
+  stock: 0,
+  unit: "pcs",
+  status: "active",
+};
+
+function productToFormValues(product) {
+  const tpRate = product.tpRate ?? product.price ?? "";
+  const discountPercent = product.discountPercent ?? 0;
+  const netRate = calcNetRate(tpRate, discountPercent);
+  return {
+    category: product.category ?? "",
+    name: product.name ?? "",
+    tpRate,
+    discountPercent,
+    netRate,
+    printRate: product.printRate ?? product.price ?? "",
+    stock: product.stock ?? 0,
+    unit: product.unit || "pcs",
+    status: product.status || "active",
+  };
+}
+
+function applyPricing(values, setFieldValue, updates) {
+  const next = { ...values, ...updates };
+  const netRate = calcNetRate(next.tpRate, next.discountPercent);
+  Object.entries(updates).forEach(([key, value]) => setFieldValue(key, value));
+  setFieldValue("netRate", netRate);
+}
+
+function buildProductPayload(values) {
+  return {
+    category: values.category.trim(),
+    name: values.name,
+    tpRate: Number(values.tpRate),
+    discountPercent: Number(values.discountPercent) || 0,
+    printRate: Number(values.printRate),
+    netRate: values.netRate !== "" ? Number(values.netRate) : undefined,
+    price: Number(values.printRate),
+    unit: values.unit || "pcs",
+    status: values.status || "active",
+  };
+}
+
+const UNIT_OPTIONS = ["pcs", "kg", "box", "pack", "liter", "meter"];
+
+function formatCell(value) {
+  if (value === null || value === undefined || value === "") return "—";
+  return value;
+}
+
+function formatMoney(value) {
+  if (value === null || value === undefined || value === "") return "—";
+  return formatAmount("Rs", value);
+}
+
+function formatPercent(value) {
+  if (value === null || value === undefined || value === "") return "—";
+  return `${value}%`;
+}
+
+function ProductFormFields({ editing, categories, onCancel }) {
+  const { values, setFieldValue } = useFormikContext();
+  const unitOptions = useMemo(() => {
+    const options = [...UNIT_OPTIONS];
+    if (values.unit && !options.includes(values.unit)) options.unshift(values.unit);
+    return options;
+  }, [values.unit]);
+
+  return (
+    <div className="row g-3">
+      <div className="col-6 col-md-3">
+        <label className="form-label input-clr mb-1" htmlFor="category">Category</label>
+        <Field
+          id="category"
+          name="category"
+          list="product-categories"
+          className="form-control input-settings input-compact"
+          placeholder="Fash Wash"
+        />
+        <datalist id="product-categories">
+          {categories.map((category) => (
+            <option key={category} value={category} />
+          ))}
+        </datalist>
+        <ErrorMessage name="category" component="div" className="text-danger small" />
+      </div>
+      <div className="col-6 col-md-4">
+        <label className="form-label input-clr mb-1" htmlFor="name">Name</label>
+        <Field
+          id="name"
+          name="name"
+          className="form-control input-settings input-compact"
+          placeholder="Golden Pearl"
+        />
+        <ErrorMessage name="name" component="div" className="text-danger small" />
+      </div>
+      <div className="col-4 col-md-2">
+        <label className="form-label input-clr mb-1" htmlFor="unit">Unit</label>
+        <Field as="select" id="unit" name="unit" className="form-select input-settings input-compact">
+          {unitOptions.map((unit) => (
+            <option key={unit} value={unit}>{unit}</option>
+          ))}
+        </Field>
+      </div>
+      {!editing && (
+        <div className="col-4 col-md-2">
+          <label className="form-label input-clr mb-1" htmlFor="stock">Stock</label>
+          <Field id="stock" name="stock" type="number" min="0" className="form-control input-settings input-compact" />
+          <ErrorMessage name="stock" component="div" className="text-danger small" />
+        </div>
+      )}
+
+      <div className="col-6 col-md-2">
+        <label className="form-label input-clr mb-1" htmlFor="tpRate">TP Rate</label>
+        <Field name="tpRate">
+          {({ field }) => (
+            <input
+              {...field}
+              id="tpRate"
+              type="number"
+              min="0"
+              className="form-control input-settings input-compact"
+              placeholder="500"
+              onChange={(e) => applyPricing(values, setFieldValue, { tpRate: e.target.value })}
+            />
+          )}
+        </Field>
+        <ErrorMessage name="tpRate" component="div" className="text-danger small" />
+      </div>
+      <div className="col-6 col-md-2">
+        <label className="form-label input-clr mb-1" htmlFor="discountPercent">Discount %</label>
+        <Field name="discountPercent">
+          {({ field }) => (
+            <input
+              {...field}
+              id="discountPercent"
+              type="number"
+              min="0"
+              max="100"
+              className="form-control input-settings input-compact"
+              placeholder="10"
+              onChange={(e) => applyPricing(values, setFieldValue, { discountPercent: e.target.value })}
+            />
+          )}
+        </Field>
+        <ErrorMessage name="discountPercent" component="div" className="text-danger small" />
+      </div>
+      <div className="col-6 col-md-2">
+        <label className="form-label input-clr mb-1">After discount</label>
+        <input
+          readOnly
+          tabIndex={-1}
+          value={
+            values.netRate !== "" && values.netRate != null
+              ? formatAmount("Rs", values.netRate)
+              : ""
+          }
+          placeholder="Auto"
+          className="form-control input-settings input-compact input-readonly"
+        />
+      </div>
+      <div className="col-6 col-md-2">
+        <label className="form-label input-clr mb-1" htmlFor="printRate">Price</label>
+        <Field
+          id="printRate"
+          name="printRate"
+          type="number"
+          min="0"
+          className="form-control input-settings input-compact"
+          placeholder="Price"
+        />
+        <ErrorMessage name="printRate" component="div" className="text-danger small" />
+      </div>
+
+      <div className="col-12 d-flex flex-wrap gap-2 pt-1">
+        <button type="submit" className="btn save-changes py-2 px-4">
+          {editing ? "Update" : "Add product"}
+        </button>
+        {editing && (
+          <button type="button" className="btn cancel py-2 px-3" onClick={onCancel}>
+            Cancel
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
 
 const adjustSchema = Yup.object({
   productId: Yup.string().required("Product required"),
@@ -45,25 +255,28 @@ export default function StockPage() {
 
   const movements = movementsData?.movements || [];
 
+  const categories = useMemo(
+    () =>
+      [...new Set(products.map((p) => p.category).filter(Boolean))].sort((a, b) =>
+        a.localeCompare(b)
+      ),
+    [products]
+  );
+
   const saveProduct = async (values, { resetForm }) => {
+    const payload = buildProductPayload(values);
     try {
       if (editing) {
         await updateProduct({
           id: editing.id,
-          name: values.name,
-          price: Number(values.price),
-          unit: values.unit || "pcs",
-          status: values.status || "active",
+          ...payload,
         }).unwrap();
         toast.success("Product updated");
         setEditing(null);
       } else {
         await createProduct({
-          name: values.name,
-          price: Number(values.price),
+          ...payload,
           stock: Number(values.stock),
-          unit: values.unit || "pcs",
-          status: values.status || "active",
           sku: `PRD-${Date.now().toString(36).toUpperCase()}`,
         }).unwrap();
         toast.success("Product added");
@@ -110,118 +323,128 @@ export default function StockPage() {
         </div>
       </div>
 
-      <div className="d-flex gap-2 mb-4">
-        {["products", "adjust", "movements"].map((key) => (
+      <nav className="stock-tab-nav mb-4" aria-label="Stock sections">
+        {[
+          { key: "products", label: "Products" },
+          { key: "adjust", label: "Adjust stock" },
+          { key: "movements", label: "Movements" },
+        ].map(({ key, label }) => (
           <button
             key={key}
             type="button"
-            className={`btn py-2 px-3 ${tab === key ? "save-changes" : "cancel"}`}
+            className={`stock-tab-btn ${tab === key ? "active" : ""}`}
             onClick={() => setTab(key)}
           >
-            {key === "products" ? "Products" : key === "adjust" ? "Adjust stock" : "Movements"}
+            {label}
           </button>
         ))}
-      </div>
+      </nav>
 
       {tab === "products" && (
         <>
           <Formik
-            initialValues={
-              editing
-                ? {
-                    name: editing.name,
-                    price: editing.price,
-                    stock: editing.stock,
-                    unit: editing.unit || "pcs",
-                    status: editing.status,
-                  }
-                : { name: "", price: "", stock: 0, unit: "pcs", status: "active" }
-            }
+            initialValues={editing ? productToFormValues(editing) : emptyProductForm}
             enableReinitialize
-            validationSchema={productSchema}
+            validationSchema={editing ? productEditSchema : productSchema}
             onSubmit={saveProduct}
           >
             {({ resetForm }) => (
-              <Form className="form-card mb-4">
+              <Form className="form-card form-card-compact mb-3">
                 <h2 className="bill-form mb-3">{editing ? "Edit product" : "Add product"}</h2>
-                <div className="row g-3">
-                  <div className="col-6 col-md-4">
-                    <label className="input-clr mb-1">Name</label>
-                    <Field name="name" className="form-control input-settings" />
-                    <ErrorMessage name="name" component="div" className="text-danger" />
-                  </div>
-                  <div className="col-6 col-md-2">
-                    <label className="input-clr mb-1">Price (Rs)</label>
-                    <Field name="price" type="number" className="form-control input-settings" />
-                    <ErrorMessage name="price" component="div" className="text-danger" />
-                  </div>
-                  {!editing && (
-                    <div className="col-6 col-md-2">
-                      <label className="input-clr mb-1">Opening stock</label>
-                      <Field name="stock" type="number" className="form-control input-settings" />
-                      <ErrorMessage name="stock" component="div" className="text-danger" />
-                    </div>
-                  )}
-                  <div className="col-6 col-md-2">
-                    <label className="input-clr mb-1">Unit</label>
-                    <Field name="unit" className="form-control input-settings" />
-                  </div>
-                  <div className="col-12 d-flex gap-2">
-                    <button type="submit" className="btn save-changes py-2 px-4">
-                      {editing ? "Update" : "Add product"}
-                    </button>
-                    {editing && (
-                      <button
-                        type="button"
-                        className="btn cancel py-2 px-3"
-                        onClick={() => {
-                          setEditing(null);
-                          resetForm();
-                        }}
-                      >
-                        Cancel
-                      </button>
-                    )}
-                  </div>
-                </div>
-                {editing && (
-                  <p className="textcklr small mt-2 mb-0">
-                    Stock change ke liye &quot;Adjust stock&quot; tab use karo (ledger clean rahe).
-                  </p>
-                )}
+                <ProductFormFields
+                  editing={editing}
+                  categories={categories}
+                  onCancel={() => {
+                    setEditing(null);
+                    resetForm();
+                  }}
+                />
               </Form>
             )}
           </Formik>
 
-          <h2 className="page-title mb-3">Products</h2>
+          <div className="d-flex align-items-center justify-content-between mb-2">
+            <h2 className="page-title mb-0">Products</h2>
+            {!isLoading && products.length > 0 && (
+              <span className="textcklr small">{products.length}</span>
+            )}
+          </div>
 
           {isLoading ? (
             <p className="textcklr">Loading…</p>
           ) : !products.length ? (
             <EmptyState title="No products" message="Add products to sell on invoices." />
           ) : (
-            <div className="d-flex flex-column gap-2">
-              {products.map((p) => (
-                <div key={p.key || p.id} className="row align-items-center invoice-row datalist py-3 px-2 m-0">
-                  <div className="col-6 col-md-4 table-text-size">{p.name}</div>
-                  <div className="col-4 col-md-2 price">{formatAmount("Rs", p.price)}</div>
-                  <div className="col-4 col-md-2 textcklr">
-                    Stock: <strong>{p.stock}</strong> {p.unit}
-                  </div>
-                  <div className="col-4 col-md-3 d-flex gap-2 justify-content-end">
-                    <button type="button" className="btn edit py-1 px-3" onClick={() => setEditing(p)}>
-                      Edit
-                    </button>
-                    <button
-                      type="button"
-                      className="btn cancel py-1 px-3"
-                      onClick={() => removeProduct(p)}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                </div>
-              ))}
+            <div className="form-card product-list-card">
+              <div className="product-table-scroll">
+                <table className="product-table">
+                  <thead>
+                    <tr>
+                      <th>Category</th>
+                      <th>Name</th>
+                      <th>TP Rate</th>
+                      <th>Disc %</th>
+                      <th>After disc.</th>
+                      <th>Price</th>
+                      <th>Stock</th>
+                      <th>Unit</th>
+                      <th>Status</th>
+                      <th className="text-end col-actions">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {products.map((p) => (
+                      <tr key={p.key || p.id}>
+                        <td>
+                          {p.category ? (
+                            <span className="category-badge">{p.category}</span>
+                          ) : (
+                            <span className="cell-muted">—</span>
+                          )}
+                        </td>
+                        <td className="table-text-size">{p.name}</td>
+                        <td>{formatMoney(p.tpRate)}</td>
+                        <td>{formatPercent(p.discountPercent)}</td>
+                        <td>{formatMoney(p.netRate)}</td>
+                        <td className="price">{formatMoney(p.printRate ?? p.price)}</td>
+                        <td><strong>{formatCell(p.stock)}</strong></td>
+                        <td className="cell-muted">{formatCell(p.unit)}</td>
+                        <td>
+                          <span
+                            className={`status-badge ${
+                              p.status === "active" ? "active" : "inactive"
+                            }`}
+                          >
+                            {formatCell(p.status)}
+                          </span>
+                        </td>
+                        <td className="col-actions">
+                          <div className="table-actions">
+                            <button
+                              type="button"
+                              className="btn btn-table-edit"
+                              onClick={() => setEditing(p)}
+                              title="Edit product"
+                            >
+                              <FontAwesomeIcon icon={faPen} />
+                              Edit
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn-table-remove"
+                              onClick={() => removeProduct(p)}
+                              title="Remove product"
+                            >
+                              <FontAwesomeIcon icon={faTrash} />
+                              Remove
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
         </>
