@@ -1,9 +1,8 @@
-import { del, get, patch, post } from "../lib/apiClient";
-
 /**
- * Har backend resource ka mapping.
- * Real API banate waqt sirf ye file + docs/API_CONTRACT.md dekho.
+ * Route checklist (docs / Postman).
+ * UI ab RTK Query se call karti hai — dekho `src/services/invoiceApi.js`.
  */
+import { del, get, patch, post, put } from "../lib/apiClient";
 
 export const authApi = {
   login: (body) => post("/auth/login", body),
@@ -13,10 +12,10 @@ export const authApi = {
 };
 
 export const clientsApi = {
-  list: (params) => get("/clients", params),
+  list: () => get("/clients"),
   detail: (id) => get(`/clients/${id}`),
   create: (body) => post("/clients", body),
-  update: ({ id, ...body }) => patch(`/clients/${id}`, body),
+  update: ({ id, ...body }) => put(`/clients/${id}`, body),
   remove: (id) => del(`/clients/${id}`),
 };
 

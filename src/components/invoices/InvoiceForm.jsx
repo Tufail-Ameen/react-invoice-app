@@ -1,11 +1,17 @@
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
-import { clientsApi, invoicesApi, productsApi } from "../../api/endpoints";
-import { ApiError } from "../../lib/apiClient";
+import { getErrorMessage } from "../../lib/rtkBaseQuery";
+import { useClients } from "../../hooks/useClients";
+import {
+  useCreateInvoiceMutation,
+  useGetProductsQuery,
+  useUpdateInvoiceMutation,
+  useUpdateInvoiceStatusMutation,
+} from "../../services/invoiceApi";
 import { calcLineTotal } from "../../utils/invoice";
 
 const schema = Yup.object({
@@ -21,8 +27,14 @@ function emptyLine() {
 }
 
 export default function InvoiceForm({ invoice, onClose, onSaved }) {
-  const [clients, setClients] = useState([]);
-  const [products, setProducts] = useState([]);
+  const { clients } = useClients();
+  const { data: productsData } = useGetProductsQuery({ per_page: 100, status: "active" });
+  const [createInvoice] = useCreateInvoiceMutation();
+  const [updateInvoice] = useUpdateInvoiceMutation();
+  const [updateStatus] = useUpdateInvoiceStatusMutation();
+
+  const products = productsData?.products || [];
+
   const [lines, setLines] = useState(
     invoice?.items?.length
       ? invoice.items.map((item) => ({
@@ -33,18 +45,6 @@ export default function InvoiceForm({ invoice, onClose, onSaved }) {
         }))
       : [emptyLine()]
   );
-
-  useEffect(() => {
-    Promise.all([
-      clientsApi.list({ per_page: 100 }),
-      productsApi.list({ per_page: 100, status: "active" }),
-    ])
-      .then(([c, p]) => {
-        setClients(c.clients || []);
-        setProducts(p.products || []);
-      })
-      .catch((err) => toast.error(err instanceof ApiError ? err.message : "Load failed"));
-  }, []);
 
   const productById = (id) => products.find((p) => p.id === id);
 
@@ -80,19 +80,19 @@ export default function InvoiceForm({ invoice, onClose, onSaved }) {
     }
     try {
       if (invoice) {
-        await invoicesApi.update({ id: invoice.id, ...payload });
+        await updateInvoice({ id: invoice.id, ...payload }).unwrap();
         if (status !== "draft" && invoice.status === "draft") {
-          await invoicesApi.updateStatus({ id: invoice.id, status });
+          await updateStatus({ id: invoice.id, status }).unwrap();
         }
         toast.success("Invoice updated");
       } else {
-        await invoicesApi.create(payload);
+        await createInvoice(payload).unwrap();
         toast.success(status === "draft" ? "Draft saved" : "Invoice created");
       }
       onSaved?.();
       onClose?.();
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Save failed");
+      toast.error(getErrorMessage(err, "Save failed"));
     }
   };
 
@@ -117,7 +117,7 @@ export default function InvoiceForm({ invoice, onClose, onSaved }) {
                 <Field as="select" name="clientId" className="form-select input-settings">
                   <option value="">Select client…</option>
                   {clients.map((c) => (
-                    <option key={c.id} value={c.id}>
+                    <option key={c.key || c._id || c.id} value={String(c.id)}>
                       {c.name} ({c.email})
                     </option>
                   ))}

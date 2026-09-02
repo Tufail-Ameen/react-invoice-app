@@ -1,61 +1,55 @@
 import { faAngleLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import { invoicesApi } from "../api/endpoints";
 import InvoiceForm from "../components/invoices/InvoiceForm";
 import EmptyState from "../components/ui/EmptyState";
 import StatusBadge from "../components/ui/StatusBadge";
-import { ApiError } from "../lib/apiClient";
+import { getErrorMessage } from "../lib/rtkBaseQuery";
+import {
+  useDeleteInvoiceMutation,
+  useGetInvoiceQuery,
+  useUpdateInvoiceStatusMutation,
+} from "../services/invoiceApi";
 import { formatAmount } from "../utils/invoice";
 
 export default function InvoiceDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [invoice, setInvoice] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await invoicesApi.detail(id);
-      setInvoice(data.invoice);
-    } catch (err) {
-      setInvoice(null);
-      toast.error(err instanceof ApiError ? err.message : "Invoice not found");
-    } finally {
-      setLoading(false);
-    }
-  }, [id]);
+  const { data, isLoading, isError, error, refetch } = useGetInvoiceQuery(id);
+  const [updateStatus] = useUpdateInvoiceStatusMutation();
+  const [deleteInvoice] = useDeleteInvoiceMutation();
+
+  const invoice = data?.invoice;
 
   useEffect(() => {
-    load();
-  }, [load]);
+    if (isError) toast.error(getErrorMessage(error, "Invoice not found"));
+  }, [isError, error]);
 
   const setStatus = async (status) => {
     try {
-      const data = await invoicesApi.updateStatus({ id, status });
-      setInvoice(data.invoice);
+      await updateStatus({ id, status }).unwrap();
       toast.success(`Status → ${status}`);
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Status update failed");
+      toast.error(getErrorMessage(err, "Status update failed"));
     }
   };
 
   const onDelete = async () => {
     if (!window.confirm("Delete this invoice?")) return;
     try {
-      await invoicesApi.remove(id);
+      await deleteInvoice(id).unwrap();
       toast.success("Deleted");
       navigate("/");
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Delete failed");
+      toast.error(getErrorMessage(err, "Delete failed"));
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="page-wrap">
         <p className="textcklr">Loading…</p>
@@ -86,7 +80,11 @@ export default function InvoiceDetailPage() {
         </div>
         <div className="detail-actions">
           {invoice.status === "draft" && (
-            <button type="button" className="btn input-clr1 edit py-2 px-3" onClick={() => setShowForm(true)}>
+            <button
+              type="button"
+              className="btn input-clr1 edit py-2 px-3"
+              onClick={() => setShowForm(true)}
+            >
               Edit
             </button>
           )}
@@ -193,11 +191,7 @@ export default function InvoiceDetailPage() {
       </div>
 
       {showForm && (
-        <InvoiceForm
-          invoice={invoice}
-          onClose={() => setShowForm(false)}
-          onSaved={load}
-        />
+        <InvoiceForm invoice={invoice} onClose={() => setShowForm(false)} onSaved={() => refetch()} />
       )}
     </div>
   );

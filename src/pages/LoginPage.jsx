@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import * as Yup from "yup";
 import { useAuth } from "../auth/AuthContext";
-import { ApiError } from "../lib/apiClient";
+import { getErrorMessage } from "../lib/rtkBaseQuery";
 
 const schema = Yup.object({
   email: Yup.string().email("Invalid email").required("Email required"),
@@ -34,7 +34,7 @@ export default function LoginPage() {
               toast.success("Logged in");
               navigate(from, { replace: true });
             } catch (err) {
-              toast.error(err instanceof ApiError ? err.message : "Login failed");
+              toast.error(getErrorMessage(err, "Login failed"));
             } finally {
               setSubmitting(false);
             }

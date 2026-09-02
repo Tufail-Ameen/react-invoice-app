@@ -2,7 +2,7 @@ import axios from "axios";
 import { tokenStore } from "./tokenStore";
 
 export const API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL || "http://localhost:5000/api/v1";
+  process.env.REACT_APP_API_BASE_URL || "http://localhost:5001";
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
@@ -81,10 +81,15 @@ api.interceptors.response.use(
     }
 
     const payload = response.data?.error ?? {};
+    const message =
+      payload.message ||
+      (typeof response.data === "string" ? response.data : null) ||
+      response.data?.message ||
+      "Kuch ghalat ho gaya.";
     throw new ApiError({
       status: response.status,
       code: payload.code ?? "UNKNOWN_ERROR",
-      message: payload.message ?? "Kuch ghalat ho gaya.",
+      message,
       details: payload.details,
     });
   }
@@ -98,4 +103,5 @@ export async function request(config) {
 export const get = (url, params) => request({ method: "GET", url, params });
 export const post = (url, data) => request({ method: "POST", url, data });
 export const patch = (url, data) => request({ method: "PATCH", url, data });
+export const put = (url, data) => request({ method: "PUT", url, data });
 export const del = (url) => request({ method: "DELETE", url });

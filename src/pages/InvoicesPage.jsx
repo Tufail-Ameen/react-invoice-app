@@ -1,36 +1,26 @@
 import { faCirclePlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Dropdown from "react-bootstrap/Dropdown";
 import { toast } from "react-toastify";
-import { invoicesApi } from "../api/endpoints";
 import InvoiceForm from "../components/invoices/InvoiceForm";
 import InvoiceList from "../components/invoices/InvoiceList";
-import { ApiError } from "../lib/apiClient";
+import { getErrorMessage } from "../lib/rtkBaseQuery";
+import { useGetInvoicesQuery } from "../services/invoiceApi";
 
 export default function InvoicesPage() {
-  const [invoices, setInvoices] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [statusFilter, setStatusFilter] = useState("");
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const params = { per_page: 100 };
-      if (statusFilter) params.status = statusFilter;
-      const data = await invoicesApi.list(params);
-      setInvoices(data.invoices || []);
-    } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Failed to load invoices");
-    } finally {
-      setLoading(false);
-    }
-  }, [statusFilter]);
+  const params = { per_page: 100 };
+  if (statusFilter) params.status = statusFilter;
+
+  const { data, isLoading, isError, error, refetch } = useGetInvoicesQuery(params);
+  const invoices = data?.invoices || [];
 
   useEffect(() => {
-    load();
-  }, [load]);
+    if (isError) toast.error(getErrorMessage(error, "Failed to load invoices"));
+  }, [isError, error]);
 
   return (
     <div className="page-wrap">
@@ -81,13 +71,10 @@ export default function InvoicesPage() {
         </div>
       </div>
 
-      {loading ? <p className="textcklr mt-4">Loading…</p> : <InvoiceList invoices={invoices} />}
+      {isLoading ? <p className="textcklr mt-4">Loading…</p> : <InvoiceList invoices={invoices} />}
 
       {showForm && (
-        <InvoiceForm
-          onClose={() => setShowForm(false)}
-          onSaved={load}
-        />
+        <InvoiceForm onClose={() => setShowForm(false)} onSaved={() => refetch()} />
       )}
     </div>
   );

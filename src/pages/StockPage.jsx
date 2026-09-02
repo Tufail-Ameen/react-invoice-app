@@ -1,10 +1,17 @@
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
-import { inventoryApi, productsApi } from "../api/endpoints";
 import EmptyState from "../components/ui/EmptyState";
-import { ApiError } from "../lib/apiClient";
+import { getErrorMessage } from "../lib/rtkBaseQuery";
+import {
+  useAdjustInventoryMutation,
+  useCreateProductMutation,
+  useDeleteProductMutation,
+  useGetMovementsQuery,
+  useGetProductsQuery,
+  useUpdateProductMutation,
+} from "../services/invoiceApi";
 import { formatAmount } from "../utils/invoice";
 
 const productSchema = Yup.object({
@@ -17,93 +24,86 @@ const productSchema = Yup.object({
 
 const adjustSchema = Yup.object({
   productId: Yup.string().required("Product required"),
-  quantity: Yup.number().integer().required("Qty required").test(
-    "nonzero",
-    "Cannot be zero",
-    (v) => v !== 0 && v != null
-  ),
+  quantity: Yup.number()
+    .integer()
+    .required("Qty required")
+    .test("nonzero", "Cannot be zero", (v) => v !== 0 && v != null),
   reason: Yup.string().required("Reason required"),
 });
 
 export default function StockPage() {
-  const [products, setProducts] = useState([]);
-  const [movements, setMovements] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(null);
   const [tab, setTab] = useState("products");
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [prodData, movData] = await Promise.all([
-        productsApi.list({ per_page: 100 }),
-        inventoryApi.movements({ per_page: 30 }),
-      ]);
-      setProducts(prodData.products || []);
-      setMovements(movData.movements || []);
-    } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Failed to load stock");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const {
+    data: productsData,
+    isLoading,
+    isError,
+    error,
+  } = useGetProductsQuery({ per_page: 100 });
+  const { data: movementsData } = useGetMovementsQuery({ per_page: 30 });
+
+  const [createProduct] = useCreateProductMutation();
+  const [updateProduct] = useUpdateProductMutation();
+  const [deleteProduct] = useDeleteProductMutation();
+  const [adjustInventory] = useAdjustInventoryMutation();
+
+  const products = productsData?.products || [];
+  const movements = movementsData?.movements || [];
 
   useEffect(() => {
-    load();
-  }, [load]);
+    if (isError) toast.error(getErrorMessage(error, "Failed to load stock"));
+  }, [isError, error]);
 
   const saveProduct = async (values, { resetForm }) => {
     try {
       if (editing) {
-        await productsApi.update({
+        await updateProduct({
           id: editing.id,
           sku: values.sku,
           name: values.name,
           price: Number(values.price),
           unit: values.unit || "pcs",
           status: values.status || "active",
-        });
+        }).unwrap();
         toast.success("Product updated");
         setEditing(null);
       } else {
-        await productsApi.create({
+        await createProduct({
           ...values,
           price: Number(values.price),
           stock: Number(values.stock),
-        });
+        }).unwrap();
         toast.success("Product added");
       }
       resetForm();
-      await load();
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Save failed");
+      toast.error(getErrorMessage(err, "Save failed"));
     }
   };
 
   const removeProduct = async (product) => {
     if (!window.confirm(`Remove ${product.name}?`)) return;
     try {
-      await productsApi.remove(product.id);
+      await deleteProduct(product.id).unwrap();
       toast.success("Product removed");
-      await load();
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Delete failed");
+      toast.error(getErrorMessage(err, "Delete failed"));
     }
   };
 
   const adjustStock = async (values, { resetForm }) => {
     try {
-      await inventoryApi.adjust({
+      await adjustInventory({
         productId: values.productId,
         quantity: Number(values.quantity),
         reason: values.reason,
-      });
+      }).unwrap();
       toast.success("Stock adjusted");
       resetForm();
-      await load();
       setTab("movements");
     } catch (err) {
-      toast.error(err instanceof ApiError ? err.message : "Adjust failed");
+      toast.error(getErrorMessage(err, "Adjust failed"));
     }
   };
 
@@ -207,7 +207,7 @@ export default function StockPage() {
             )}
           </Formik>
 
-          {loading ? (
+          {isLoading ? (
             <p className="textcklr">Loading…</p>
           ) : !products.length ? (
             <EmptyState title="No products" message="Add products to sell on invoices." />
@@ -274,7 +274,11 @@ export default function StockPage() {
               </div>
               <div className="col-6 col-md-5">
                 <label className="input-clr mb-1">Reason</label>
-                <Field name="reason" className="form-control input-settings" placeholder="e.g. Damaged, Restock" />
+                <Field
+                  name="reason"
+                  className="form-control input-settings"
+                  placeholder="e.g. Damaged, Restock"
+                />
                 <ErrorMessage name="reason" component="div" className="text-danger" />
               </div>
               <div className="col-12">

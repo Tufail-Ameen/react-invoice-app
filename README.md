@@ -30,14 +30,14 @@ Open [http://localhost:3000](http://localhost:3000).
 `.env`:
 
 ```env
-REACT_APP_API_BASE_URL=http://localhost:5000/api/v1
-REACT_APP_ENABLE_MOCK_API=true
+REACT_APP_API_BASE_URL=http://localhost:5001
+REACT_APP_ENABLE_MOCK_API=false
 ```
 
 | Mode | Setting |
 |------|---------|
-| Learning (default) | `REACT_APP_ENABLE_MOCK_API=true` |
-| Real API | `false` + apna server on `:5000` |
+| Real Express (default) | `REACT_APP_ENABLE_MOCK_API=false` + server on `:5001` (`GET /clients`) |
+| MSW learning mock | `true` (dummy DB — optional) |
 
 Docs:
 
@@ -51,10 +51,12 @@ Route checklist: [`src/api/endpoints.js`](src/api/endpoints.js)
 
 ```
 src/
-  api/endpoints.js     ← routes the UI calls
-  auth/                ← login + route guards
-  lib/apiClient.js     ← Axios + JWT refresh
-  mocks/               ← MSW “backend” + db seed
-  pages/               ← Invoices, Clients, Stock, Login
-docs/                  ← contract, model, roadmap
+  services/invoiceApi.js  ← RTK Query (queries + mutations + cache tags)
+  api/endpoints.js        ← route checklist (docs / non-RTK helpers)
+  auth/                   ← login + route guards
+  lib/apiClient.js        ← Axios + JWT refresh (RTK baseQuery uses this)
+  lib/rtkBaseQuery.js     ← axiosBaseQuery for RTK Query
+  mocks/                  ← MSW “backend” + db seed
+  pages/                  ← Invoices, Clients, Stock, Login
+docs/                     ← contract, model, roadmap
 ```
