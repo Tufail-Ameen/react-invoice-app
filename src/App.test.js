@@ -1,12 +1,11 @@
 import { render, screen } from "@testing-library/react";
-import { RecoilRoot } from "recoil";
 import App from "./App";
 
-test("renders invoices heading", () => {
-  render(
-    <RecoilRoot>
-      <App />
-    </RecoilRoot>
-  );
-  expect(screen.getByRole("heading", { name: "Invoices" })).toBeInTheDocument();
+jest.mock("./mocks/browser", () => ({
+  startMockApi: jest.fn(() => Promise.resolve()),
+}));
+
+test("renders login when unauthenticated", async () => {
+  render(<App />);
+  expect(await screen.findByText(/Invoice App/i)).toBeInTheDocument();
 });

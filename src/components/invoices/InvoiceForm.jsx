@@ -1,478 +1,212 @@
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { format } from "date-fns";
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import { useEffect, useMemo, useState } from "react";
-import { useRecoilState } from "recoil";
+import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import * as Yup from "yup";
-import {
-  editclicked,
-  filterdatatom,
-  formdisplay,
-  idsend,
-  printclientdata,
-  productAtom,
-} from "../../state/Atom";
-import { calcLineTotal, generateRandomId } from "../../utils/invoice";
+import { clientsApi, invoicesApi, productsApi } from "../../api/endpoints";
+import { ApiError } from "../../lib/apiClient";
+import { calcLineTotal } from "../../utils/invoice";
 
-const validationSchema = Yup.object({
-  address1: Yup.string()
-    .required("Street address is required")
-    .min(5, "Street address is too short")
-    .max(100, "Street address is too long")
-    .matches(/^[a-zA-Z0-9\s,'-]*$/, "Invalid characters in street address"),
-  city1: Yup.string()
-    .required("City is required")
-    .matches(/^[a-zA-Z\s]+$/, "City must contain only letters and spaces"),
-  code1: Yup.string()
-    .matches(/^\d{5}$/, "Invalid postcode. It should be 5 digits.")
-    .required("Postcode is required"),
-  code2: Yup.string()
-    .matches(/^\d{5}$/, "Invalid postcode. It should be 5 digits.")
-    .required("Postcode is required"),
-  city2: Yup.string()
-    .required("City is required")
-    .matches(/^[a-zA-Z\s]+$/, "City must contain only letters and spaces"),
-  country1: Yup.string().required("Country is required"),
-  name: Yup.string()
-    .min(3, "Name must be at least 3 characters")
-    .max(50, "Name must be at most 50 characters")
-    .required("Name is required"),
-  email: Yup.string().email("Invalid email address").required("Email is required"),
-  address2: Yup.string()
-    .required("Street address is required")
-    .min(5, "Street address is too short")
-    .max(100, "Street address is too long")
-    .matches(/^[a-zA-Z0-9\s,'-]*$/, "Invalid characters in street address"),
-  country2: Yup.string().required("Country is required"),
+const schema = Yup.object({
+  clientId: Yup.string().required("Client required"),
+  issueDate: Yup.string().required("Date required"),
+  dueDate: Yup.string().required("Due date required"),
+  description: Yup.string(),
+  currency: Yup.string().required(),
 });
 
-export default function InvoiceForm() {
-  const [data1, setData1] = useState([{ id: 0 }]);
-  const [, setProduct] = useRecoilState(productAtom);
-  const [, setNewInvoice1] = useRecoilState(formdisplay);
-  const [id, setId] = useRecoilState(idsend);
-  const [filterdata] = useRecoilState(filterdatatom);
-  const [editclick, setEditClick] = useRecoilState(editclicked);
-  const [formData] = useRecoilState(printclientdata);
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const randomId = useMemo(() => generateRandomId(), []);
+function emptyLine() {
+  return { key: Math.random().toString(36).slice(2), productId: "", quantity: 1, tax: 0 };
+}
+
+export default function InvoiceForm({ invoice, onClose, onSaved }) {
+  const [clients, setClients] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [lines, setLines] = useState(
+    invoice?.items?.length
+      ? invoice.items.map((item) => ({
+          key: Math.random().toString(36).slice(2),
+          productId: item.productId,
+          quantity: item.quantity,
+          tax: item.tax || 0,
+        }))
+      : [emptyLine()]
+  );
 
   useEffect(() => {
-    setCurrentDate(new Date());
+    Promise.all([
+      clientsApi.list({ per_page: 100 }),
+      productsApi.list({ per_page: 100, status: "active" }),
+    ])
+      .then(([c, p]) => {
+        setClients(c.clients || []);
+        setProducts(p.products || []);
+      })
+      .catch((err) => toast.error(err instanceof ApiError ? err.message : "Load failed"));
   }, []);
 
-  useEffect(() => {
-    if (filterdata[0]?.numberOfItemsAdded) {
-      const rows = Array.from(
-        { length: filterdata[0].numberOfItemsAdded },
-        (_, index) => ({ id: index })
-      );
-      setData1(rows);
-    } else {
-      setData1([{ id: 0 }]);
-    }
-  }, [filterdata]);
+  const productById = (id) => products.find((p) => p.id === id);
 
   const initialValues = {
-    address1: "Ravi Road",
-    city1: "Lahore",
-    code1: "54000",
-    country1: "Pakistan",
-    name: "",
-    email: "",
-    address2: "",
-    city2: "",
-    code2: "",
-    country2: "",
-    date: format(currentDate, "yyyy-MM-dd"),
-    datedue: format(currentDate, "yyyy-MM-dd"),
-    description:
-      "Tufail Traders offers a wide range of premium cosmetic products to enhance your beauty and style.",
-    currency: "Rs",
-    total: "",
+    clientId: invoice?.clientId || "",
+    issueDate: invoice?.issueDate || new Date().toISOString().slice(0, 10),
+    dueDate: invoice?.dueDate || new Date().toISOString().slice(0, 10),
+    description: invoice?.description || "",
+    currency: invoice?.currency || "Rs",
   };
 
-  const clearrow = (index) => {
-    const newData = [...data1];
-    newData.splice(index, 1);
-    setData1(newData);
-  };
+  const buildPayload = (values, status) => ({
+    clientId: values.clientId,
+    issueDate: values.issueDate,
+    dueDate: values.dueDate,
+    description: values.description,
+    currency: values.currency,
+    status,
+    items: lines
+      .filter((line) => line.productId)
+      .map((line) => ({
+        productId: line.productId,
+        quantity: Number(line.quantity),
+        tax: Number(line.tax) || 0,
+      })),
+  });
 
-  const addnew = () => {
-    const nextId = data1.length ? Math.max(...data1.map((row) => row.id)) + 1 : 0;
-    setData1([...data1, { id: nextId }]);
-  };
-
-  const overall = (values, action) => {
+  const save = async (values, status) => {
+    const payload = buildPayload(values, status);
+    if (!payload.items.length) {
+      toast.error("Kam az kam 1 product select karo");
+      return;
+    }
     try {
-      validationSchema.validateSync(values, { abortEarly: false });
-      values.btnCP = action;
-      onsubmit(values);
-    } catch (errors) {
-      errors.inner?.forEach((error) => {
-        console.error(`Path: ${error.path}, Message: ${error.message}`);
-      });
-    }
-  };
-
-  const onsubmit = (values) => {
-    let grandTotal = 0;
-    data1.forEach((elem) => {
-      grandTotal += calcLineTotal(
-        values[`quantity${elem.id}`],
-        values[`price${elem.id}`],
-        values[`tax${elem.id}`]
-      );
-    });
-
-    values.total = grandTotal;
-    values.id = filterdata[0]?.id || randomId;
-    values.numberOfItemsAdded = data1.length;
-
-    const storedIndex = localStorage.getItem("Index");
-
-    if (editclick) {
-      const storedData = JSON.parse(localStorage.getItem("invoiceData")) || [];
-      storedData[storedIndex] = values;
-      localStorage.setItem("invoiceData", JSON.stringify(storedData));
-      setProduct(storedData);
-      setEditClick(false);
-    } else {
-      const storeData = JSON.parse(localStorage.getItem("invoiceData")) || [];
-      const invoiceData = [...storeData, values];
-      setProduct(invoiceData);
-      localStorage.setItem("invoiceData", JSON.stringify(invoiceData));
-    }
-
-    setNewInvoice1(false);
-    setId([...id, values.id]);
-  };
-
-  const handleClientChange = (name, setValues, allValues) => {
-    const match = formData.find((elem) => elem.name === name);
-
-    if (match) {
-      setValues({
-        ...allValues,
-        name: match.name,
-        email: match.email,
-        country2: match.country,
-        code2: match.code,
-        city2: match.city,
-        address2: match.address,
-      });
-    } else if (!name) {
-      setValues({
-        ...allValues,
-        name: "",
-        email: "",
-        country2: "",
-        code2: "",
-        city2: "",
-        address2: "",
-      });
+      if (invoice) {
+        await invoicesApi.update({ id: invoice.id, ...payload });
+        if (status !== "draft" && invoice.status === "draft") {
+          await invoicesApi.updateStatus({ id: invoice.id, status });
+        }
+        toast.success("Invoice updated");
+      } else {
+        await invoicesApi.create(payload);
+        toast.success(status === "draft" ? "Draft saved" : "Invoice created");
+      }
+      onSaved?.();
+      onClose?.();
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : "Save failed");
     }
   };
 
   return (
-    <Formik
-      initialValues={filterdata.length ? filterdata[0] : initialValues}
-      validationSchema={validationSchema}
-      onSubmit={onsubmit}
-      enableReinitialize
-    >
-      {({ values, handleChange, setValues }) => (
+    <Formik initialValues={initialValues} validationSchema={schema} enableReinitialize onSubmit={() => {}}>
+      {({ values }) => (
         <Form>
-          <div
-            className="invoice-drawer"
-            onClick={() => setNewInvoice1(false)}
-          >
-            <div
-              className="invoice-drawer-panel"
-              onClick={(event) => event.stopPropagation()}
-            >
+          <div className="invoice-drawer" onClick={onClose}>
+            <div className="invoice-drawer-panel" onClick={(e) => e.stopPropagation()}>
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <div className="edit-text">
                   <span className="hash-clr">#</span>
-                  {filterdata.length ? filterdata[0].id : randomId}
+                  {invoice?.number || "New"}
                 </div>
-                <button
-                  type="button"
-                  className="btn cancel py-2 px-3 d-md-none"
-                  onClick={() => setNewInvoice1(false)}
-                >
+                <button type="button" className="btn cancel py-2 px-3 d-md-none" onClick={onClose}>
                   Close
                 </button>
               </div>
 
-              <div className="bill-form mb-2">Bill From</div>
-              <div className="mb-2">
-                <label htmlFor="address1" className="input-clr mb-1">
-                  Street Address
-                </label>
-                <Field
-                  type="text"
-                  name="address1"
-                  className="form-control input-settings"
-                  id="address1"
-                />
-                <ErrorMessage name="address1" component="div" className="text-danger" />
-              </div>
-
-              <div className="row g-2">
-                <div className="col-12 col-md-4">
-                  <label htmlFor="city1" className="input-clr mb-1">
-                    City
-                  </label>
-                  <Field
-                    name="city1"
-                    type="text"
-                    className="form-control input-settings"
-                    id="city1"
-                  />
-                  <ErrorMessage name="city1" component="div" className="text-danger" />
-                </div>
-                <div className="col-6 col-md-4">
-                  <label htmlFor="code1" className="input-clr mb-1">
-                    Post Code
-                  </label>
-                  <Field
-                    type="number"
-                    name="code1"
-                    className="form-control input-settings"
-                    id="code1"
-                  />
-                  <ErrorMessage name="code1" component="div" className="text-danger" />
-                </div>
-                <div className="col-6 col-md-4">
-                  <label htmlFor="country1" className="input-clr mb-1">
-                    Country
-                  </label>
-                  <Field
-                    type="text"
-                    name="country1"
-                    className="form-control input-settings"
-                    id="country1"
-                  />
-                  <ErrorMessage name="country1" component="div" className="text-danger" />
-                </div>
-              </div>
-
-              <div className="bill-form mt-4 mb-2">Bill To</div>
-              <div className="mb-2">
-                <label htmlFor="name" className="input-clr mb-1">
-                  Client's Name
-                </label>
-                <Field
-                  type="text"
-                  name="name"
-                  className="form-control input-settings"
-                  id="name"
-                  list="clientNames"
-                  onChange={(event) => {
-                    handleChange(event);
-                    handleClientChange(event.target.value, setValues, values);
-                  }}
-                />
-                <datalist id="clientNames">
-                  {formData.map((client, index) => (
-                    <option key={`${client.name}-${index}`} value={client.name} />
+              <div className="bill-form mb-2">Client</div>
+              <div className="mb-3">
+                <Field as="select" name="clientId" className="form-select input-settings">
+                  <option value="">Select client…</option>
+                  {clients.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name} ({c.email})
+                    </option>
                   ))}
-                </datalist>
-                <ErrorMessage name="name" component="div" className="text-danger" />
-              </div>
-
-              <div className="mb-2">
-                <label htmlFor="email" className="input-clr mb-1">
-                  Client's Email
-                </label>
-                <Field
-                  type="email"
-                  name="email"
-                  className="form-control input-settings placeholdercolor"
-                  id="email"
-                  placeholder="e.g. email@example.com"
-                />
-                <ErrorMessage name="email" component="div" className="text-danger" />
-              </div>
-
-              <div className="mb-2">
-                <label htmlFor="address2" className="input-clr mb-1">
-                  Street Address
-                </label>
-                <Field
-                  type="text"
-                  name="address2"
-                  className="form-control input-settings"
-                  id="address2"
-                />
-                <ErrorMessage name="address2" component="div" className="text-danger" />
+                </Field>
+                <ErrorMessage name="clientId" component="div" className="text-danger" />
               </div>
 
               <div className="row g-2">
-                <div className="col-12 col-md-4">
-                  <label htmlFor="city2" className="input-clr mb-1">
-                    City
-                  </label>
-                  <Field
-                    type="text"
-                    name="city2"
-                    className="form-control input-settings"
-                    id="city2"
-                  />
-                  <ErrorMessage name="city2" component="div" className="text-danger" />
+                <div className="col-md-6">
+                  <label className="input-clr mb-1">Invoice date</label>
+                  <Field type="date" name="issueDate" className="form-control input-settings" />
                 </div>
-                <div className="col-6 col-md-4">
-                  <label htmlFor="code2" className="input-clr mb-1">
-                    Post Code
-                  </label>
-                  <Field
-                    type="number"
-                    name="code2"
-                    className="form-control input-settings"
-                    id="code2"
-                  />
-                  <ErrorMessage name="code2" component="div" className="text-danger" />
-                </div>
-                <div className="col-6 col-md-4">
-                  <label htmlFor="country2" className="input-clr mb-1">
-                    Country
-                  </label>
-                  <Field
-                    type="text"
-                    name="country2"
-                    className="form-control input-settings"
-                    id="country2"
-                  />
-                  <ErrorMessage name="country2" component="div" className="text-danger" />
-                </div>
-              </div>
-
-              <div className="row g-2 mt-3">
-                <div className="col-12 col-md-6">
-                  <label htmlFor="date" className="input-clr mb-1">
-                    Invoice date
-                  </label>
-                  <Field
-                    type="date"
-                    name="date"
-                    className="form-control input-settings"
-                    id="date"
-                    value={values.date}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div className="col-12 col-md-6">
-                  <label htmlFor="duedate" className="input-clr mb-1">
-                    Due Date
-                  </label>
-                  <Field
-                    type="date"
-                    name="datedue"
-                    className="form-control input-settings"
-                    id="duedate"
-                    onChange={handleChange}
-                  />
-                  <ErrorMessage name="datedue" component="div" className="text-danger" />
+                <div className="col-md-6">
+                  <label className="input-clr mb-1">Due date</label>
+                  <Field type="date" name="dueDate" className="form-control input-settings" />
                 </div>
               </div>
 
               <div className="mt-2">
-                <label htmlFor="description" className="input-clr mb-1">
-                  Description
-                </label>
-                <Field
-                  type="text"
-                  name="description"
-                  className="form-control input-settings placeholdercolor"
-                  id="description"
-                  placeholder="e.g. Graphic Design Service"
-                />
-                <ErrorMessage name="description" component="div" className="text-danger" />
+                <label className="input-clr mb-1">Description</label>
+                <Field name="description" className="form-control input-settings" />
               </div>
 
-              <div className="row g-2 mt-1">
-                <div className="col-12 col-md-6">
-                  <label htmlFor="currency" className="input-clr mb-1">
-                    Currency
-                  </label>
-                  <Field
-                    id="currency"
-                    as="select"
-                    name="currency"
-                    className="form-select input-settings"
-                  >
-                    <option value="Rs">Rs</option>
-                    <option value="₹">₹</option>
-                    <option value="₣">₣</option>
-                    <option value="¥">¥</option>
-                    <option value="£">£</option>
-                    <option value="$">$</option>
-                  </Field>
-                </div>
+              <div className="mt-2">
+                <label className="input-clr mb-1">Currency</label>
+                <Field as="select" name="currency" className="form-select input-settings">
+                  <option value="Rs">Rs</option>
+                  <option value="$">$</option>
+                </Field>
               </div>
 
-              <div className="item-list mt-4 mb-2">Item List</div>
-              <div className="row d-none d-md-flex mb-2">
-                <div className="col-md-3 input-clr1">Item Name</div>
-                <div className="col-md-2 input-clr1">Qty.</div>
-                <div className="col-md-2 input-clr1">Price</div>
-                <div className="col-md-2 input-clr1">Tax(%)</div>
-                <div className="col-md-2 input-clr1 text-center">Total</div>
-              </div>
-
-              {data1.map((elem, index) => {
-                const finalTotal = calcLineTotal(
-                  values[`quantity${elem.id}`],
-                  values[`price${elem.id}`],
-                  values[`tax${elem.id}`]
-                );
-
+              <div className="item-list mt-4 mb-2">Items (from stock)</div>
+              {lines.map((line, index) => {
+                const product = productById(line.productId);
+                const lineTotal = calcLineTotal(line.quantity, product?.price, line.tax);
                 return (
-                  <div className="row g-2 align-items-end mb-3" key={elem.id}>
-                    <div className="col-12 col-md-3">
-                      <label className="d-md-none input-clr mb-1">Item Name</label>
-                      <Field
-                        type="text"
-                        name={`item${elem.id}`}
-                        className="form-control input-settings placeholdercolor"
-                        placeholder="item name"
-                      />
+                  <div className="row g-2 align-items-end mb-3" key={line.key}>
+                    <div className="col-12 col-md-5">
+                      <label className="d-md-none input-clr mb-1">Product</label>
+                      <select
+                        className="form-select input-settings"
+                        value={line.productId}
+                        onChange={(e) => {
+                          const next = [...lines];
+                          next[index] = { ...line, productId: e.target.value };
+                          setLines(next);
+                        }}
+                      >
+                        <option value="">Select product…</option>
+                        {products.map((p) => (
+                          <option key={p.id} value={p.id}>
+                            {p.name} — stock {p.stock} — Rs {p.price}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                     <div className="col-4 col-md-2">
                       <label className="d-md-none input-clr mb-1">Qty</label>
-                      <Field
+                      <input
                         type="number"
-                        name={`quantity${elem.id}`}
-                        className="form-control input-settings placeholdercolor"
-                        placeholder="qty"
+                        min={1}
+                        className="form-control input-settings"
+                        value={line.quantity}
+                        onChange={(e) => {
+                          const next = [...lines];
+                          next[index] = { ...line, quantity: e.target.value };
+                          setLines(next);
+                        }}
                       />
                     </div>
                     <div className="col-4 col-md-2">
-                      <label className="d-md-none input-clr mb-1">Price</label>
-                      <Field
+                      <label className="d-md-none input-clr mb-1">Tax %</label>
+                      <input
                         type="number"
-                        name={`price${elem.id}`}
-                        className="form-control input-settings placeholdercolor"
-                        placeholder="price"
+                        className="form-control input-settings"
+                        value={line.tax}
+                        onChange={(e) => {
+                          const next = [...lines];
+                          next[index] = { ...line, tax: e.target.value };
+                          setLines(next);
+                        }}
                       />
                     </div>
-                    <div className="col-4 col-md-2">
-                      <label className="d-md-none input-clr mb-1">Tax</label>
-                      <Field
-                        type="number"
-                        name={`tax${elem.id}`}
-                        className="form-control input-settings placeholdercolor"
-                        placeholder="tax"
-                      />
-                    </div>
-                    <div className="col-10 col-md-2 d-flex justify-content-between justify-content-md-center align-items-center py-2">
-                      <span className="d-md-none input-clr">Total</span>
-                      <span>{(finalTotal || 0).toFixed(0)}</span>
-                    </div>
-                    <div className="col-2 col-md-1 trash d-flex justify-content-end align-items-center pb-2">
-                      <span className="cursor basket" onClick={() => clearrow(index)}>
+                    <div className="col-3 col-md-2 text-center py-2">{(lineTotal || 0).toFixed(0)}</div>
+                    <div className="col-1 trash">
+                      <span
+                        className="cursor basket"
+                        onClick={() => setLines(lines.filter((_, i) => i !== index))}
+                      >
                         <FontAwesomeIcon icon={faTrash} />
                       </span>
                     </div>
@@ -483,32 +217,28 @@ export default function InvoiceForm() {
               <button
                 type="button"
                 className="btn input-clr1 add-btn py-2 w-100"
-                onClick={addnew}
+                onClick={() => setLines([...lines, emptyLine()])}
               >
-                + Add New Item
+                + Add product line
               </button>
 
               <div className="invoice-form-actions mt-4">
-                <button
-                  type="button"
-                  onClick={() => setNewInvoice1(false)}
-                  className="btn input-clr1 cancel py-2 px-3"
-                >
+                <button type="button" className="btn cancel py-2 px-3" onClick={onClose}>
                   Cancel
                 </button>
                 <button
-                  type="submit"
-                  className="btn input-clr1 save py-2 px-3"
-                  onClick={() => overall(values, 1)}
+                  type="button"
+                  className="btn save py-2 px-3"
+                  onClick={() => save(values, "draft")}
                 >
-                  Save
+                  Save draft
                 </button>
                 <button
-                  type="submit"
-                  className="btn input-clr1 save-changes py-2 px-3"
-                  onClick={() => overall(values, 2)}
+                  type="button"
+                  className="btn save-changes py-2 px-3"
+                  onClick={() => save(values, "pending")}
                 >
-                  Create Invoice
+                  Create (deduct stock)
                 </button>
               </div>
             </div>

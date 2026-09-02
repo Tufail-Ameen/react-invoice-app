@@ -1,70 +1,60 @@
-# Getting Started with Create React App
+# Invoice App (Backend-learning frontend)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Invoices create karo, products add/remove karo, stock manage karo. UI **real API shape** pe baat karti hai — aaj [MSW](https://mswjs.io/) mock, kal tumhara server.
 
-## Available Scripts
+> `ecommerce/` alag demo hai. **Ye root app** invoices + stock ke liye hai.
 
-In the project directory, you can run:
+## Quick start
 
-### `npm start`
+```bash
+npm install
+npm start
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Open [http://localhost:3000](http://localhost:3000).
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Demo login
 
-### `npm test`
+| Email | Password |
+|-------|----------|
+| `owner@invoice.test` | `Password123!` |
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## What you can do
 
-### `npm run build`
+- **Invoices** — create (draft / pending), mark paid, cancel; pending/paid stock se qty kaat’ta hai
+- **Clients** — add, edit, delete
+- **Products & Stock** — add/remove products, adjust qty, movement history
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Mock → real backend
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+`.env`:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```env
+REACT_APP_API_BASE_URL=http://localhost:5000/api/v1
+REACT_APP_ENABLE_MOCK_API=true
+```
 
-### `npm run eject`
+| Mode | Setting |
+|------|---------|
+| Learning (default) | `REACT_APP_ENABLE_MOCK_API=true` |
+| Real API | `false` + apna server on `:5000` |
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Docs:
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- [docs/API_CONTRACT.md](docs/API_CONTRACT.md) — har endpoint
+- [docs/DATA_MODEL.md](docs/DATA_MODEL.md) — tables / SQL
+- [docs/BACKEND_ROADMAP.md](docs/BACKEND_ROADMAP.md) — step-by-step backend build
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Route checklist: [`src/api/endpoints.js`](src/api/endpoints.js)
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## Folder map
 
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```
+src/
+  api/endpoints.js     ← routes the UI calls
+  auth/                ← login + route guards
+  lib/apiClient.js     ← Axios + JWT refresh
+  mocks/               ← MSW “backend” + db seed
+  pages/               ← Invoices, Clients, Stock, Login
+docs/                  ← contract, model, roadmap
+```

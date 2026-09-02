@@ -1,42 +1,36 @@
 import { faCirclePlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Dropdown from "react-bootstrap/Dropdown";
-import { useRecoilState, useSetRecoilState } from "recoil";
+import { toast } from "react-toastify";
+import { invoicesApi } from "../api/endpoints";
 import InvoiceForm from "../components/invoices/InvoiceForm";
 import InvoiceList from "../components/invoices/InvoiceList";
-import {
-  editclicked,
-  filterdatatom,
-  formdisplay,
-  productAtom,
-} from "../state/Atom";
+import { ApiError } from "../lib/apiClient";
 
 export default function InvoicesPage() {
-  const [product] = useRecoilState(productAtom);
-  const [showForm, setShowForm] = useRecoilState(formdisplay);
-  const setFilterdata = useSetRecoilState(filterdatatom);
-  const setEditClick = useSetRecoilState(editclicked);
-  const [filterdata, setFilteredInvoices] = useState([]);
-  const [statusFilter, setStatusFilter] = useState(null);
+  const [invoices, setInvoices] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [statusFilter, setStatusFilter] = useState("");
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const params = { per_page: 100 };
+      if (statusFilter) params.status = statusFilter;
+      const data = await invoicesApi.list(params);
+      setInvoices(data.invoices || []);
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : "Failed to load invoices");
+    } finally {
+      setLoading(false);
+    }
+  }, [statusFilter]);
 
   useEffect(() => {
-    if (statusFilter == null) {
-      setFilteredInvoices(product.map((item, originalIndex) => ({ ...item, originalIndex })));
-      return;
-    }
-    setFilteredInvoices(
-      product
-        .map((item, originalIndex) => ({ ...item, originalIndex }))
-        .filter((item) => item.btnCP === statusFilter)
-    );
-  }, [product, statusFilter]);
-
-  const openinvoice = () => {
-    setFilterdata([]);
-    setEditClick(false);
-    setShowForm(true);
-  };
+    load();
+  }, [load]);
 
   return (
     <div className="page-wrap">
@@ -44,7 +38,7 @@ export default function InvoicesPage() {
         <div>
           <h1 className="invoice-text mb-1">Invoices</h1>
           <p className="count-invoices-tect mb-0">
-            There are {product.length} total Invoices
+            There are {invoices.length} total Invoices
           </p>
         </div>
 
@@ -59,46 +53,42 @@ export default function InvoicesPage() {
             </Dropdown.Toggle>
             <Dropdown.Menu className="menuclr px-0 py-2 mt-3">
               {[
-                { label: "All", value: null, id: "filter-all" },
-                { label: "Draft", value: 1, id: "filter-draft" },
-                { label: "Pending", value: 2, id: "filter-pending" },
-                { label: "Paid", value: 3, id: "filter-paid" },
+                { label: "All", value: "" },
+                { label: "Draft", value: "draft" },
+                { label: "Pending", value: "pending" },
+                { label: "Paid", value: "paid" },
+                { label: "Cancelled", value: "cancelled" },
               ].map((option) => (
-                <Dropdown.Item as="div" className="menuitem p-0 m-0" key={option.id}>
-                  <div
-                    className="row p-0 m-0 ms-2"
-                    onClick={(event) => event.stopPropagation()}
-                  >
-                    <div className="col-2 py-2">
-                      <input
-                        type="radio"
-                        id={option.id}
-                        className="input-size"
-                        name="invoice-status-filter"
-                        checked={statusFilter === option.value}
-                        onChange={() => setStatusFilter(option.value)}
-                      />
-                    </div>
-                    <div className="col-10 px-1 py-2">
-                      <label className="cursor" htmlFor={option.id}>
-                        {option.label}
-                      </label>
-                    </div>
-                  </div>
+                <Dropdown.Item
+                  key={option.value || "all"}
+                  as="button"
+                  className="menuitem"
+                  onClick={() => setStatusFilter(option.value)}
+                >
+                  {option.label}
+                  {statusFilter === option.value ? " ✓" : ""}
                 </Dropdown.Item>
               ))}
             </Dropdown.Menu>
           </Dropdown>
 
-          <button type="button" className="new-invoice-btn" onClick={openinvoice}>
-            <FontAwesomeIcon icon={faCirclePlus} style={{ fontSize: "22px" }} />
-            <span className="mx-2">New Invoice</span>
+          <button type="button" className="btn new-invoice" onClick={() => setShowForm(true)}>
+            <span className="circle-plus me-2">
+              <FontAwesomeIcon icon={faCirclePlus} />
+            </span>
+            New Invoice
           </button>
         </div>
       </div>
 
-      <InvoiceList invoices={filterdata} />
-      {showForm && <InvoiceForm />}
+      {loading ? <p className="textcklr mt-4">Loading…</p> : <InvoiceList invoices={invoices} />}
+
+      {showForm && (
+        <InvoiceForm
+          onClose={() => setShowForm(false)}
+          onSaved={load}
+        />
+      )}
     </div>
   );
 }
