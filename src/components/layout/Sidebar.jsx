@@ -1,48 +1,79 @@
-import { faBoxesStacked, faFileInvoice, faUsers } from "@fortawesome/free-solid-svg-icons";
+import {
+  faBars,
+  faFileInvoice,
+  faRightFromBracket,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
-
-const links = [
-  { to: "/", label: "Invoices", icon: faFileInvoice, end: true },
-  { to: "/clients", label: "Clients", icon: faUsers },
-  { to: "/stock", label: "Products & Stock", icon: faBoxesStacked },
-];
+import { navLinks } from "./navLinks";
+import { useSidebar } from "./SidebarContext";
 
 export default function Sidebar() {
   const { user, logout } = useAuth();
+  const { collapsed, toggleSidebar } = useSidebar();
   const initials = user
     ? `${user.firstName?.[0] || ""}${user.lastName?.[0] || ""}`.toUpperCase()
     : "??";
 
   return (
     <aside className="app-sidebar">
-      <NavLink to="/" className="sidebar-logo" aria-label="Go to invoices">
-        <FontAwesomeIcon icon={faFileInvoice} />
-      </NavLink>
+      <div className="sidebar-header">
+        <NavLink to="/" className="sidebar-brand" aria-label="Go to invoices">
+          <span className="sidebar-brand-icon">
+            <FontAwesomeIcon icon={faFileInvoice} />
+          </span>
+          <span className="sidebar-brand-copy">
+            <span className="sidebar-brand-name">Invoice App</span>
+            <span className="sidebar-brand-tagline">Business Manager</span>
+          </span>
+        </NavLink>
 
-      <nav className="sidebar-nav">
-        {links.map((link) => (
+        <button
+          type="button"
+          className="sidebar-toggle-btn"
+          onClick={toggleSidebar}
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          <FontAwesomeIcon icon={faBars} />
+        </button>
+      </div>
+
+      <nav className="sidebar-nav" aria-label="Main navigation">
+        <p className="sidebar-section-label">Main Menu</p>
+        {navLinks.map((link) => (
           <NavLink
             key={link.to}
             to={link.to}
             end={link.end}
+            title={collapsed ? link.label : undefined}
             className={({ isActive }) => `sidebar-link ${isActive ? "active" : ""}`}
           >
-            <FontAwesomeIcon icon={link.icon} />
-            <span>{link.label}</span>
+            <span className="sidebar-link-icon">
+              <FontAwesomeIcon icon={link.icon} />
+            </span>
+            <span className="sidebar-link-label">{link.label}</span>
           </NavLink>
         ))}
       </nav>
 
       <div className="sidebar-profile">
+        <div className="sidebar-profile-card" title={collapsed ? user?.fullName : undefined}>
+          <span className="sidebar-avatar">{initials}</span>
+          <div className="sidebar-profile-meta">
+            <span className="sidebar-profile-name">{user?.fullName || "User"}</span>
+            <span className="sidebar-profile-email">{user?.email || "Signed in"}</span>
+          </div>
+        </div>
         <button
           type="button"
-          className="sidebar-avatar border-0"
-          title={user ? `${user.fullName} — Logout` : "Logout"}
+          className="sidebar-logout-btn"
+          title="Sign out"
           onClick={() => logout()}
         >
-          {initials}
+          <FontAwesomeIcon icon={faRightFromBracket} />
+          <span>Sign out</span>
         </button>
       </div>
     </aside>

@@ -1,17 +1,11 @@
-import { faBoxesStacked, faFileInvoice, faUsers } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { NavLink } from "react-router-dom";
-
-const links = [
-  { to: "/", label: "Invoices", icon: faFileInvoice, end: true },
-  { to: "/clients", label: "Clients", icon: faUsers },
-  { to: "/stock", label: "Stock", icon: faBoxesStacked },
-];
+import { navLinks } from "./navLinks";
 
 export default function BottomNav() {
   return (
     <nav className="bottom-nav" aria-label="Primary">
-      {links.map((link) => (
+      {navLinks.map((link) => (
         <NavLink
           key={link.to}
           to={link.to}
