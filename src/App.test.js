@@ -3,10 +3,6 @@ import { Provider } from "react-redux";
 import App from "./App";
 import { store } from "./app/store";
 
-jest.mock("./mocks/browser", () => ({
-  startMockApi: jest.fn(() => Promise.resolve()),
-}));
-
 test("renders login when unauthenticated", async () => {
   render(
     <Provider store={store}>

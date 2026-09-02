@@ -8,7 +8,6 @@ import App from './App'
 import { AuthProvider } from './auth/AuthContext'
 import { CartProvider } from './store/CartContext'
 import { store } from './store/store'
-import { startMockApi } from './mocks/browser'
 import './index.css'
 
 const queryClient = new QueryClient({
@@ -23,22 +22,19 @@ const queryClient = new QueryClient({
   },
 })
 
-// Mock API pehle start hoti hai, warna app ki pehli request intercept nahi hogi.
-startMockApi().then(() => {
-  createRoot(document.getElementById('root')).render(
-    <StrictMode>
-      <BrowserRouter>
-        <Provider store={store}>
-          <QueryClientProvider client={queryClient}>
-            <AuthProvider>
-              <CartProvider>
-                <App />
-                <Toaster position="top-center" richColors closeButton />
-              </CartProvider>
-            </AuthProvider>
-          </QueryClientProvider>
-        </Provider>
-      </BrowserRouter>
-    </StrictMode>
-  )
-})
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <BrowserRouter>
+      <Provider store={store}>
+        <QueryClientProvider client={queryClient}>
+          <AuthProvider>
+            <CartProvider>
+              <App />
+              <Toaster position="top-center" richColors closeButton />
+            </CartProvider>
+          </AuthProvider>
+        </QueryClientProvider>
+      </Provider>
+    </BrowserRouter>
+  </StrictMode>
+)

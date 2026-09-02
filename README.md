@@ -1,6 +1,6 @@
 # Invoice App (Backend-learning frontend)
 
-Invoices create karo, products add/remove karo, stock manage karo. UI **real API shape** pe baat karti hai — aaj [MSW](https://mswjs.io/) mock, kal tumhara server.
+Invoices create karo, products add/remove karo, stock manage karo. UI **Express API** (`localhost:5001`) se baat karti hai.
 
 > `ecommerce/` alag demo hai. **Ye root app** invoices + stock ke liye hai.
 
@@ -34,10 +34,7 @@ REACT_APP_API_BASE_URL=http://localhost:5001
 REACT_APP_ENABLE_MOCK_API=false
 ```
 
-| Mode | Setting |
-|------|---------|
-| Real Express (default) | `REACT_APP_ENABLE_MOCK_API=false` + server on `:5001` (`GET /clients`) |
-| MSW learning mock | `true` (dummy DB — optional) |
+Sab routes (`/clients`, `/products`, `/invoices`, `/inventory/*`) Express server se aati hain.
 
 Docs:
 
@@ -56,7 +53,6 @@ src/
   auth/                   ← login + route guards
   lib/apiClient.js        ← Axios + JWT refresh (RTK baseQuery uses this)
   lib/rtkBaseQuery.js     ← axiosBaseQuery for RTK Query
-  mocks/                  ← MSW “backend” + db seed
   pages/                  ← Invoices, Clients, Stock, Login
 docs/                     ← contract, model, roadmap
 ```

@@ -1,7 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { RefreshCw } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
 import * as z from 'zod'
@@ -11,11 +10,8 @@ import { Card, CardBody, CardHeader, PageHeader } from '@/components/ui/Card'
 import { ErrorState } from '@/components/ui/EmptyState'
 import { Checkbox, FormInput } from '@/components/ui/Field'
 import { FullPageLoader } from '@/components/ui/Loaders'
-import { ConfirmDialog } from '@/components/ui/Modal'
 import { applyServerErrors } from '@/lib/formErrors'
 import { numberField } from '@/lib/zodHelpers'
-
-const MOCK_ENABLED = import.meta.env.VITE_ENABLE_MOCK_API === 'true'
 
 const schema = z.object({
   storeName: z.string().min(2, 'Kam se kam 2 characters.').max(60),
@@ -31,7 +27,6 @@ const schema = z.object({
 
 export function SettingsPage() {
   const queryClient = useQueryClient()
-  const [resetOpen, setResetOpen] = useState(false)
 
   const { data, isPending, error, refetch } = useQuery({
     queryKey: queryKeys.settings,
@@ -59,15 +54,6 @@ export function SettingsPage() {
     },
     onError: (mutationError) => applyServerErrors(mutationError, setError),
   })
-
-  const handleResetDemo = async () => {
-    const { db } = await import('@/mocks/db')
-    db.reset()
-    queryClient.clear()
-    setResetOpen(false)
-    toast.success('Demo data wapas seed ho gaya. Page reload ho raha hai…')
-    setTimeout(() => window.location.reload(), 600)
-  }
 
   if (error) return <ErrorState error={error} onRetry={refetch} />
   if (isPending) return <FullPageLoader label="Settings load ho rahi hain…" />
@@ -143,33 +129,7 @@ export function SettingsPage() {
           </Card>
         </form>
 
-        {MOCK_ENABLED && (
-          <Card className="border-amber-200">
-            <CardHeader
-              title="Demo data"
-              description="Mock backend browser ke localStorage mein rehta hai."
-            />
-            <CardBody className="flex flex-wrap items-center justify-between gap-4">
-              <p className="max-w-md text-sm text-slate-600">
-                Sab products, orders, customers aur users wapas seed values par le jayein. Aapke
-                banaye hue records mit jayenge.
-              </p>
-              <Button variant="secondary" onClick={() => setResetOpen(true)}>
-                <RefreshCw className="size-4" />
-                Demo data reset karein
-              </Button>
-            </CardBody>
-          </Card>
-        )}
       </div>
-
-      <ConfirmDialog
-        open={resetOpen}
-        onClose={() => setResetOpen(false)}
-        onConfirm={handleResetDemo}
-        title="Demo data reset karein?"
-        confirmLabel="Haan, reset karein"
-      />
     </>
   )
 }

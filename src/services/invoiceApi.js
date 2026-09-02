@@ -3,9 +3,7 @@ import { normalizeClient, normalizeClientsResponse } from "../lib/normalizeClien
 import { axiosBaseQuery } from "../lib/rtkBaseQuery";
 
 /**
- * Poori app ka RTK Query API slice.
- * Clients → real Express API (localhost:5001).
- * Baaki resources mock/real contract pe depend karti hain.
+ * Poori app ka RTK Query API slice — sab routes Express server (localhost:5001) se.
  */
 export const invoiceApi = createApi({
   reducerPath: "invoiceApi",
