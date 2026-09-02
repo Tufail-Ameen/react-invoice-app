@@ -15,7 +15,6 @@ import {
 import { formatAmount } from "../utils/invoice";
 
 const productSchema = Yup.object({
-  sku: Yup.string().required("SKU required"),
   name: Yup.string().required("Name required"),
   price: Yup.number().min(0).required("Price required"),
   stock: Yup.number().integer().min(0).required("Stock required"),
@@ -60,7 +59,6 @@ export default function StockPage() {
       if (editing) {
         await updateProduct({
           id: editing.id,
-          sku: values.sku,
           name: values.name,
           price: Number(values.price),
           unit: values.unit || "pcs",
@@ -70,9 +68,12 @@ export default function StockPage() {
         setEditing(null);
       } else {
         await createProduct({
-          ...values,
+          name: values.name,
           price: Number(values.price),
           stock: Number(values.stock),
+          unit: values.unit || "pcs",
+          status: values.status || "active",
+          sku: `PRD-${Date.now().toString(36).toUpperCase()}`,
         }).unwrap();
         toast.success("Product added");
       }
@@ -137,14 +138,13 @@ export default function StockPage() {
             initialValues={
               editing
                 ? {
-                    sku: editing.sku,
                     name: editing.name,
                     price: editing.price,
                     stock: editing.stock,
                     unit: editing.unit || "pcs",
                     status: editing.status,
                   }
-                : { sku: "", name: "", price: "", stock: 0, unit: "pcs", status: "active" }
+                : { name: "", price: "", stock: 0, unit: "pcs", status: "active" }
             }
             enableReinitialize
             validationSchema={productSchema}
@@ -154,12 +154,7 @@ export default function StockPage() {
               <Form className="form-card mb-4">
                 <h2 className="bill-form mb-3">{editing ? "Edit product" : "Add product"}</h2>
                 <div className="row g-3">
-                  <div className="col-6 col-md-3">
-                    <label className="input-clr mb-1">SKU</label>
-                    <Field name="sku" className="form-control input-settings" disabled={!!editing} />
-                    <ErrorMessage name="sku" component="div" className="text-danger" />
-                  </div>
-                  <div className="col-6 col-md-3">
+                  <div className="col-6 col-md-4">
                     <label className="input-clr mb-1">Name</label>
                     <Field name="name" className="form-control input-settings" />
                     <ErrorMessage name="name" component="div" className="text-danger" />
@@ -215,11 +210,7 @@ export default function StockPage() {
             <div className="d-flex flex-column gap-2">
               {products.map((p) => (
                 <div key={p.id} className="row align-items-center invoice-row datalist py-3 px-2 m-0">
-                  <div className="col-6 col-md-2 table-text-size">
-                    <span className="hash-clr">#</span>
-                    {p.sku}
-                  </div>
-                  <div className="col-6 col-md-3 table-text-size">{p.name}</div>
+                  <div className="col-6 col-md-4 table-text-size">{p.name}</div>
                   <div className="col-4 col-md-2 price">{formatAmount("Rs", p.price)}</div>
                   <div className="col-4 col-md-2 textcklr">
                     Stock: <strong>{p.stock}</strong> {p.unit}
