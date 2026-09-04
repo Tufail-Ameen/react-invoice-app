@@ -26,7 +26,7 @@ export const invoiceApi = createApi({
       query: (body) => ({ url: "/auth/login", method: "POST", data: body }),
     }),
     register: builder.mutation({
-      query: (body) => ({ url: "/auth/register", method: "POST", data: body }),
+      query: (body) => ({ url: "/register", method: "POST", data: body }),
     }),
     logout: builder.mutation({
       query: (refreshToken) => ({
