@@ -2,11 +2,12 @@ import { faRightFromBracket } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
+import BusinessSwitcher from "./BusinessSwitcher";
 import { getNavPageTitle } from "./navLinks";
 
 export default function Navbar() {
   const { pathname } = useLocation();
-  const { user, logout } = useAuth();
+  const { user, logout, activeBusiness } = useAuth();
   const pageTitle = getNavPageTitle(pathname);
 
   const initials = user
@@ -16,16 +17,20 @@ export default function Navbar() {
   return (
     <header className="app-navbar">
       <div className="navbar-start">
-        <p className="navbar-eyebrow">Dashboard</p>
+        <p className="navbar-eyebrow">{activeBusiness?.name || "Dashboard"}</p>
         <h1 className="navbar-title">{pageTitle}</h1>
       </div>
 
       <div className="navbar-end">
+        <div className="navbar-business-desktop">
+          <BusinessSwitcher />
+        </div>
+
         <div className="navbar-user">
           <span className="navbar-avatar">{initials}</span>
           <div className="navbar-user-meta">
             <span className="navbar-user-name">{user?.fullName || "User"}</span>
-            <span className="navbar-user-role">Administrator</span>
+            <span className="navbar-user-role">{user?.role?.name || "Member"}</span>
           </div>
         </div>
 

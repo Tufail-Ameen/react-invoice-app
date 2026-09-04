@@ -1489,3 +1489,315 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     text-align: center;
   }
 }
+
+/* ---- RBAC / multi-business UI ---- */
+.sidebar-business-wrap {
+  padding: 0.75rem 0.85rem 0;
+}
+
+.business-switcher {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0.65rem 0.75rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--color-sidebar-border);
+}
+
+.business-switcher-static {
+  gap: 2px;
+}
+
+.business-switcher-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-on-sidebar-muted);
+  margin: 0;
+}
+
+.business-switcher-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-on-sidebar);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.business-switcher-select {
+  width: 100%;
+  border: none;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.25);
+  color: var(--color-on-sidebar);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 0.35rem 0.4rem;
+}
+
+.navbar-business-desktop {
+  display: none;
+}
+
+@media (min-width: 992px) {
+  .navbar-business-desktop {
+    display: block;
+  }
+
+  .navbar-business-desktop .business-switcher {
+    background: var(--color-surface-2);
+    border-color: var(--color-border);
+    min-width: 180px;
+  }
+
+  .navbar-business-desktop .business-switcher-label {
+    color: var(--color-text-subtle);
+  }
+
+  .navbar-business-desktop .business-switcher-select {
+    background: var(--color-surface);
+    color: var(--color-text);
+    border: 1px solid var(--color-border);
+  }
+}
+
+.rbac-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.rbac-entity-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.rbac-entity-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.rbac-entity-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.rbac-status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: var(--color-draft-soft);
+  color: var(--color-draft);
+  height: fit-content;
+}
+
+.rbac-status-pill.status-active {
+  background: var(--color-paid-soft);
+  color: var(--color-paid);
+}
+
+.rbac-status-pill.status-suspended {
+  background: var(--color-danger-soft);
+  color: var(--color-danger);
+}
+
+.rbac-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: var(--color-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 80;
+}
+
+.rbac-modal {
+  width: min(520px, 100%);
+  max-height: 90vh;
+  overflow: auto;
+}
+
+.rbac-table th {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  font-weight: 700;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.rbac-table td {
+  padding: 0.85rem 1rem;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.rbac-roles-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .rbac-roles-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.rbac-roles-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0.75rem;
+}
+
+.rbac-role-item {
+  text-align: left;
+  border: 1px solid transparent;
+  background: var(--color-surface-2);
+  border-radius: 12px;
+  padding: 0.75rem 0.85rem;
+  cursor: pointer;
+  color: inherit;
+}
+
+.rbac-role-item.active {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+.rbac-roles-detail {
+  padding: 1.25rem;
+}
+
+.rbac-perm-group {
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.rbac-perm-group-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem;
+}
+
+.rbac-perm-checks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.rbac-perm-check {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 0.55rem;
+  align-items: center;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.rbac-perm-key {
+  font-size: 10px;
+  color: var(--color-text-subtle);
+}
+
+/* ---- Auth polish (login / register) ---- */
+.auth-card .page-title {
+  margin-bottom: 0.35rem;
+}
+
+.auth-eyebrow {
+  margin: 0 0 0.35rem;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.auth-demo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.65rem;
+}
+
+@media (max-width: 520px) {
+  .auth-demo-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.auth-demo-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  text-align: left;
+  padding: 0.75rem 0.85rem;
+  border-radius: 14px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+  cursor: pointer;
+  color: inherit;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.auth-demo-chip:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+.auth-demo-chip strong {
+  font-size: 0.9rem;
+}
+
+.auth-demo-chip span {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.auth-demo-chip code {
+  font-size: 10px;
+  color: var(--color-text-subtle);
+  margin-top: 4px;
+}
+
+.auth-callout {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  background: var(--color-accent-soft);
+  border: 1px solid rgba(176, 138, 60, 0.35);
+  font-size: 0.88rem;
+  color: var(--color-text);
+}
+
+.auth-callout strong {
+  font-size: 0.9rem;
+}
+
+.auth-callout span {
+  color: var(--color-text-muted);
+}
+
+.auth-footer code {
+  font-size: 12px;
+}

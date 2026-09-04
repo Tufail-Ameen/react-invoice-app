@@ -9,11 +9,24 @@ import { axiosBaseQuery } from "../lib/rtkBaseQuery";
 export const invoiceApi = createApi({
   reducerPath: "invoiceApi",
   baseQuery: axiosBaseQuery(),
-  tagTypes: ["Client", "Product", "Movement", "Invoice", "Auth"],
+  tagTypes: [
+    "Client",
+    "Product",
+    "Movement",
+    "Invoice",
+    "Auth",
+    "User",
+    "Role",
+    "Business",
+    "Audit",
+  ],
   endpoints: (builder) => ({
     // ---- Auth ----
     login: builder.mutation({
       query: (body) => ({ url: "/auth/login", method: "POST", data: body }),
+    }),
+    register: builder.mutation({
+      query: (body) => ({ url: "/auth/register", method: "POST", data: body }),
     }),
     logout: builder.mutation({
       query: (refreshToken) => ({
@@ -25,6 +38,95 @@ export const invoiceApi = createApi({
     me: builder.query({
       query: () => ({ url: "/auth/me" }),
       providesTags: ["Auth"],
+    }),
+    switchBusiness: builder.mutation({
+      query: (body) => ({
+        url: "/auth/switch-business",
+        method: "POST",
+        data: body,
+      }),
+      invalidatesTags: ["Auth", "Client", "Product", "Invoice", "Movement", "User"],
+    }),
+
+    // ---- Team: users ----
+    getUsers: builder.query({
+      query: (params = {}) => ({ url: "/users", params }),
+      providesTags: (result) =>
+        result?.users || result?.items
+          ? [
+              ...(result.users || result.items).map(({ id }) => ({ type: "User", id })),
+              { type: "User", id: "LIST" },
+            ]
+          : [{ type: "User", id: "LIST" }],
+    }),
+    inviteUser: builder.mutation({
+      query: (body) => ({ url: "/users", method: "POST", data: body }),
+      invalidatesTags: [{ type: "User", id: "LIST" }],
+    }),
+    updateUser: builder.mutation({
+      query: ({ id, ...body }) => ({
+        url: `/users/${id}`,
+        method: "PATCH",
+        data: body,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: "User", id },
+        { type: "User", id: "LIST" },
+      ],
+    }),
+    removeUser: builder.mutation({
+      query: (id) => ({ url: `/users/${id}`, method: "DELETE" }),
+      invalidatesTags: [{ type: "User", id: "LIST" }],
+    }),
+
+    // ---- Team: roles ----
+    getRoles: builder.query({
+      query: () => ({ url: "/roles" }),
+      providesTags: [{ type: "Role", id: "LIST" }],
+    }),
+    createRole: builder.mutation({
+      query: (body) => ({ url: "/roles", method: "POST", data: body }),
+      invalidatesTags: [{ type: "Role", id: "LIST" }],
+    }),
+    updateRole: builder.mutation({
+      query: ({ id, ...body }) => ({
+        url: `/roles/${id}`,
+        method: "PATCH",
+        data: body,
+      }),
+      invalidatesTags: [{ type: "Role", id: "LIST" }, "Auth"],
+    }),
+    deleteRole: builder.mutation({
+      query: (id) => ({ url: `/roles/${id}`, method: "DELETE" }),
+      invalidatesTags: [{ type: "Role", id: "LIST" }],
+    }),
+
+    // ---- Platform businesses ----
+    getPlatformBusinesses: builder.query({
+      query: () => ({ url: "/platform/businesses" }),
+      providesTags: [{ type: "Business", id: "LIST" }],
+    }),
+    createPlatformBusiness: builder.mutation({
+      query: (body) => ({
+        url: "/platform/businesses",
+        method: "POST",
+        data: body,
+      }),
+      invalidatesTags: [{ type: "Business", id: "LIST" }],
+    }),
+    updatePlatformBusiness: builder.mutation({
+      query: ({ id, ...body }) => ({
+        url: `/platform/businesses/${id}`,
+        method: "PATCH",
+        data: body,
+      }),
+      invalidatesTags: [{ type: "Business", id: "LIST" }],
+    }),
+
+    // ---- Audit ----
+    getAuditLogs: builder.query({
+      query: (params = {}) => ({ url: "/audit-logs", params }),
+      providesTags: [{ type: "Audit", id: "LIST" }],
     }),
 
     // ---- Clients (real API: GET returns array, PUT/DELETE use numeric id) ----
@@ -177,9 +279,23 @@ export const invoiceApi = createApi({
 
 export const {
   useLoginMutation,
+  useRegisterMutation,
   useLogoutMutation,
   useMeQuery,
   useLazyMeQuery,
+  useSwitchBusinessMutation,
+  useGetUsersQuery,
+  useInviteUserMutation,
+  useUpdateUserMutation,
+  useRemoveUserMutation,
+  useGetRolesQuery,
+  useCreateRoleMutation,
+  useUpdateRoleMutation,
+  useDeleteRoleMutation,
+  useGetPlatformBusinessesQuery,
+  useCreatePlatformBusinessMutation,
+  useUpdatePlatformBusinessMutation,
+  useGetAuditLogsQuery,
   useGetClientsQuery,
   useGetClientQuery,
   useCreateClientMutation,

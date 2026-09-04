@@ -1,14 +1,17 @@
 /**
  * Route checklist (docs / Postman).
  * UI ab RTK Query se call karti hai — dekho `src/services/invoiceApi.js`.
+ * Full contract: docs/RBAC_API_CONTRACT.md
  */
 import { del, get, patch, post, put } from "../lib/apiClient";
 
 export const authApi = {
   login: (body) => post("/auth/login", body),
+  register: (body) => post("/auth/register", body),
   logout: (refreshToken) => post("/auth/logout", { refreshToken }),
   me: () => get("/auth/me"),
   refresh: (refreshToken) => post("/auth/refresh", { refreshToken }),
+  switchBusiness: (body) => post("/auth/switch-business", body),
 };
 
 export const clientsApi = {
@@ -39,4 +42,28 @@ export const invoicesApi = {
   update: ({ id, ...body }) => patch(`/invoices/${id}`, body),
   updateStatus: ({ id, status }) => patch(`/invoices/${id}/status`, { status }),
   remove: (id) => del(`/invoices/${id}`),
+};
+
+export const usersApi = {
+  list: (params) => get("/users", params),
+  invite: (body) => post("/users", body),
+  update: ({ id, ...body }) => patch(`/users/${id}`, body),
+  remove: (id) => del(`/users/${id}`),
+};
+
+export const rolesApi = {
+  list: () => get("/roles"),
+  create: (body) => post("/roles", body),
+  update: ({ id, ...body }) => patch(`/roles/${id}`, body),
+  remove: (id) => del(`/roles/${id}`),
+};
+
+export const platformApi = {
+  listBusinesses: () => get("/platform/businesses"),
+  createBusiness: (body) => post("/platform/businesses", body),
+  updateBusiness: ({ id, ...body }) => patch(`/platform/businesses/${id}`, body),
+};
+
+export const auditApi = {
+  list: (params) => get("/audit-logs", params),
 };

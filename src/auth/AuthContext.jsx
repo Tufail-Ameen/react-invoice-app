@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { onSessionExpired } from "../lib/apiClient";
+import { hasEveryPermission, hasPermission } from "../lib/permissions";
 import { getErrorMessage } from "../lib/rtkBaseQuery";
 import { tokenStore } from "../lib/tokenStore";
 import {
@@ -9,17 +10,42 @@ import {
   useLazyMeQuery,
   useLoginMutation,
   useLogoutMutation,
+  useRegisterMutation,
+  useSwitchBusinessMutation,
 } from "../services/invoiceApi";
 
 const AuthContext = createContext(null);
-const USE_MOCK = process.env.REACT_APP_ENABLE_MOCK_API === "true";
+const BOOTSTRAP_TIMEOUT_MS = 4000;
+
+function applySessionUser(user) {
+  if (user?.activeBusinessId) tokenStore.setBusinessId(user.activeBusinessId);
+  return user;
+}
+
+function withTimeout(promise, ms) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error("BOOTSTRAP_TIMEOUT")), ms);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (err) => {
+        clearTimeout(timer);
+        reject(err);
+      }
+    );
+  });
+}
 
 export function AuthProvider({ children }) {
   const dispatch = useDispatch();
   const [user, setUser] = useState(null);
   const [status, setStatus] = useState("loading");
   const [loginMutation] = useLoginMutation();
+  const [registerMutation] = useRegisterMutation();
   const [logoutMutation] = useLogoutMutation();
+  const [switchBusinessMutation] = useSwitchBusinessMutation();
   const [fetchMe] = useLazyMeQuery();
 
   const clearSession = useCallback(() => {
@@ -33,32 +59,22 @@ export function AuthProvider({ children }) {
     let cancelled = false;
 
     async function bootstrap() {
-      // Real Express API (5001) pe JWT auth nahi — direct app open.
-      if (!USE_MOCK) {
-        if (cancelled) return;
-        setUser({
-          id: "local",
-          firstName: "Local",
-          lastName: "User",
-          fullName: "Local User",
-          email: "local@invoice.test",
-        });
-        setStatus("authenticated");
+      // Bina token → seedha login.
+      if (!tokenStore.access && !tokenStore.refresh) {
+        if (!cancelled) setStatus("unauthenticated");
         return;
       }
 
-      if (!tokenStore.access && !tokenStore.refresh) {
-        setStatus("unauthenticated");
-        return;
-      }
       try {
-        const data = await fetchMe().unwrap();
+        // Backend down / hang ho to Loading forever na rahe.
+        const data = await withTimeout(fetchMe().unwrap(), BOOTSTRAP_TIMEOUT_MS);
         if (cancelled) return;
-        setUser(data.user);
+        setUser(applySessionUser(data.user));
         setStatus("authenticated");
       } catch {
         if (cancelled) return;
         tokenStore.clear();
+        setUser(null);
         setStatus("unauthenticated");
       }
     }
@@ -72,7 +88,6 @@ export function AuthProvider({ children }) {
   useEffect(
     () =>
       onSessionExpired(() => {
-        if (!USE_MOCK) return;
         clearSession();
         toast.error("Session khatam. Dobara login karein.");
       }),
@@ -82,39 +97,83 @@ export function AuthProvider({ children }) {
   const login = useCallback(
     async (email, password) => {
       const data = await loginMutation({ email, password }).unwrap();
-      tokenStore.set(data.tokens);
-      setUser(data.user);
+      tokenStore.set({
+        ...data.tokens,
+        businessId: data.user?.activeBusinessId || null,
+      });
+      setUser(applySessionUser(data.user));
       setStatus("authenticated");
       return data.user;
     },
     [loginMutation]
   );
 
+  const register = useCallback(
+    async (body) => {
+      const data = await registerMutation(body).unwrap();
+      tokenStore.set({
+        ...data.tokens,
+        businessId: data.user?.activeBusinessId || null,
+      });
+      setUser(applySessionUser(data.user));
+      setStatus("authenticated");
+      return data.user;
+    },
+    [registerMutation]
+  );
+
+  const switchBusiness = useCallback(
+    async (businessId) => {
+      const data = await switchBusinessMutation({ businessId }).unwrap();
+      tokenStore.set({
+        ...data.tokens,
+        businessId: data.user?.activeBusinessId || businessId,
+      });
+      setUser(applySessionUser(data.user));
+      dispatch(invoiceApi.util.resetApiState());
+      return data.user;
+    },
+    [switchBusinessMutation, dispatch]
+  );
+
   const logout = useCallback(async () => {
-    if (!USE_MOCK) {
-      toast.info("Real API mode — login required nahi.");
-      return;
-    }
     try {
-      await logoutMutation(tokenStore.refresh).unwrap();
+      if (tokenStore.refresh) {
+        await logoutMutation(tokenStore.refresh).unwrap();
+      }
     } catch {
       // local cleanup still needed
     }
     clearSession();
   }, [logoutMutation, clearSession]);
 
-  const value = useMemo(
-    () => ({
+  const value = useMemo(() => {
+    const permissions = user?.permissions ?? [];
+    const activeBusiness =
+      user?.businesses?.find((b) => b.id === user?.activeBusinessId) ||
+      user?.businesses?.[0] ||
+      null;
+
+    return {
       user,
       status,
       isAuthenticated: status === "authenticated",
       isLoading: status === "loading",
+      permissions,
+      activeBusiness,
+      businesses: user?.businesses ?? [],
+      isPlatformAdmin:
+        Boolean(user?.isPlatformAdmin) ||
+        hasPermission(permissions, "platform.manage_businesses"),
+      can: (permission) => hasPermission(permissions, permission),
+      canAll: (list) => hasEveryPermission(permissions, list),
       login,
+      register,
       logout,
+      switchBusiness,
       getErrorMessage,
-    }),
-    [user, status, login, logout]
-  );
+    };
+  }, [user, status, login, register, logout, switchBusiness]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

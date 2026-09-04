@@ -8,6 +8,7 @@ export const API_BASE_URL = process.env.REACT_APP_API_BASE_URL ?? "";
 export const api = axios.create({
   baseURL: API_BASE_URL,
   headers: { "Content-Type": "application/json" },
+  timeout: 8000,
 });
 
 const sessionExpiredListeners = new Set();
@@ -29,6 +30,8 @@ export class ApiError extends Error {
 api.interceptors.request.use((config) => {
   const token = tokenStore.access;
   if (token) config.headers.Authorization = `Bearer ${token}`;
+  const businessId = tokenStore.businessId;
+  if (businessId) config.headers["X-Business-Id"] = businessId;
   return config;
 });
 

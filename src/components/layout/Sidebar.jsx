@@ -6,15 +6,48 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
-import { navLinks } from "./navLinks";
+import BusinessSwitcher from "./BusinessSwitcher";
+import {
+  filterNavByPermission,
+  mainNavLinks,
+  platformNavLinks,
+  teamNavLinks,
+} from "./navLinks";
 import { useSidebar } from "./SidebarContext";
 
+function NavSection({ label, links, collapsed }) {
+  if (!links.length) return null;
+  return (
+    <>
+      <p className="sidebar-section-label">{label}</p>
+      {links.map((link) => (
+        <NavLink
+          key={link.to}
+          to={link.to}
+          end={link.end}
+          title={collapsed ? link.label : undefined}
+          className={({ isActive }) => `sidebar-link ${isActive ? "active" : ""}`}
+        >
+          <span className="sidebar-link-icon">
+            <FontAwesomeIcon icon={link.icon} />
+          </span>
+          <span className="sidebar-link-label">{link.label}</span>
+        </NavLink>
+      ))}
+    </>
+  );
+}
+
 export default function Sidebar() {
-  const { user, logout } = useAuth();
+  const { user, logout, can } = useAuth();
   const { collapsed, toggleSidebar } = useSidebar();
   const initials = user
     ? `${user.firstName?.[0] || ""}${user.lastName?.[0] || ""}`.toUpperCase()
     : "??";
+
+  const main = filterNavByPermission(mainNavLinks, can);
+  const team = filterNavByPermission(teamNavLinks, can);
+  const platform = filterNavByPermission(platformNavLinks, can);
 
   return (
     <aside className="app-sidebar">
@@ -40,22 +73,16 @@ export default function Sidebar() {
         </button>
       </div>
 
+      {!collapsed && (
+        <div className="sidebar-business-wrap">
+          <BusinessSwitcher />
+        </div>
+      )}
+
       <nav className="sidebar-nav" aria-label="Main navigation">
-        <p className="sidebar-section-label">Main Menu</p>
-        {navLinks.map((link) => (
-          <NavLink
-            key={link.to}
-            to={link.to}
-            end={link.end}
-            title={collapsed ? link.label : undefined}
-            className={({ isActive }) => `sidebar-link ${isActive ? "active" : ""}`}
-          >
-            <span className="sidebar-link-icon">
-              <FontAwesomeIcon icon={link.icon} />
-            </span>
-            <span className="sidebar-link-label">{link.label}</span>
-          </NavLink>
-        ))}
+        <NavSection label="Main Menu" links={main} collapsed={collapsed} />
+        <NavSection label="Team" links={team} collapsed={collapsed} />
+        <NavSection label="Platform" links={platform} collapsed={collapsed} />
       </nav>
 
       <div className="sidebar-profile">
@@ -63,7 +90,9 @@ export default function Sidebar() {
           <span className="sidebar-avatar">{initials}</span>
           <div className="sidebar-profile-meta">
             <span className="sidebar-profile-name">{user?.fullName || "User"}</span>
-            <span className="sidebar-profile-email">{user?.email || "Signed in"}</span>
+            <span className="sidebar-profile-email">
+              {user?.role?.name || user?.email || "Signed in"}
+            </span>
           </div>
         </div>
         <button

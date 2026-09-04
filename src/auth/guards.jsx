@@ -22,7 +22,44 @@ export function RequireAuth() {
 
 export function GuestOnly() {
   const { isAuthenticated, isLoading } = useAuth();
-  if (isLoading) return null;
+  if (isLoading) {
+    return (
+      <div className="page-wrap d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
+        <p className="textcklr mb-0">Loading…</p>
+      </div>
+    );
+  }
   if (isAuthenticated) return <Navigate to="/" replace />;
   return <Outlet />;
+}
+
+/** Permission-based route guard. Backend par bhi same check zaroori hai. */
+export function RequirePermission({ permission, children }) {
+  const { isAuthenticated, isLoading, can } = useAuth();
+  const location = useLocation();
+
+  if (isLoading) {
+    return (
+      <div className="page-wrap d-flex justify-content-center align-items-center" style={{ minHeight: "50vh" }}>
+        <p className="textcklr mb-0">Checking access…</p>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace state={{ from: location }} />;
+  }
+
+  if (permission && !can(permission)) {
+    return <Navigate to="/403" replace />;
+  }
+
+  return children ?? <Outlet />;
+}
+
+/** Chhote UI tukde hide karne ke liye (buttons, links). */
+export function Can({ permission, fallback = null, children }) {
+  const { can } = useAuth();
+  if (!can(permission)) return fallback;
+  return children;
 }
