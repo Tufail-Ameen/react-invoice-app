@@ -112,120 +112,124 @@ function ProductFormFields({ editing, categories, onCancel }) {
   }, [values.unit]);
 
   return (
-    <div className="row g-3">
-      <div className="col-6 col-md-3">
-        <label className="form-label input-clr mb-1" htmlFor="category">Category</label>
-        <Field
-          id="category"
-          name="category"
-          list="product-categories"
-          className="form-control input-settings input-compact"
-          placeholder="Fash Wash"
-        />
-        <datalist id="product-categories">
-          {categories.map((category) => (
-            <option key={category} value={category} />
-          ))}
-        </datalist>
-        <ErrorMessage name="category" component="div" className="text-danger small" />
-      </div>
-      <div className="col-6 col-md-4">
-        <label className="form-label input-clr mb-1" htmlFor="name">Name</label>
-        <Field
-          id="name"
-          name="name"
-          className="form-control input-settings input-compact"
-          placeholder="Golden Pearl"
-        />
-        <ErrorMessage name="name" component="div" className="text-danger small" />
-      </div>
-      <div className="col-4 col-md-2">
-        <label className="form-label input-clr mb-1" htmlFor="unit">Unit</label>
-        <Field as="select" id="unit" name="unit" className="form-select input-settings input-compact">
-          {unitOptions.map((unit) => (
-            <option key={unit} value={unit}>{unit}</option>
-          ))}
-        </Field>
-      </div>
-      {!editing && (
-        <div className="col-4 col-md-2">
-          <label className="form-label input-clr mb-1" htmlFor="stock">Stock</label>
-          <Field id="stock" name="stock" type="number" min="0" className="form-control input-settings input-compact" />
-          <ErrorMessage name="stock" component="div" className="text-danger small" />
-        </div>
-      )}
-
-      <div className="col-6 col-md-2">
-        <label className="form-label input-clr mb-1" htmlFor="tpRate">TP Rate</label>
-        <Field name="tpRate">
-          {({ field }) => (
-            <input
-              {...field}
-              id="tpRate"
-              type="number"
-              min="0"
-              className="form-control input-settings input-compact"
-              placeholder="500"
-              onChange={(e) => applyPricing(values, setFieldValue, { tpRate: e.target.value })}
-            />
-          )}
-        </Field>
-        <ErrorMessage name="tpRate" component="div" className="text-danger small" />
-      </div>
-      <div className="col-6 col-md-2">
-        <label className="form-label input-clr mb-1" htmlFor="discountPercent">Discount %</label>
-        <Field name="discountPercent">
-          {({ field }) => (
-            <input
-              {...field}
-              id="discountPercent"
-              type="number"
-              min="0"
-              max="100"
-              className="form-control input-settings input-compact"
-              placeholder="10"
-              onChange={(e) => applyPricing(values, setFieldValue, { discountPercent: e.target.value })}
-            />
-          )}
-        </Field>
-        <ErrorMessage name="discountPercent" component="div" className="text-danger small" />
-      </div>
-      <div className="col-6 col-md-2">
-        <label className="form-label input-clr mb-1">After discount</label>
-        <input
-          readOnly
-          tabIndex={-1}
-          value={
-            values.netRate !== "" && values.netRate != null
-              ? formatAmount("Rs", values.netRate)
-              : ""
-          }
-          placeholder="Auto"
-          className="form-control input-settings input-compact input-readonly"
-        />
-      </div>
-      <div className="col-6 col-md-2">
-        <label className="form-label input-clr mb-1" htmlFor="printRate">Price</label>
-        <Field
-          id="printRate"
-          name="printRate"
-          type="number"
-          min="0"
-          className="form-control input-settings input-compact"
-          placeholder="Price"
-        />
-        <ErrorMessage name="printRate" component="div" className="text-danger small" />
-      </div>
-
-      <div className="col-12 d-flex flex-wrap gap-2 pt-1">
-        <button type="submit" className="btn save-changes py-2 px-4">
-          {editing ? "Update" : "Add product"}
-        </button>
-        {editing && (
-          <button type="button" className="btn cancel py-2 px-3" onClick={onCancel}>
-            Cancel
+    <div className="product-form">
+      <div className="product-form-head">
+        <h2 className="bill-form mb-0">{editing ? "Edit product" : "Add product"}</h2>
+        <div className="product-form-head-actions">
+          <button type="submit" className="btn save-changes btn-compact">
+            {editing ? "Update" : "Add product"}
           </button>
+          {editing && (
+            <button type="button" className="btn cancel btn-compact" onClick={onCancel}>
+              Cancel
+            </button>
+          )}
+        </div>
+      </div>
+      <div className="product-form-grid">
+        <div className="pf-field">
+          <label className="form-label input-clr" htmlFor="category">Category</label>
+          <Field
+            id="category"
+            name="category"
+            list="product-categories"
+            className="form-control input-settings input-compact"
+            placeholder="Fash Wash"
+          />
+          <datalist id="product-categories">
+            {categories.map((category) => (
+              <option key={category} value={category} />
+            ))}
+          </datalist>
+          <ErrorMessage name="category" component="div" className="text-danger small mb-0" />
+        </div>
+        <div className={`pf-field ${editing ? "pf-span-2" : ""}`}>
+          <label className="form-label input-clr" htmlFor="name">Name</label>
+          <Field
+            id="name"
+            name="name"
+            className="form-control input-settings input-compact"
+            placeholder="Golden Pearl"
+          />
+          <ErrorMessage name="name" component="div" className="text-danger small mb-0" />
+        </div>
+        <div className="pf-field">
+          <label className="form-label input-clr" htmlFor="unit">Unit</label>
+          <Field as="select" id="unit" name="unit" className="form-select input-settings input-compact">
+            {unitOptions.map((unit) => (
+              <option key={unit} value={unit}>{unit}</option>
+            ))}
+          </Field>
+        </div>
+        {!editing && (
+          <div className="pf-field">
+            <label className="form-label input-clr" htmlFor="stock">Stock</label>
+            <Field id="stock" name="stock" type="number" min="0" className="form-control input-settings input-compact" />
+            <ErrorMessage name="stock" component="div" className="text-danger small mb-0" />
+          </div>
         )}
+
+        <div className="pf-field">
+          <label className="form-label input-clr" htmlFor="tpRate">TP Rate</label>
+          <Field name="tpRate">
+            {({ field }) => (
+              <input
+                {...field}
+                id="tpRate"
+                type="number"
+                min="0"
+                className="form-control input-settings input-compact"
+                placeholder="500"
+                onChange={(e) => applyPricing(values, setFieldValue, { tpRate: e.target.value })}
+              />
+            )}
+          </Field>
+          <ErrorMessage name="tpRate" component="div" className="text-danger small mb-0" />
+        </div>
+        <div className="pf-field">
+          <label className="form-label input-clr" htmlFor="discountPercent">Disc %</label>
+          <Field name="discountPercent">
+            {({ field }) => (
+              <input
+                {...field}
+                id="discountPercent"
+                type="number"
+                min="0"
+                max="100"
+                className="form-control input-settings input-compact"
+                placeholder="10"
+                onChange={(e) => applyPricing(values, setFieldValue, { discountPercent: e.target.value })}
+              />
+            )}
+          </Field>
+          <ErrorMessage name="discountPercent" component="div" className="text-danger small mb-0" />
+        </div>
+        <div className="pf-field">
+          <label className="form-label input-clr">After disc.</label>
+          <input
+            readOnly
+            tabIndex={-1}
+            value={
+              values.netRate !== "" && values.netRate != null
+                ? formatAmount("Rs", values.netRate)
+                : ""
+            }
+            placeholder="Auto"
+            className="form-control input-settings input-compact input-computed"
+          />
+        </div>
+        <div className="pf-field">
+          <label className="form-label input-clr" htmlFor="printRate">Price</label>
+          <Field
+            id="printRate"
+            name="printRate"
+            type="number"
+            min="0"
+            className="form-control input-settings input-compact"
+            placeholder="Price"
+          />
+          <ErrorMessage name="printRate" component="div" className="text-danger small mb-0" />
+        </div>
       </div>
     </div>
   );
@@ -314,7 +318,7 @@ export default function StockPage() {
 
   return (
     <div className="page-wrap">
-      <div className="invoices-header mb-3">
+      <div className="invoices-header mb-2">
         <div>
           <h1 className="page-title mb-1">Products &amp; Stock</h1>
           <p className="count-invoices-tect mb-0">
@@ -323,7 +327,7 @@ export default function StockPage() {
         </div>
       </div>
 
-      <nav className="stock-tab-nav mb-4" aria-label="Stock sections">
+      <nav className="stock-tab-nav mb-2" aria-label="Stock sections">
         {[
           { key: "products", label: "Products" },
           { key: "adjust", label: "Adjust stock" },
@@ -350,7 +354,6 @@ export default function StockPage() {
           >
             {({ resetForm }) => (
               <Form className="form-card form-card-compact mb-3">
-                <h2 className="bill-form mb-3">{editing ? "Edit product" : "Add product"}</h2>
                 <ProductFormFields
                   editing={editing}
                   categories={categories}
@@ -364,7 +367,7 @@ export default function StockPage() {
           </Formik>
 
           <div className="d-flex align-items-center justify-content-between mb-2">
-            <h2 className="page-title mb-0">Products</h2>
+            <h2 className="product-list-heading">Products</h2>
             {!isLoading && products.length > 0 && (
               <span className="textcklr small">{products.length}</span>
             )}
@@ -456,15 +459,20 @@ export default function StockPage() {
           validationSchema={adjustSchema}
           onSubmit={adjustStock}
         >
-          <Form className="form-card">
-            <h2 className="bill-form mb-3">Adjust stock</h2>
-            <p className="textcklr small">
+          <Form className="form-card form-card-compact">
+            <div className="product-form-head">
+              <h2 className="bill-form mb-0">Adjust stock</h2>
+              <button type="submit" className="btn save-changes btn-compact">
+                Apply
+              </button>
+            </div>
+            <p className="textcklr small mb-2">
               Positive qty = stock badhao, negative = kam karo. Reason zaroori hai.
             </p>
-            <div className="row g-3">
-              <div className="col-12 col-md-4">
-                <label className="input-clr mb-1">Product</label>
-                <Field as="select" name="productId" className="form-select input-settings">
+            <div className="product-form-grid product-form-grid-adjust">
+              <div className="pf-field">
+                <label className="form-label input-clr" htmlFor="productId">Product</label>
+                <Field as="select" id="productId" name="productId" className="form-select input-settings input-compact">
                   <option value="">Select…</option>
                   {products.map((p) => (
                     <option key={p.id} value={p.id}>
@@ -472,26 +480,22 @@ export default function StockPage() {
                     </option>
                   ))}
                 </Field>
-                <ErrorMessage name="productId" component="div" className="text-danger" />
+                <ErrorMessage name="productId" component="div" className="text-danger small mb-0" />
               </div>
-              <div className="col-6 col-md-3">
-                <label className="input-clr mb-1">Quantity (+/−)</label>
-                <Field name="quantity" type="number" className="form-control input-settings" />
-                <ErrorMessage name="quantity" component="div" className="text-danger" />
+              <div className="pf-field">
+                <label className="form-label input-clr" htmlFor="quantity">Qty (+/−)</label>
+                <Field id="quantity" name="quantity" type="number" className="form-control input-settings input-compact" />
+                <ErrorMessage name="quantity" component="div" className="text-danger small mb-0" />
               </div>
-              <div className="col-6 col-md-5">
-                <label className="input-clr mb-1">Reason</label>
+              <div className="pf-field">
+                <label className="form-label input-clr" htmlFor="reason">Reason</label>
                 <Field
+                  id="reason"
                   name="reason"
-                  className="form-control input-settings"
+                  className="form-control input-settings input-compact"
                   placeholder="e.g. Damaged, Restock"
                 />
-                <ErrorMessage name="reason" component="div" className="text-danger" />
-              </div>
-              <div className="col-12">
-                <button type="submit" className="btn save-changes py-2 px-4">
-                  Apply adjustment
-                </button>
+                <ErrorMessage name="reason" component="div" className="text-danger small mb-0" />
               </div>
             </div>
           </Form>

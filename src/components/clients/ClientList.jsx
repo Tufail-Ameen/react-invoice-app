@@ -1,5 +1,12 @@
-import EmptyState from "../ui/EmptyState";
+import { faPen, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useClients } from "../../hooks/useClients";
+import EmptyState from "../ui/EmptyState";
+
+function formatCell(value) {
+  if (value === null || value === undefined || value === "") return "—";
+  return value;
+}
 
 /**
  * Clients list — data GET /clients se aati hai (useClients hook).
@@ -16,35 +23,62 @@ export default function ClientList({ onEdit, onDelete }) {
   }
 
   return (
-    <div className="d-flex flex-column gap-2">
-      {clients.map((client) => (
-        <div
-          key={client.key || client._id || client.id}
-          className="row align-items-center invoice-row datalist py-3 px-2 m-0"
-        >
-          <div className="col-12 col-md-4 table-text-size">{client.name}</div>
-          <div className="col-12 col-md-3 textcklr small">{client.email}</div>
-          <div className="col-12 col-md-3 textcklr small">
-            {client.city}, {client.country}
-          </div>
-          <div className="col-12 col-md-2 d-flex gap-2 justify-content-md-end mt-2 mt-md-0">
-            <button
-              type="button"
-              className="btn edit py-1 px-3"
-              onClick={() => onEdit?.(client)}
-            >
-              Edit
-            </button>
-            <button
-              type="button"
-              className="btn cancel py-1 px-3"
-              onClick={() => onDelete?.(client)}
-            >
-              Delete
-            </button>
-          </div>
-        </div>
-      ))}
+    <div className="form-card product-list-card">
+      <div className="product-table-scroll">
+        <table className="product-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Address</th>
+              <th>City</th>
+              <th>Post code</th>
+              <th>Country</th>
+              <th className="text-end col-actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {clients.map((client) => (
+              <tr key={client.key || client._id || client.id}>
+                <td className="table-text-size">{formatCell(client.name)}</td>
+                <td className="cell-muted">{formatCell(client.email)}</td>
+                <td>{formatCell(client.address)}</td>
+                <td>
+                  {client.city ? (
+                    <span className="category-badge">{client.city}</span>
+                  ) : (
+                    <span className="cell-muted">—</span>
+                  )}
+                </td>
+                <td>{formatCell(client.code)}</td>
+                <td className="cell-muted">{formatCell(client.country)}</td>
+                <td className="col-actions">
+                  <div className="table-actions">
+                    <button
+                      type="button"
+                      className="btn btn-table-edit"
+                      onClick={() => onEdit?.(client)}
+                      title="Edit client"
+                    >
+                      <FontAwesomeIcon icon={faPen} />
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-table-remove"
+                      onClick={() => onDelete?.(client)}
+                      title="Remove client"
+                    >
+                      <FontAwesomeIcon icon={faTrash} />
+                      Remove
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
