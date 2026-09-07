@@ -71,7 +71,9 @@ api.interceptors.response.use(
     }
 
     const isAuthEndpoint =
-      config?.url?.includes("/auth/login") || config?.url?.includes("/auth/refresh");
+      config?.url === "/login" ||
+      config?.url === "/register" ||
+      config?.url?.includes("/auth/refresh");
 
     if (response.status === 401 && !config._retried && !isAuthEndpoint) {
       config._retried = true;

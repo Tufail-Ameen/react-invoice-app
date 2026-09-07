@@ -25,8 +25,8 @@ Permission strings: dekhain [`src/lib/permissions.js`](../src/lib/permissions.js
 
 | Method | Path | Body / notes | Response `data` |
 |--------|------|--------------|-----------------|
-| POST | `/auth/register` | `{ firstName, lastName, email, password, businessName }` — user + business + owner membership | `{ user, tokens }` |
-| POST | `/auth/login` | `{ email, password }` | `{ user, tokens }` |
+| POST | `/register` | `{ firstName, lastName, email, password, businessName }` — user + business + owner membership | `{ user, tokens }` |
+| POST | `/login` | `{ email, password }` — role request se nahi, stored account se resolve hoga | `{ user, tokens }` |
 | POST | `/auth/refresh` | `{ refreshToken }` | `{ tokens }` |
 | POST | `/auth/logout` | `{ refreshToken }` | 204 |
 | GET | `/auth/me` | — | `{ user }` |
@@ -67,7 +67,10 @@ Permission strings: dekhain [`src/lib/permissions.js`](../src/lib/permissions.js
 }
 ```
 
-**Note:** `permissions` **active business** ke role se aani chahiye. Platform admin ke liye `isPlatformAdmin: true` + `platform.manage_businesses` (ya `*`).
+**Note:** `permissions` **active business** ke role se aani chahiye. Business role ka `*` sirf business permissions deta hai; platform access nahi. Platform admin ke liye `isPlatformAdmin: true` ya explicit `platform.manage_businesses` zaroori hai.
+
+Public `/register` hamesha `isPlatformAdmin: false` + `business_owner` create karega.
+Platform Super Admin sirf backend seed/manual provisioning se create hoga.
 
 ---
 
@@ -146,9 +149,14 @@ Pehle se UI use karti hai — ab har row pe `business_id` + har query pe filter:
 Har mutating endpoint pe:
 
 1. JWT valid  
-2. User is member of `X-Business-Id`  
+2. User is member of `X-Business-Id` (ya verified Platform Super Admin)
 3. User has required permission  
 4. `WHERE business_id = :activeBusinessId`
+
+Yehi tenant filter reads par bhi mandatory hai. Client ka `X-Business-Id`
+trusted nahi hai: backend membership/platform privilege verify karne ke baad
+hi requested business scope use kare. ID-based detail/update/delete queries mein
+`id` ke saath `business_id` bhi condition ka hissa ho.
 
 ---
 
@@ -156,8 +164,8 @@ Har mutating endpoint pe:
 
 | UI route | Page | APIs |
 |----------|------|------|
-| `/login` | Login | `POST /auth/login` |
-| `/register` | Register | `POST /auth/register` |
+| `/login` | Login | `POST /login` |
+| `/register` | Register | `POST /register` |
 | `/platform/businesses` | Platform businesses | `GET/POST/PATCH /platform/businesses` |
 | `/team/users` | Team users | `GET/POST/PATCH/DELETE /users`, `GET /roles` |
 | `/team/roles` | Roles | `GET/POST/PATCH/DELETE /roles` |
@@ -180,10 +188,13 @@ Business switcher (sidebar/navbar): `POST /auth/switch-business`
 
 ---
 
-## 9. Local UI note
+## 9. Required authorization outcomes
 
-Jab `REACT_APP_ENABLE_MOCK_API=false` (default), frontend **demo Local Owner** (`permissions: ['*']`) se UI open rakhta hai taake screens dekh sako. Jab aapka JWT auth ready ho:
+1. Business Owner token + apna `businessId` → allowed by assigned permission.
+2. Business Owner token + doosra `businessId` → `403`.
+3. Business Owner token + `/platform/businesses` → `403`.
+4. Platform Super Admin token + `/platform/businesses` → allowed.
+5. Missing/invalid token → `401`.
 
-1. Auth bypass hata dena (`AuthContext` local demo)  
-2. Login/register real API se chalana  
-3. Har request pe `X-Business-Id` already bhej raha hai (`tokenStore` + `apiClient`)
+Frontend har request pe `X-Business-Id` bhejta hai (`tokenStore` + `apiClient`);
+authorization ka source of truth phir bhi backend hai.

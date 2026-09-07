@@ -35,5 +35,5 @@ export const axiosBaseQuery =
 export function getErrorMessage(error, fallback = "Kuch ghalat ho gaya.") {
   if (!error) return fallback;
   if (typeof error === "string") return error;
-  return error?.data?.message || fallback;
+  return error?.data?.message || error?.message || fallback;
 }

@@ -123,3 +123,30 @@ export function hasEveryPermission(userPermissions, required) {
   const list = Array.isArray(required) ? required : [required];
   return list.every((p) => userPermissions.includes(p));
 }
+
+/**
+ * Platform access is deliberately outside the business-level "*" wildcard.
+ * A platform admin must have an explicit flag or explicit platform permission.
+ */
+export function isPlatformAdminUser(user) {
+  return (
+    user?.isPlatformAdmin === true ||
+    user?.permissions?.includes(PERMISSIONS.PLATFORM_MANAGE_BUSINESSES)
+  );
+}
+
+export function hasUserPermission(user, required) {
+  if (!required) return true;
+  const list = Array.isArray(required) ? required : [required];
+
+  return list.some((permission) =>
+    permission === PERMISSIONS.PLATFORM_MANAGE_BUSINESSES
+      ? isPlatformAdminUser(user)
+      : hasPermission(user?.permissions, permission)
+  );
+}
+
+export function hasEveryUserPermission(user, required) {
+  const list = Array.isArray(required) ? required : [required];
+  return list.every((permission) => hasUserPermission(user, permission));
+}

@@ -4,31 +4,13 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import * as Yup from "yup";
 import { useAuth } from "../auth/AuthContext";
+import { isPlatformAdminUser } from "../lib/permissions";
 import { getErrorMessage } from "../lib/rtkBaseQuery";
 
 const schema = Yup.object({
   email: Yup.string().email("Invalid email").required("Email required"),
   password: Yup.string().required("Password required"),
 });
-
-const DEMO_ACCOUNTS = [
-  {
-    key: "platform",
-    label: "Platform Owner",
-    hint: "Sab businesses add / manage",
-    email: "platform@invoice.test",
-    password: "Password123!",
-    home: "/platform/businesses",
-  },
-  {
-    key: "owner",
-    label: "Business Owner",
-    hint: "Apni dukaan + team",
-    email: "owner@invoice.test",
-    password: "Password123!",
-    home: "/",
-  },
-];
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -43,8 +25,8 @@ export default function LoginPage() {
         <p className="auth-eyebrow">Invoice App</p>
         <h1 className="page-title mb-1">Sign in</h1>
         <p className="textcklr mb-3">
-          Ek hi login — Platform Owner aur Business Owner dono yahan se aate hain.
-          Role ke hisaab se menu alag dikhega.
+          Apne account ke email aur password se sign in karein. Aapka access
+          backend par assigned role ke mutabiq hoga.
         </p>
 
         <Formik
@@ -55,14 +37,15 @@ export default function LoginPage() {
             try {
               const user = await login(values.email, values.password);
               toast.success("Logged in");
-              const demo = DEMO_ACCOUNTS.find(
-                (a) => a.email.toLowerCase() === values.email.trim().toLowerCase()
-              );
-              const fallback =
-                user?.isPlatformAdmin || demo?.key === "platform"
-                  ? "/platform/businesses"
-                  : "/";
-              navigate(from && from !== "/login" ? from : fallback, { replace: true });
+              const isPlatformAdmin = isPlatformAdminUser(user);
+              const requestedPath = from && from !== "/login" ? from : null;
+              const canReturnToRequestedPath =
+                requestedPath &&
+                (isPlatformAdmin || !requestedPath.startsWith("/platform"));
+              const fallback = isPlatformAdmin ? "/platform/businesses" : "/";
+              navigate(canReturnToRequestedPath ? requestedPath : fallback, {
+                replace: true,
+              });
             } catch (err) {
               toast.error(getErrorMessage(err, "Login failed"));
             } finally {
@@ -70,66 +53,44 @@ export default function LoginPage() {
             }
           }}
         >
-          {({ setValues }) => (
-            <Form>
-              <div className="auth-demo-grid mb-3">
-                {DEMO_ACCOUNTS.map((account) => (
-                  <button
-                    key={account.key}
-                    type="button"
-                    className="auth-demo-chip"
-                    onClick={() =>
-                      setValues({ email: account.email, password: account.password })
-                    }
-                  >
-                    <strong>{account.label}</strong>
-                    <span>{account.hint}</span>
-                    <code>{account.email}</code>
-                  </button>
-                ))}
-              </div>
+          <Form>
+            <div className="mb-3">
+              <label className="form-label input-clr" htmlFor="email">
+                Email
+              </label>
+              <Field id="email" name="email" type="email" className="form-control input-settings" />
+              <ErrorMessage name="email" component="div" className="text-danger" />
+            </div>
+            <div className="mb-3">
+              <label className="form-label input-clr" htmlFor="password">
+                Password
+              </label>
+              <Field
+                id="password"
+                name="password"
+                type="password"
+                className="form-control input-settings"
+              />
+              <ErrorMessage name="password" component="div" className="text-danger" />
+            </div>
+            <button
+              type="submit"
+              className="btn input-clr1 save-changes py-2 w-100"
+              disabled={submitting}
+            >
+              {submitting ? "Signing in…" : "Sign in"}
+            </button>
 
-              <div className="mb-3">
-                <label className="form-label input-clr" htmlFor="email">
-                  Email
-                </label>
-                <Field id="email" name="email" type="email" className="form-control input-settings" />
-                <ErrorMessage name="email" component="div" className="text-danger" />
-              </div>
-              <div className="mb-3">
-                <label className="form-label input-clr" htmlFor="password">
-                  Password
-                </label>
-                <Field
-                  id="password"
-                  name="password"
-                  type="password"
-                  className="form-control input-settings"
-                />
-                <ErrorMessage name="password" component="div" className="text-danger" />
-              </div>
-              <button
-                type="submit"
-                className="btn input-clr1 save-changes py-2 w-100"
-                disabled={submitting}
-              >
-                {submitting ? "Signing in…" : "Sign in"}
-              </button>
-
-              <div className="auth-footer mt-3">
-                <p className="textcklr small mb-2">
-                  Demo password dono ke liye: <code>Password123!</code>
-                </p>
-                <p className="textcklr small mb-0">
-                  Nayi dukaan start karni hai?{" "}
-                  <Link to="/register">Business register</Link>
-                </p>
-                <p className="textcklr small mb-0 mt-1">
-                  Platform Owner public register nahi karta — account backend seed se banta hai.
-                </p>
-              </div>
-            </Form>
-          )}
+            <div className="auth-footer mt-3">
+              <p className="textcklr small mb-0">
+                Nayi dukaan start karni hai?{" "}
+                <Link to="/register">Business register</Link>
+              </p>
+              <p className="textcklr small mb-0 mt-1">
+                Platform Owner public register nahi karta — account backend seed se banta hai.
+              </p>
+            </div>
+          </Form>
         </Formik>
       </div>
       <ToastContainer position="top-center" autoClose={1500} />

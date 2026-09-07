@@ -2,7 +2,11 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { useDispatch } from "react-redux";
 import { toast } from "react-toastify";
 import { onSessionExpired } from "../lib/apiClient";
-import { hasEveryPermission, hasPermission } from "../lib/permissions";
+import {
+  hasEveryUserPermission,
+  hasUserPermission,
+  isPlatformAdminUser,
+} from "../lib/permissions";
 import { getErrorMessage } from "../lib/rtkBaseQuery";
 import { tokenStore } from "../lib/tokenStore";
 import {
@@ -20,6 +24,32 @@ const BOOTSTRAP_TIMEOUT_MS = 4000;
 function applySessionUser(user) {
   if (user?.activeBusinessId) tokenStore.setBusinessId(user.activeBusinessId);
   return user;
+}
+
+function requireUser(data, source) {
+  const user = data?.user;
+
+  if (!user || typeof user !== "object") {
+    throw new Error(`${source} response mein user missing hai.`);
+  }
+  if (!Array.isArray(user.permissions)) {
+    throw new Error(`${source} response mein user.permissions missing hain.`);
+  }
+  if (!isPlatformAdminUser(user) && !user.activeBusinessId) {
+    throw new Error(`${source} response mein activeBusinessId missing hai.`);
+  }
+
+  return user;
+}
+
+function requireSession(data, source) {
+  const user = requireUser(data, source);
+  if (!data?.tokens?.accessToken || !data?.tokens?.refreshToken) {
+    throw new Error(
+      `${source} response mein accessToken ya refreshToken missing hai.`
+    );
+  }
+  return { user, tokens: data.tokens };
 }
 
 function withTimeout(promise, ms) {
@@ -69,7 +99,7 @@ export function AuthProvider({ children }) {
         // Backend down / hang ho to Loading forever na rahe.
         const data = await withTimeout(fetchMe().unwrap(), BOOTSTRAP_TIMEOUT_MS);
         if (cancelled) return;
-        setUser(applySessionUser(data.user));
+        setUser(applySessionUser(requireUser(data, "Session")));
         setStatus("authenticated");
       } catch {
         if (cancelled) return;
@@ -97,13 +127,14 @@ export function AuthProvider({ children }) {
   const login = useCallback(
     async (email, password) => {
       const data = await loginMutation({ email, password }).unwrap();
+      const session = requireSession(data, "Login");
       tokenStore.set({
-        ...data.tokens,
-        businessId: data.user?.activeBusinessId || null,
+        ...session.tokens,
+        businessId: session.user.activeBusinessId || null,
       });
-      setUser(applySessionUser(data.user));
+      setUser(applySessionUser(session.user));
       setStatus("authenticated");
-      return data.user;
+      return session.user;
     },
     [loginMutation]
   );
@@ -111,13 +142,14 @@ export function AuthProvider({ children }) {
   const register = useCallback(
     async (body) => {
       const data = await registerMutation(body).unwrap();
+      const session = requireSession(data, "Register");
       tokenStore.set({
-        ...data.tokens,
-        businessId: data.user?.activeBusinessId || null,
+        ...session.tokens,
+        businessId: session.user.activeBusinessId || null,
       });
-      setUser(applySessionUser(data.user));
+      setUser(applySessionUser(session.user));
       setStatus("authenticated");
-      return data.user;
+      return session.user;
     },
     [registerMutation]
   );
@@ -125,13 +157,14 @@ export function AuthProvider({ children }) {
   const switchBusiness = useCallback(
     async (businessId) => {
       const data = await switchBusinessMutation({ businessId }).unwrap();
+      const session = requireSession(data, "Business switch");
       tokenStore.set({
-        ...data.tokens,
-        businessId: data.user?.activeBusinessId || businessId,
+        ...session.tokens,
+        businessId: session.user.activeBusinessId || businessId,
       });
-      setUser(applySessionUser(data.user));
+      setUser(applySessionUser(session.user));
       dispatch(invoiceApi.util.resetApiState());
-      return data.user;
+      return session.user;
     },
     [switchBusinessMutation, dispatch]
   );
@@ -153,6 +186,7 @@ export function AuthProvider({ children }) {
       user?.businesses?.find((b) => b.id === user?.activeBusinessId) ||
       user?.businesses?.[0] ||
       null;
+    const isPlatformAdmin = isPlatformAdminUser(user);
 
     return {
       user,
@@ -162,11 +196,9 @@ export function AuthProvider({ children }) {
       permissions,
       activeBusiness,
       businesses: user?.businesses ?? [],
-      isPlatformAdmin:
-        Boolean(user?.isPlatformAdmin) ||
-        hasPermission(permissions, "platform.manage_businesses"),
-      can: (permission) => hasPermission(permissions, permission),
-      canAll: (list) => hasEveryPermission(permissions, list),
+      isPlatformAdmin,
+      can: (permission) => hasUserPermission(user, permission),
+      canAll: (list) => hasEveryUserPermission(user, list),
       login,
       register,
       logout,
