@@ -1,8 +1,11 @@
 /**
  * Permission catalog — backend source of truth; frontend sirf UI hide/show.
+ * Naming: resource.action (update not edit). Business "*" ≠ platform admin.
  */
 
 export const PERMISSIONS = {
+  DASHBOARD_VIEW: "dashboard.view",
+
   CLIENTS_VIEW: "clients.view",
   CLIENTS_CREATE: "clients.create",
   CLIENTS_UPDATE: "clients.update",
@@ -12,6 +15,12 @@ export const PERMISSIONS = {
   PRODUCTS_CREATE: "products.create",
   PRODUCTS_UPDATE: "products.update",
   PRODUCTS_DELETE: "products.delete",
+
+  CATEGORIES_VIEW: "categories.view",
+  CATEGORIES_CREATE: "categories.create",
+  CATEGORIES_UPDATE: "categories.update",
+  CATEGORIES_DELETE: "categories.delete",
+
   INVENTORY_VIEW: "inventory.view",
   INVENTORY_ADJUST: "inventory.adjust",
 
@@ -20,6 +29,7 @@ export const PERMISSIONS = {
   INVOICES_UPDATE: "invoices.update",
   INVOICES_DELETE: "invoices.delete",
   INVOICES_CHANGE_STATUS: "invoices.change_status",
+  INVOICES_PRINT: "invoices.print",
 
   USERS_VIEW: "users.view",
   USERS_INVITE: "users.invite",
@@ -31,11 +41,26 @@ export const PERMISSIONS = {
   BUSINESS_SETTINGS: "business.settings",
   BUSINESS_MANAGE_TEAM: "business.manage_team",
 
+  ORDERS_VIEW: "orders.view",
+  ORDERS_CREATE: "orders.create",
+  ORDERS_UPDATE: "orders.update",
+  ORDERS_CONVERT: "orders.convert",
+
+  REPORTS_VIEW: "reports.view",
+
   PLATFORM_MANAGE_BUSINESSES: "platform.manage_businesses",
   AUDIT_VIEW: "audit.view",
 };
 
 export const PERMISSION_GROUPS = [
+  {
+    key: "dashboard",
+    label: "Dashboard",
+    description: "Business overview",
+    permissions: [
+      { key: PERMISSIONS.DASHBOARD_VIEW, label: "View dashboard" },
+    ],
+  },
   {
     key: "clients",
     label: "Clients",
@@ -50,12 +75,16 @@ export const PERMISSION_GROUPS = [
   {
     key: "catalog",
     label: "Products & Stock",
-    description: "Products and inventory",
+    description: "Products, categories, and inventory",
     permissions: [
       { key: PERMISSIONS.PRODUCTS_VIEW, label: "View products" },
       { key: PERMISSIONS.PRODUCTS_CREATE, label: "Create products" },
       { key: PERMISSIONS.PRODUCTS_UPDATE, label: "Update products" },
       { key: PERMISSIONS.PRODUCTS_DELETE, label: "Delete products" },
+      { key: PERMISSIONS.CATEGORIES_VIEW, label: "View categories" },
+      { key: PERMISSIONS.CATEGORIES_CREATE, label: "Create categories" },
+      { key: PERMISSIONS.CATEGORIES_UPDATE, label: "Update categories" },
+      { key: PERMISSIONS.CATEGORIES_DELETE, label: "Delete categories" },
       { key: PERMISSIONS.INVENTORY_VIEW, label: "View inventory" },
       { key: PERMISSIONS.INVENTORY_ADJUST, label: "Adjust stock" },
     ],
@@ -70,6 +99,18 @@ export const PERMISSION_GROUPS = [
       { key: PERMISSIONS.INVOICES_UPDATE, label: "Update invoices" },
       { key: PERMISSIONS.INVOICES_DELETE, label: "Delete invoices" },
       { key: PERMISSIONS.INVOICES_CHANGE_STATUS, label: "Change status" },
+      { key: PERMISSIONS.INVOICES_PRINT, label: "Print invoices" },
+    ],
+  },
+  {
+    key: "orders",
+    label: "Orders",
+    description: "Order booker flows (APIs in later phases)",
+    permissions: [
+      { key: PERMISSIONS.ORDERS_VIEW, label: "View orders" },
+      { key: PERMISSIONS.ORDERS_CREATE, label: "Create orders" },
+      { key: PERMISSIONS.ORDERS_UPDATE, label: "Update orders" },
+      { key: PERMISSIONS.ORDERS_CONVERT, label: "Convert orders" },
     ],
   },
   {
@@ -89,9 +130,10 @@ export const PERMISSION_GROUPS = [
   {
     key: "business",
     label: "Business",
-    description: "Settings and audit",
+    description: "Settings, reports, and audit",
     permissions: [
       { key: PERMISSIONS.BUSINESS_SETTINGS, label: "Business settings" },
+      { key: PERMISSIONS.REPORTS_VIEW, label: "View reports" },
       { key: PERMISSIONS.AUDIT_VIEW, label: "View audit log" },
     ],
   },

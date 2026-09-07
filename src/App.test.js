@@ -32,5 +32,6 @@ test("renders login when unauthenticated", async () => {
       <App />
     </Provider>
   );
-  expect(await screen.findByText(/Invoice App/i)).toBeInTheDocument();
+  const brands = await screen.findAllByText(/Invoice App/i);
+  expect(brands.length).toBeGreaterThan(0);
 });

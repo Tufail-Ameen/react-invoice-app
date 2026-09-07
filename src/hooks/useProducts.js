@@ -4,11 +4,11 @@ import { getErrorMessage } from "../lib/rtkBaseQuery";
 import { useGetProductsQuery } from "../services/invoiceApi";
 
 /**
- * GET /products — RTK Query (Postman: http://localhost:5001/products).
- * Usage: const { products, isLoading } = useProducts()
+ * GET /products — RTK Query with optional search/filter params.
+ * Usage: const { products, isLoading } = useProducts({ q, lowStock: true })
  */
-export function useProducts() {
-  const query = useGetProductsQuery();
+export function useProducts(params = {}) {
+  const query = useGetProductsQuery(params);
 
   useEffect(() => {
     if (query.isError) {

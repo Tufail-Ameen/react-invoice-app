@@ -1,10 +1,16 @@
 import EmptyState from "../ui/EmptyState";
+import { Can } from "../../auth/guards";
 import { useClients } from "../../hooks/useClients";
 
 /**
  * Clients list — data GET /clients se aati hai (useClients hook).
  */
-export default function ClientList({ onEdit, onDelete }) {
+export default function ClientList({
+  onEdit,
+  onDelete,
+  canEditPermission,
+  canDeletePermission,
+}) {
   const { clients, isLoading } = useClients();
 
   if (isLoading) {
@@ -28,20 +34,44 @@ export default function ClientList({ onEdit, onDelete }) {
             {client.city}, {client.country}
           </div>
           <div className="col-12 col-md-2 d-flex gap-2 justify-content-md-end mt-2 mt-md-0">
-            <button
-              type="button"
-              className="btn edit py-1 px-3"
-              onClick={() => onEdit?.(client)}
-            >
-              Edit
-            </button>
-            <button
-              type="button"
-              className="btn cancel py-1 px-3"
-              onClick={() => onDelete?.(client)}
-            >
-              Delete
-            </button>
+            {canEditPermission ? (
+              <Can permission={canEditPermission}>
+                <button
+                  type="button"
+                  className="btn edit py-1 px-3"
+                  onClick={() => onEdit?.(client)}
+                >
+                  Edit
+                </button>
+              </Can>
+            ) : (
+              <button
+                type="button"
+                className="btn edit py-1 px-3"
+                onClick={() => onEdit?.(client)}
+              >
+                Edit
+              </button>
+            )}
+            {canDeletePermission ? (
+              <Can permission={canDeletePermission}>
+                <button
+                  type="button"
+                  className="btn cancel py-1 px-3"
+                  onClick={() => onDelete?.(client)}
+                >
+                  Delete
+                </button>
+              </Can>
+            ) : (
+              <button
+                type="button"
+                className="btn cancel py-1 px-3"
+                onClick={() => onDelete?.(client)}
+              >
+                Delete
+              </button>
+            )}
           </div>
         </div>
       ))}

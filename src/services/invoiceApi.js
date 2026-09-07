@@ -1,6 +1,9 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { normalizeClient, normalizeClientsResponse } from "../lib/normalizeClient";
-import { normalizeProductsResponse } from "../lib/normalizeProduct";
+import {
+  normalizeProduct,
+  normalizeProductsResponse,
+} from "../lib/normalizeProduct";
 import { axiosBaseQuery } from "../lib/rtkBaseQuery";
 
 /**
@@ -9,9 +12,10 @@ import { axiosBaseQuery } from "../lib/rtkBaseQuery";
 export const invoiceApi = createApi({
   reducerPath: "invoiceApi",
   baseQuery: axiosBaseQuery(),
-  tagTypes: [
+    tagTypes: [
     "Client",
     "Product",
+    "Category",
     "Movement",
     "Invoice",
     "Auth",
@@ -45,7 +49,18 @@ export const invoiceApi = createApi({
         method: "POST",
         data: body,
       }),
-      invalidatesTags: ["Auth", "Client", "Product", "Invoice", "Movement", "User"],
+      invalidatesTags: [
+        "Auth",
+        "Client",
+        "Product",
+        "Category",
+        "Invoice",
+        "Movement",
+        "User",
+        "Role",
+        "Audit",
+        "Business",
+      ],
     }),
 
     // ---- Team: users ----
@@ -170,7 +185,7 @@ export const invoiceApi = createApi({
 
     // ---- Products (GET /products → raw array from Express) ----
     getProducts: builder.query({
-      query: () => ({ url: "/products" }),
+      query: (params = {}) => ({ url: "/products", params }),
       transformResponse: normalizeProductsResponse,
       providesTags: (result) =>
         result?.products
@@ -179,6 +194,11 @@ export const invoiceApi = createApi({
               { type: "Product", id: "LIST" },
             ]
           : [{ type: "Product", id: "LIST" }],
+    }),
+    getProduct: builder.query({
+      query: (id) => ({ url: `/products/${id}` }),
+      transformResponse: (response) => normalizeProduct(response),
+      providesTags: (result, error, id) => [{ type: "Product", id }],
     }),
     createProduct: builder.mutation({
       query: (body) => ({ url: "/products", method: "POST", data: body }),
@@ -206,15 +226,63 @@ export const invoiceApi = createApi({
       ],
     }),
 
+    // ---- Categories ----
+    getCategories: builder.query({
+      query: (params = {}) => ({ url: "/categories", params }),
+      providesTags: (result) =>
+        result?.categories
+          ? [
+              ...result.categories.map(({ id }) => ({ type: "Category", id })),
+              { type: "Category", id: "LIST" },
+            ]
+          : [{ type: "Category", id: "LIST" }],
+    }),
+    createCategory: builder.mutation({
+      query: (body) => ({ url: "/categories", method: "POST", data: body }),
+      invalidatesTags: [{ type: "Category", id: "LIST" }],
+    }),
+    updateCategory: builder.mutation({
+      query: ({ id, ...body }) => ({
+        url: `/categories/${id}`,
+        method: "PATCH",
+        data: body,
+      }),
+      invalidatesTags: [{ type: "Category", id: "LIST" }],
+    }),
+    deleteCategory: builder.mutation({
+      query: (id) => ({ url: `/categories/${id}`, method: "DELETE" }),
+      invalidatesTags: [{ type: "Category", id: "LIST" }],
+    }),
+
     // ---- Inventory ----
     getMovements: builder.query({
       query: (params = {}) => ({ url: "/inventory/movements", params }),
       providesTags: [{ type: "Movement", id: "LIST" }],
     }),
+    getLowStock: builder.query({
+      query: () => ({ url: "/inventory/low-stock" }),
+      transformResponse: (response) => ({
+        products: (response?.products || []).map(normalizeProduct),
+      }),
+      providesTags: [{ type: "Product", id: "LOW_STOCK" }],
+    }),
     adjustInventory: builder.mutation({
       query: (body) => ({ url: "/inventory/adjust", method: "POST", data: body }),
       invalidatesTags: [
         { type: "Product", id: "LIST" },
+        { type: "Product", id: "LOW_STOCK" },
+        { type: "Movement", id: "LIST" },
+      ],
+    }),
+    openingStock: builder.mutation({
+      query: (body) => ({
+        url: "/inventory/opening-stock",
+        method: "POST",
+        data: body,
+      }),
+      invalidatesTags: [
+        { type: "Product", id: "LIST" },
+        { type: "Product", id: "LOW_STOCK" },
         { type: "Movement", id: "LIST" },
       ],
     }),
@@ -302,11 +370,18 @@ export const {
   useUpdateClientMutation,
   useDeleteClientMutation,
   useGetProductsQuery,
+  useGetProductQuery,
   useCreateProductMutation,
   useUpdateProductMutation,
   useDeleteProductMutation,
+  useGetCategoriesQuery,
+  useCreateCategoryMutation,
+  useUpdateCategoryMutation,
+  useDeleteCategoryMutation,
   useGetMovementsQuery,
+  useGetLowStockQuery,
   useAdjustInventoryMutation,
+  useOpeningStockMutation,
   useGetInvoicesQuery,
   useGetInvoiceQuery,
   useCreateInvoiceMutation,

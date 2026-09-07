@@ -3,9 +3,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import { Can } from "../auth/guards";
 import InvoiceForm from "../components/invoices/InvoiceForm";
 import EmptyState from "../components/ui/EmptyState";
 import StatusBadge from "../components/ui/StatusBadge";
+import { PERMISSIONS } from "../lib/permissions";
 import { getErrorMessage } from "../lib/rtkBaseQuery";
 import {
   useDeleteInvoiceMutation,
@@ -80,45 +82,55 @@ export default function InvoiceDetailPage() {
         </div>
         <div className="detail-actions">
           {invoice.status === "draft" && (
-            <button
-              type="button"
-              className="btn input-clr1 edit py-2 px-3"
-              onClick={() => setShowForm(true)}
-            >
-              Edit
-            </button>
+            <Can permission={PERMISSIONS.INVOICES_UPDATE}>
+              <button
+                type="button"
+                className="btn input-clr1 edit py-2 px-3"
+                onClick={() => setShowForm(true)}
+              >
+                Edit
+              </button>
+            </Can>
           )}
           {invoice.status !== "paid" && (
-            <button type="button" className="btn input-clr1 delete py-2 px-3" onClick={onDelete}>
-              Delete
-            </button>
+            <Can permission={PERMISSIONS.INVOICES_DELETE}>
+              <button type="button" className="btn input-clr1 delete py-2 px-3" onClick={onDelete}>
+                Delete
+              </button>
+            </Can>
           )}
           {invoice.status === "draft" && (
-            <button
-              type="button"
-              className="btn input-clr1 save py-2 px-3"
-              onClick={() => setStatus("pending")}
-            >
-              Send (deduct stock)
-            </button>
+            <Can permission={PERMISSIONS.INVOICES_CHANGE_STATUS}>
+              <button
+                type="button"
+                className="btn input-clr1 save py-2 px-3"
+                onClick={() => setStatus("pending")}
+              >
+                Send (deduct stock)
+              </button>
+            </Can>
           )}
           {(invoice.status === "draft" || invoice.status === "pending") && (
-            <button
-              type="button"
-              className="btn input-clr1 mark-paid py-2 px-3"
-              onClick={() => setStatus("paid")}
-            >
-              Mark as Paid
-            </button>
+            <Can permission={PERMISSIONS.INVOICES_CHANGE_STATUS}>
+              <button
+                type="button"
+                className="btn input-clr1 mark-paid py-2 px-3"
+                onClick={() => setStatus("paid")}
+              >
+                Mark as Paid
+              </button>
+            </Can>
           )}
           {(invoice.status === "draft" || invoice.status === "pending") && (
-            <button
-              type="button"
-              className="btn cancel py-2 px-3"
-              onClick={() => setStatus("cancelled")}
-            >
-              Cancel
-            </button>
+            <Can permission={PERMISSIONS.INVOICES_CHANGE_STATUS}>
+              <button
+                type="button"
+                className="btn cancel py-2 px-3"
+                onClick={() => setStatus("cancelled")}
+              >
+                Cancel
+              </button>
+            </Can>
           )}
         </div>
       </div>

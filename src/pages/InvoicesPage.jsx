@@ -3,8 +3,10 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
 import Dropdown from "react-bootstrap/Dropdown";
 import { toast } from "react-toastify";
+import { Can } from "../auth/guards";
 import InvoiceForm from "../components/invoices/InvoiceForm";
 import InvoiceList from "../components/invoices/InvoiceList";
+import { PERMISSIONS } from "../lib/permissions";
 import { getErrorMessage } from "../lib/rtkBaseQuery";
 import { useGetInvoicesQuery } from "../services/invoiceApi";
 
@@ -62,12 +64,14 @@ export default function InvoicesPage() {
             </Dropdown.Menu>
           </Dropdown>
 
-          <button type="button" className="btn new-invoice" onClick={() => setShowForm(true)}>
-            <span className="circle-plus me-2">
-              <FontAwesomeIcon icon={faCirclePlus} />
-            </span>
-            New Invoice
-          </button>
+          <Can permission={PERMISSIONS.INVOICES_CREATE}>
+            <button type="button" className="btn new-invoice" onClick={() => setShowForm(true)}>
+              <span className="circle-plus me-2">
+                <FontAwesomeIcon icon={faCirclePlus} />
+              </span>
+              New Invoice
+            </button>
+          </Can>
         </div>
       </div>
 

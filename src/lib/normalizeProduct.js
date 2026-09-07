@@ -1,4 +1,5 @@
-/** Normalize real Express /products records (`_id` + numeric `id`). */
+/** Normalize Express /products records for the generic catalog UI. */
+
 function calcNetRate(tpRate, discountPercent) {
   const tp = Number(tpRate);
   const pct = Number(discountPercent);
@@ -9,25 +10,56 @@ function calcNetRate(tpRate, discountPercent) {
 
 export function normalizeProduct(product) {
   if (!product) return product;
-  const tpRate = product.tpRate ?? null;
+
+  const salePrice =
+    product.salePrice ?? product.printRate ?? product.price ?? null;
+  const purchasePrice =
+    product.purchasePrice ?? product.tpRate ?? null;
+  const currentStock =
+    product.currentStock ?? product.stock ?? 0;
+  const minimumStockLevel =
+    product.minimumStockLevel ?? product.minStock ?? 0;
+  const tpRate = product.tpRate ?? purchasePrice;
   const discountPercent = product.discountPercent ?? null;
   const netRate =
     product.netRate ??
     (tpRate != null && discountPercent != null
       ? calcNetRate(tpRate, discountPercent)
       : null);
+  const stockStatus =
+    product.stockStatus ||
+    (Number(currentStock) < Number(minimumStockLevel) ? "LOW_STOCK" : "OK");
 
   return {
     ...product,
     key: product._id || String(product.id),
     id: product.id,
     _id: product._id,
+    name: product.name ?? "",
+    sku: product.sku ?? "",
+    barcode: product.barcode ?? "",
+    brand: product.brand ?? "",
+    unit: product.unit || "pcs",
+    categoryId: product.categoryId ?? null,
     category: product.category ?? "",
+    description: product.description ?? "",
+    purchasePrice,
+    salePrice,
+    wholesalePrice: product.wholesalePrice ?? null,
+    currentStock: Number(currentStock) || 0,
+    stock: Number(currentStock) || 0,
+    minimumStockLevel: Number(minimumStockLevel) || 0,
+    minStock: Number(minimumStockLevel) || 0,
+    stockStatus,
+    status: product.status || "active",
+    trackVariants: product.trackVariants === true,
+    variants: Array.isArray(product.variants) ? product.variants : undefined,
+    // Legacy aliases for older invoice helpers
     tpRate,
     discountPercent,
     netRate,
-    printRate: product.printRate ?? product.price ?? null,
-    price: product.price ?? product.printRate ?? null,
+    printRate: product.printRate ?? salePrice,
+    price: salePrice,
   };
 }
 
