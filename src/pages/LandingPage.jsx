@@ -17,10 +17,12 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
+import cosmaticsImage2 from "../Images/5051056d-2cbe-45fe-8da1-49cfb4e8f669.png";
 import "./LandingPage.css";
 
 const NAV_LINKS = [
   ["#features", "Features"],
+  ["#on-the-floor", "Shop floor"],
   ["#who-its-for", "Who it's for"],
   ["#how-it-works", "How it works"],
   ["#security", "Security"],
@@ -134,45 +136,53 @@ const STORIES = [
   },
 ];
 
-function LandingImage({ src, alt, className = "", hint }) {
-  const [failed, setFailed] = useState(false);
+function useImageReady(src) {
+  const [ready, setReady] = useState(false);
 
-  if (failed) {
-    return (
-      <div className={`landing-photo-slot ${className}`.trim()} role="img" aria-label={alt}>
-        <strong>{hint || "Add this image"}</strong>
-        <span>{src.replace("/landing/", "")}</span>
-      </div>
-    );
+  useEffect(() => {
+    let live = true;
+    const image = new Image();
+    image.onload = () => {
+      if (live) setReady(true);
+    };
+    image.src = src;
+    return () => {
+      live = false;
+    };
+  }, [src]);
+
+  return ready;
+}
+
+function LandingImage({ src, alt, className = "", variant = "shot" }) {
+  const ready = useImageReady(src);
+
+  if (!ready) {
+    if (variant === "avatar") {
+      return (
+        <div className={`landing-avatar-fallback ${className}`.trim()} aria-hidden="true">
+          {alt.charAt(0)}
+        </div>
+      );
+    }
+    if (variant === "cta") return null;
+    return <div className={`landing-shot-fallback ${className}`.trim()} aria-hidden="true" />;
   }
 
-  return (
-    <img
-      src={src}
-      alt={alt}
-      className={className}
-      loading="lazy"
-      onError={() => setFailed(true)}
-    />
-  );
+  return <img src={src} alt={alt} className={className} loading="lazy" />;
 }
 
 function BrandMark() {
-  const [logoFailed, setLogoFailed] = useState(false);
+  const logoReady = useImageReady("/landing/logo.png");
 
   return (
     <>
-      {logoFailed ? (
+      {logoReady ? (
+        <img src="/landing/logo.png" alt="" className="landing-logo-img" />
+      ) : (
         <span className="landing-brand-mark">
           <FontAwesomeIcon icon={faFileInvoice} />
         </span>
-      ) : (
-        <img
-          src="/landing/logo.png"
-          alt=""
-          className="landing-logo-img"
-          onError={() => setLogoFailed(true)}
-        />
       )}
       <span>
         <strong>Invoice App</strong>
@@ -248,24 +258,176 @@ function ProductPreview() {
   );
 }
 
+function ShowcaseFrame({ children, tall = false }) {
+  return (
+    <div className={`landing-showcase-shot${tall ? " is-tall" : ""}`} aria-hidden="true">
+      <div className="landing-showcase-ui">{children}</div>
+    </div>
+  );
+}
+
+function InvoiceShowcase() {
+  return (
+    <ShowcaseFrame tall>
+      <div className="showcase-ui-head">
+        <div>
+          <small>BILLING</small>
+          <strong>Invoices</strong>
+        </div>
+        <span className="showcase-ui-btn">+ New</span>
+      </div>
+      <div className="showcase-stat-row">
+        <article>
+          <span>Paid this month</span>
+          <b>Rs 74,900</b>
+        </article>
+        <article>
+          <span>Still pending</span>
+          <b>Rs 18,750</b>
+        </article>
+      </div>
+      <div className="showcase-list">
+        {[
+          ["#INV-2048", "Ahmad Traders", "Rs 32,400", "paid"],
+          ["#INV-2047", "Nexa Retail", "Rs 18,750", "pending"],
+          ["#INV-2046", "Hassan & Co.", "Rs 24,100", "paid"],
+        ].map((row) => (
+          <div className="showcase-list-row" key={row[0]}>
+            <strong>{row[0]}</strong>
+            <span>{row[1]}</span>
+            <b>{row[2]}</b>
+            <i className={row[3]}>{row[3] === "paid" ? "Paid" : "Pending"}</i>
+          </div>
+        ))}
+      </div>
+      <div className="showcase-invoice-doc">
+        <div className="showcase-invoice-doc-top">
+          <div>
+            <small>INV-2048</small>
+            <strong>Ahmad Traders</strong>
+          </div>
+          <i className="paid">Paid</i>
+        </div>
+        <div className="showcase-invoice-parties">
+          <div>
+            <small>From</small>
+            <b>City Retail</b>
+            <span>Issued 1 Sep 2026</span>
+          </div>
+          <div>
+            <small>Bill to</small>
+            <b>Ahmad Traders</b>
+            <span>Due 12 Sep 2026</span>
+          </div>
+        </div>
+        <div className="showcase-invoice-lines">
+          <span>Face cream × 12</span>
+          <b>Rs 14,400</b>
+        </div>
+        <div className="showcase-invoice-lines">
+          <span>Hair oil × 8</span>
+          <b>Rs 12,000</b>
+        </div>
+        <div className="showcase-invoice-lines">
+          <span>Body lotion × 6</span>
+          <b>Rs 6,000</b>
+        </div>
+        <div className="showcase-invoice-rules" />
+        <div className="showcase-invoice-paid">
+          Payment received · 8 Sep · Bank transfer
+        </div>
+        <div className="showcase-invoice-foot">
+          <span>Total</span>
+          <strong>Rs 32,400</strong>
+        </div>
+      </div>
+    </ShowcaseFrame>
+  );
+}
+
+function StockShowcase() {
+  return (
+    <ShowcaseFrame>
+      <div className="showcase-ui-head">
+        <div>
+          <small>INVENTORY</small>
+          <strong>Products</strong>
+        </div>
+        <span className="showcase-ui-chip">12 items</span>
+      </div>
+      <div className="showcase-list">
+        {[
+          ["Face cream", "Skincare", "48", 72],
+          ["Herbal shampoo", "Hair", "9", 18, true],
+          ["Hair oil 200ml", "Hair", "86", 90],
+          ["Body lotion", "Skincare", "31", 50],
+        ].map((row) => (
+          <div className="showcase-stock-row" key={row[0]}>
+            <div>
+              <strong>{row[0]}</strong>
+              <span>{row[1]}</span>
+            </div>
+            <div className="showcase-stock-meta">
+              <b>{row[2]}</b>
+              <div className={`showcase-stock-bar${row[4] ? " low" : ""}`}>
+                <span style={{ width: `${row[3]}%` }} />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </ShowcaseFrame>
+  );
+}
+
+function TeamShowcase() {
+  return (
+    <ShowcaseFrame>
+      <div className="showcase-ui-head">
+        <div>
+          <small>ACCESS</small>
+          <strong>Team roles</strong>
+        </div>
+        <span className="showcase-ui-btn">Invite</span>
+      </div>
+      <div className="showcase-list">
+        {[
+          ["AK", "Ayesha Khan", "Owner", "owner"],
+          ["OS", "Omar Siddiqui", "Invoicing", "role"],
+          ["HM", "Hira Malik", "Inventory", "role"],
+          ["ZN", "Zara Noor", "Viewer", "view"],
+        ].map((row) => (
+          <div className="showcase-team-row" key={row[1]}>
+            <span className="showcase-team-avatar">{row[0]}</span>
+            <div>
+              <strong>{row[1]}</strong>
+              <span>{row[2]} access</span>
+            </div>
+            <i className={row[3]}>{row[2]}</i>
+          </div>
+        ))}
+      </div>
+    </ShowcaseFrame>
+  );
+}
+
 function HeroVisual() {
-  const [heroFailed, setHeroFailed] = useState(false);
+  const heroReady = useImageReady("/landing/hero.png");
 
   return (
     <div className="landing-browser">
       <div className="landing-browser-bar">
         <span /><span /><span />
-        <em>app.invoice / dashboard</em>
+        <em>invoice.app / dashboard</em>
       </div>
-      {heroFailed ? (
-        <ProductPreview />
-      ) : (
+      {heroReady ? (
         <img
           src="/landing/hero.png"
           alt="Invoice App dashboard showing invoices, stock and business overview"
           className="landing-hero-shot"
-          onError={() => setHeroFailed(true)}
         />
+      ) : (
+        <ProductPreview />
       )}
     </div>
   );
@@ -273,14 +435,19 @@ function HeroVisual() {
 
 export default function LandingPage() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const [openFaq, setOpenFaq] = useState(0);
 
   useEffect(() => {
     document.documentElement.style.scrollBehavior = "smooth";
     document.documentElement.style.scrollPaddingTop = "88px";
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
       document.documentElement.style.scrollBehavior = "";
       document.documentElement.style.scrollPaddingTop = "";
+      window.removeEventListener("scroll", onScroll);
     };
   }, []);
 
@@ -295,7 +462,7 @@ export default function LandingPage() {
 
   return (
     <div className="landing-page">
-      <header className="landing-nav">
+      <header className={`landing-nav${scrolled ? " is-scrolled" : ""}`}>
         <div className="landing-container landing-nav-inner">
           <Link to="/" className="landing-brand" aria-label="Invoice App home" onClick={closeMenu}>
             <BrandMark />
@@ -341,18 +508,16 @@ export default function LandingPage() {
         <section className="landing-hero">
           <div className="landing-container landing-hero-grid">
             <div className="landing-hero-copy">
-              <div className="landing-kicker">
-                <span />
-                Multi-business platform
-              </div>
+              <div className="landing-kicker">Multi-business platform</div>
               <h1>
-                One platform where
-                <em> every business can register.</em>
+                The workspace every
+                <em> registered business </em>
+                runs from.
               </h1>
               <p>
-                Create a company workspace, invite your team, and run invoices,
-                stock, and clients in one secure place. Built for shops,
-                traders, and growing teams that need more than a spreadsheet.
+                Register your company, invite the team, and keep invoices, stock,
+                and clients in one secure place — the same calm system you see
+                after you sign in.
               </p>
               <div className="landing-hero-actions">
                 <Link to="/register" className="landing-button">
@@ -403,6 +568,35 @@ export default function LandingPage() {
           </div>
         </section>
 
+        <section className="landing-section landing-spotlight" id="on-the-floor">
+          <div className="landing-container landing-spotlight-grid">
+            <div className="landing-spotlight-photo">
+              <LandingImage
+                src={cosmaticsImage2}
+                alt="A retail store ready to run invoices, stock and team from one workspace"
+              />
+            </div>
+            <div className="landing-spotlight-copy">
+              <span className="landing-section-label">ON THE SHOP FLOOR</span>
+              <h2>Built for the businesses people actually walk into.</h2>
+              <p>
+                Whether you run a salon, boutique, or trading counter, register
+                your company and keep billing, shelves, and staff in one
+                workspace — without mixing another business’s data.
+              </p>
+              <ul>
+                <li><FontAwesomeIcon icon={faCheck} /> Invoice from the counter</li>
+                <li><FontAwesomeIcon icon={faCheck} /> Stock that matches the shelves</li>
+                <li><FontAwesomeIcon icon={faCheck} /> Roles for the people on the floor</li>
+              </ul>
+              <Link to="/register" className="landing-button">
+                Register your business
+                <FontAwesomeIcon icon={faArrowRight} />
+              </Link>
+            </div>
+          </div>
+        </section>
+
         <section className="landing-section landing-section-tight" id="features">
           <div className="landing-container">
             <div className="landing-section-heading">
@@ -418,11 +612,7 @@ export default function LandingPage() {
                   <h3>Send professional invoices and see what is still unpaid.</h3>
                   <p>Create bills in minutes, track paid and pending status, and keep customer history attached to every document.</p>
                 </div>
-                <LandingImage
-                  src="/landing/invoices.png"
-                  alt="Invoice list and invoice detail screens"
-                  hint="Invoice dashboard screenshot"
-                />
+                <InvoiceShowcase />
               </article>
               <article className="landing-showcase-card">
                 <div className="landing-showcase-copy">
@@ -430,11 +620,7 @@ export default function LandingPage() {
                   <h3>Stock that stays honest.</h3>
                   <p>Products, quantities, and movement history stay in sync as invoices are created.</p>
                 </div>
-                <LandingImage
-                  src="/landing/stock.png"
-                  alt="Inventory and stock movement screen"
-                  hint="Stock page screenshot"
-                />
+                <StockShowcase />
               </article>
               <article className="landing-showcase-card">
                 <div className="landing-showcase-copy">
@@ -442,11 +628,7 @@ export default function LandingPage() {
                   <h3>The right access for each person.</h3>
                   <p>Owners invite the team and decide who can bill, count stock, or only view.</p>
                 </div>
-                <LandingImage
-                  src="/landing/team.png"
-                  alt="Team roles and permissions screen"
-                  hint="Team & roles screenshot"
-                />
+                <TeamShowcase />
               </article>
             </div>
 
@@ -492,7 +674,6 @@ export default function LandingPage() {
               <LandingImage
                 src="/landing/workflow.png"
                 alt="Business owner setting up a workspace"
-                hint="Workflow / office photo"
               />
             </div>
           </div>
@@ -539,7 +720,7 @@ export default function LandingPage() {
                       src={story.image}
                       alt={story.name}
                       className="landing-avatar"
-                      hint="Portrait"
+                      variant="avatar"
                     />
                     <div>
                       <strong>{story.name}</strong>
@@ -583,19 +764,49 @@ export default function LandingPage() {
         <section className="landing-cta">
           <div className="landing-container">
             <div className="landing-cta-card">
-              <LandingImage
-                src="/landing/cta.jpg"
-                alt=""
-                className="landing-cta-photo"
-                hint="Wide workspace photo"
-              />
               <div className="landing-cta-copy">
                 <span>YOUR BUSINESS. ONE CLEAR VIEW.</span>
                 <h2>Register your company and start working in one place.</h2>
                 <p>Create a workspace, add your products and clients, then invite the people who help you run it.</p>
-                <Link to="/register" className="landing-button landing-button-light">
-                  Get started now <FontAwesomeIcon icon={faArrowRight} />
-                </Link>
+                <div className="landing-cta-actions">
+                  <Link to="/register" className="landing-button landing-button-light">
+                    Get started now <FontAwesomeIcon icon={faArrowRight} />
+                  </Link>
+                  <Link to="/login" className="landing-cta-signin">
+                    Already registered? Sign in
+                  </Link>
+                </div>
+              </div>
+
+              <div className="landing-cta-panel" aria-hidden="true">
+                <div className="landing-cta-panel-top">
+                  <strong>New workspace</strong>
+                  <span>Ready in minutes</span>
+                </div>
+                <div className="landing-cta-stat">
+                  <span><FontAwesomeIcon icon={faFileInvoice} /></span>
+                  <div>
+                    <b>Invoices</b>
+                    <small>Create, send, and track paid vs pending</small>
+                  </div>
+                </div>
+                <div className="landing-cta-stat">
+                  <span><FontAwesomeIcon icon={faBoxesStacked} /></span>
+                  <div>
+                    <b>Inventory</b>
+                    <small>Stock updates with every sale</small>
+                  </div>
+                </div>
+                <div className="landing-cta-stat">
+                  <span><FontAwesomeIcon icon={faUsers} /></span>
+                  <div>
+                    <b>Team access</b>
+                    <small>Owners control every role</small>
+                  </div>
+                </div>
+                <div className="landing-cta-panel-foot">
+                  Isolated data · Multi-business · No credit card
+                </div>
               </div>
             </div>
           </div>

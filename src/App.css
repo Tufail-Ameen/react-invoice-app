@@ -1901,7 +1901,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   min-height: 100vh;
   display: grid;
   grid-template-columns: minmax(400px, 0.86fr) minmax(540px, 1.14fr);
-  background: #fff;
+  background: var(--color-bg);
 }
 
 .auth-showcase {
@@ -1911,11 +1911,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   padding: 44px clamp(42px, 5vw, 76px);
   display: flex;
   flex-direction: column;
-  color: #fff;
+  color: var(--color-on-sidebar);
   background:
-    radial-gradient(circle at 12% 95%, rgba(99, 102, 241, 0.42), transparent 36%),
-    radial-gradient(circle at 100% 0%, rgba(56, 189, 248, 0.16), transparent 32%),
-    #0f172a;
+    radial-gradient(circle at 12% 95%, var(--color-accent-soft), transparent 36%),
+    radial-gradient(circle at 100% 0%, rgba(45, 106, 86, 0.35), transparent 32%),
+    var(--color-sidebar);
 }
 
 .auth-showcase::after {
@@ -1938,25 +1938,39 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  color: #fff;
+  color: var(--color-white);
   text-decoration: none;
 }
 
-.auth-brand > span {
+.auth-brand-mark {
   width: 42px;
   height: 42px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 12px;
-  background: #6366f1;
-  box-shadow: 0 12px 28px rgba(79, 70, 229, 0.35);
+  color: var(--color-text-on-primary);
+  background: var(--color-primary);
+  box-shadow: var(--shadow-btn);
+}
+
+.auth-brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
 }
 
 .auth-brand strong {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 800;
   letter-spacing: -0.025em;
+}
+
+.auth-brand small {
+  margin-top: 3px;
+  color: var(--color-on-sidebar-muted);
+  font-size: 10px;
+  font-weight: 600;
 }
 
 .auth-showcase-copy {
@@ -1975,14 +1989,14 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   justify-content: center;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 16px;
-  color: #c7d2fe;
-  background: rgba(255, 255, 255, 0.07);
+  color: var(--color-accent-bright);
+  background: rgba(240, 212, 138, 0.1);
   font-size: 21px;
 }
 
 .auth-showcase-kicker {
   margin: 0 0 12px !important;
-  color: #a5b4fc !important;
+  color: var(--color-accent-bright) !important;
   font-size: 11px !important;
   font-weight: 800;
   letter-spacing: 0.13em;
@@ -1992,7 +2006,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .auth-showcase-copy h2 {
   max-width: 500px;
   margin: 0 0 20px;
-  color: #fff;
+  color: var(--color-white);
   font-size: clamp(2.4rem, 4.3vw, 4rem);
   line-height: 1.08;
   font-weight: 800;
@@ -2002,7 +2016,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .auth-showcase-copy > p {
   max-width: 470px;
   margin: 0;
-  color: #aab4c5;
+  color: var(--color-on-sidebar-muted);
   font-size: 15px;
   line-height: 1.75;
 }
@@ -2017,7 +2031,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .auth-showcase-copy li {
-  color: #d8deea;
+  color: var(--color-on-sidebar);
   font-size: 13px;
   font-weight: 600;
 }
@@ -2028,15 +2042,15 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   margin-right: 9px;
   padding: 4px;
   border-radius: 50%;
-  color: #c7d2fe;
-  background: rgba(99, 102, 241, 0.2);
+  color: var(--color-accent-bright);
+  background: rgba(240, 212, 138, 0.16);
 }
 
 .auth-showcase-footer {
   position: relative;
   z-index: 1;
   margin: 0;
-  color: #7f8da2;
+  color: var(--color-on-sidebar-muted);
   font-size: 11px;
 }
 
@@ -2047,8 +2061,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   align-items: center;
   justify-content: center;
   background:
-    radial-gradient(circle at 100% 0%, rgba(99, 102, 241, 0.06), transparent 30%),
-    #fff;
+    radial-gradient(900px 480px at 100% 0%, var(--color-bg-glow) 0%, transparent 50%),
+    var(--color-bg);
 }
 
 .auth-form-panel {
@@ -2064,18 +2078,18 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: #64748b;
+  color: var(--color-text-muted);
   font-size: 12px;
   font-weight: 650;
   text-decoration: none;
 }
 
 .auth-back-link:hover {
-  color: #4f46e5;
+  color: var(--color-primary);
 }
 
 .auth-form-heading > span {
-  color: #4f46e5;
+  color: var(--color-accent);
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.12em;
@@ -2084,7 +2098,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .auth-form-heading h1 {
   margin: 10px 0 12px;
-  color: #0f172a;
+  color: var(--color-text);
   font-size: clamp(2rem, 3.2vw, 2.65rem);
   line-height: 1.12;
   font-weight: 800;
@@ -2093,7 +2107,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .auth-form-heading p {
   margin: 0;
-  color: #64748b;
+  color: var(--color-text-muted);
   font-size: 13px;
   line-height: 1.65;
 }
@@ -2118,7 +2132,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .auth-field label {
   display: block;
   margin: 0 0 7px;
-  color: #334155;
+  color: var(--color-text);
   font-size: 12px;
   font-weight: 700;
 }
@@ -2132,7 +2146,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .auth-label-row span {
   margin-bottom: 7px;
-  color: #94a3b8;
+  color: var(--color-text-subtle);
   font-size: 10px;
 }
 
@@ -2140,31 +2154,31 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   width: 100%;
   height: 50px;
   padding: 0 15px;
-  border: 1px solid #dce2ea;
-  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
   outline: none;
-  background: #fff;
-  color: #0f172a;
+  background: var(--color-surface);
+  color: var(--color-text);
   font-size: 13px;
   transition: border-color 0.16s ease, box-shadow 0.16s ease;
 }
 
 .auth-field input::placeholder {
-  color: #a3adbb;
+  color: var(--color-placeholder);
 }
 
 .auth-field input:hover {
-  border-color: #bcc6d3;
+  border-color: var(--color-border-strong);
 }
 
 .auth-field input:focus {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.11);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px var(--color-primary-soft);
 }
 
 .auth-field-error {
   margin-top: 5px;
-  color: #dc2626;
+  color: var(--color-danger);
   font-size: 10px;
   font-weight: 600;
 }
@@ -2174,20 +2188,19 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   height: 50px;
   margin-top: 3px;
   border: 0;
-  border-radius: 10px;
-  background: #4f46e5;
-  color: #fff;
+  border-radius: 12px;
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
   font-size: 13px;
   font-weight: 750;
-  box-shadow: 0 12px 24px rgba(79, 70, 229, 0.2);
+  box-shadow: var(--shadow-btn);
   cursor: pointer;
   transition: background 0.16s ease, transform 0.16s ease, box-shadow 0.16s ease;
 }
 
 .auth-submit:hover:not(:disabled) {
   transform: translateY(-1px);
-  background: #4338ca;
-  box-shadow: 0 16px 28px rgba(79, 70, 229, 0.25);
+  background: var(--color-primary-hover);
 }
 
 .auth-submit:disabled {
@@ -2198,7 +2211,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .auth-admin-note,
 .auth-terms {
   margin: -3px 0 0;
-  color: #94a3b8;
+  color: var(--color-text-subtle);
   font-size: 10px;
   line-height: 1.55;
   text-align: center;
@@ -2207,18 +2220,18 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .auth-panel-footer {
   margin-top: 30px;
   padding-top: 24px;
-  border-top: 1px solid #edf0f4;
+  border-top: 1px solid var(--color-border);
   text-align: center;
 }
 
 .auth-panel-footer p {
   margin: 0;
-  color: #64748b;
+  color: var(--color-text-muted);
   font-size: 12px;
 }
 
 .auth-panel-footer a {
-  color: #4f46e5;
+  color: var(--color-primary);
   font-weight: 750;
   text-decoration: none;
 }
@@ -2254,7 +2267,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     padding: 18px 20px;
   }
 
-  .auth-brand > span {
+  .auth-brand-mark {
     width: 38px;
     height: 38px;
   }
