@@ -12,7 +12,7 @@ import { PERMISSIONS } from "../../lib/permissions";
 /** Main business work — permission se filter hota hai. */
 export const mainNavLinks = [
   {
-    to: "/",
+    to: "/invoices",
     label: "Invoices",
     icon: faFileInvoice,
     end: true,

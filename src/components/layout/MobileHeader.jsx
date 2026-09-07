@@ -15,7 +15,7 @@ export default function MobileHeader() {
 
   return (
     <header className="mobile-header">
-      <Link to="/" className="mobile-brand">
+      <Link to="/invoices" className="mobile-brand">
         <span className="mobile-logo">
           <FontAwesomeIcon icon={faFileInvoice} />
         </span>

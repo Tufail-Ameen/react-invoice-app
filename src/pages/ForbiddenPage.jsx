@@ -8,7 +8,7 @@ export default function ForbiddenPage() {
         <p className="empty-state-message mb-3">
           Is page / action ke liye aapke role mein permission nahi hai.
         </p>
-        <Link to="/" className="btn input-clr1 save-changes">
+        <Link to="/invoices" className="btn input-clr1 save-changes">
           Back to invoices
         </Link>
       </div>

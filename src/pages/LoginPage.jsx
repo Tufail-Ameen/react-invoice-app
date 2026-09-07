@@ -1,9 +1,10 @@
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import * as Yup from "yup";
 import { useAuth } from "../auth/AuthContext";
+import AuthShell from "../components/auth/AuthShell";
 import { isPlatformAdminUser } from "../lib/permissions";
 import { getErrorMessage } from "../lib/rtkBaseQuery";
 
@@ -20,80 +21,74 @@ export default function LoginPage() {
   const from = location.state?.from?.pathname;
 
   return (
-    <div className="page-wrap d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
-      <div className="form-card auth-card" style={{ maxWidth: 440, width: "100%" }}>
-        <p className="auth-eyebrow">Invoice App</p>
-        <h1 className="page-title mb-1">Sign in</h1>
-        <p className="textcklr mb-3">
-          Apne account ke email aur password se sign in karein. Aapka access
-          backend par assigned role ke mutabiq hoga.
+    <AuthShell
+      eyebrow="Welcome back"
+      title="Sign in to your account"
+      description="Enter your credentials to access your secure business workspace."
+      footer={
+        <p>
+          New to Invoice App? <Link to="/register">Create a business account</Link>
         </p>
-
-        <Formik
-          initialValues={{ email: "", password: "" }}
-          validationSchema={schema}
-          onSubmit={async (values) => {
-            setSubmitting(true);
-            try {
-              const user = await login(values.email, values.password);
-              toast.success("Logged in");
-              const isPlatformAdmin = isPlatformAdminUser(user);
-              const requestedPath = from && from !== "/login" ? from : null;
-              const canReturnToRequestedPath =
-                requestedPath &&
-                (isPlatformAdmin || !requestedPath.startsWith("/platform"));
-              const fallback = isPlatformAdmin ? "/platform/businesses" : "/";
-              navigate(canReturnToRequestedPath ? requestedPath : fallback, {
-                replace: true,
-              });
-            } catch (err) {
-              toast.error(getErrorMessage(err, "Login failed"));
-            } finally {
-              setSubmitting(false);
-            }
-          }}
-        >
-          <Form>
-            <div className="mb-3">
-              <label className="form-label input-clr" htmlFor="email">
-                Email
-              </label>
-              <Field id="email" name="email" type="email" className="form-control input-settings" />
-              <ErrorMessage name="email" component="div" className="text-danger" />
+      }
+    >
+      <Formik
+        initialValues={{ email: "", password: "" }}
+        validationSchema={schema}
+        onSubmit={async (values) => {
+          setSubmitting(true);
+          try {
+            const user = await login(values.email, values.password);
+            toast.success("Welcome back");
+            const isPlatformAdmin = isPlatformAdminUser(user);
+            const requestedPath = from && from !== "/login" ? from : null;
+            const canReturnToRequestedPath =
+              requestedPath &&
+              (isPlatformAdmin || !requestedPath.startsWith("/platform"));
+            const fallback = isPlatformAdmin ? "/platform/businesses" : "/invoices";
+            navigate(canReturnToRequestedPath ? requestedPath : fallback, {
+              replace: true,
+            });
+          } catch (err) {
+            toast.error(getErrorMessage(err, "Login failed"));
+          } finally {
+            setSubmitting(false);
+          }
+        }}
+      >
+        <Form className="auth-form">
+          <div className="auth-field">
+            <label htmlFor="email">Email address</label>
+            <Field
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              placeholder="you@company.com"
+            />
+            <ErrorMessage name="email" component="div" className="auth-field-error" />
+          </div>
+          <div className="auth-field">
+            <div className="auth-label-row">
+              <label htmlFor="password">Password</label>
+              <span>Minimum 8 characters</span>
             </div>
-            <div className="mb-3">
-              <label className="form-label input-clr" htmlFor="password">
-                Password
-              </label>
-              <Field
-                id="password"
-                name="password"
-                type="password"
-                className="form-control input-settings"
-              />
-              <ErrorMessage name="password" component="div" className="text-danger" />
-            </div>
-            <button
-              type="submit"
-              className="btn input-clr1 save-changes py-2 w-100"
-              disabled={submitting}
-            >
-              {submitting ? "Signing in…" : "Sign in"}
-            </button>
-
-            <div className="auth-footer mt-3">
-              <p className="textcklr small mb-0">
-                Nayi dukaan start karni hai?{" "}
-                <Link to="/register">Business register</Link>
-              </p>
-              <p className="textcklr small mb-0 mt-1">
-                Platform Owner public register nahi karta — account backend seed se banta hai.
-              </p>
-            </div>
-          </Form>
-        </Formik>
-      </div>
-      <ToastContainer position="top-center" autoClose={1500} />
-    </div>
+            <Field
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              placeholder="Enter your password"
+            />
+            <ErrorMessage name="password" component="div" className="auth-field-error" />
+          </div>
+          <button type="submit" className="auth-submit" disabled={submitting}>
+            {submitting ? "Signing you in…" : "Sign in"}
+          </button>
+          <p className="auth-admin-note">
+            Platform administrators use the same secure sign-in.
+          </p>
+        </Form>
+      </Formik>
+    </AuthShell>
   );
 }

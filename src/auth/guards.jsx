@@ -29,7 +29,7 @@ export function GuestOnly() {
       </div>
     );
   }
-  if (isAuthenticated) return <Navigate to="/" replace />;
+  if (isAuthenticated) return <Navigate to="/invoices" replace />;
   return <Outlet />;
 }
 

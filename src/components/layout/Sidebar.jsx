@@ -52,7 +52,7 @@ export default function Sidebar() {
   return (
     <aside className="app-sidebar">
       <div className="sidebar-header">
-        <NavLink to="/" className="sidebar-brand" aria-label="Go to invoices">
+        <NavLink to="/invoices" className="sidebar-brand" aria-label="Go to invoices">
           <span className="sidebar-brand-icon">
             <FontAwesomeIcon icon={faFileInvoice} />
           </span>

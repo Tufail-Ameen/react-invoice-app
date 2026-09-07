@@ -43,7 +43,7 @@ export default function InvoiceDetailPage() {
     try {
       await deleteInvoice(id).unwrap();
       toast.success("Deleted");
-      navigate("/");
+      navigate("/invoices");
     } catch (err) {
       toast.error(getErrorMessage(err, "Delete failed"));
     }
@@ -68,7 +68,7 @@ export default function InvoiceDetailPage() {
 
   return (
     <div className="page-wrap invoice-detail">
-      <button type="button" className="back-link" onClick={() => navigate("/")}>
+      <button type="button" className="back-link" onClick={() => navigate("/invoices")}>
         <FontAwesomeIcon className="icon me-2" icon={faAngleLeft} size="2xs" />
         Go back
       </button>

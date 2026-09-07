@@ -6,6 +6,7 @@ import ClientsPage from "../pages/ClientsPage";
 import ForbiddenPage from "../pages/ForbiddenPage";
 import InvoiceDetailPage from "../pages/InvoiceDetailPage";
 import InvoicesPage from "../pages/InvoicesPage";
+import LandingPage from "../pages/LandingPage";
 import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
 import StockPage from "../pages/StockPage";
@@ -17,6 +18,8 @@ import TeamUsersPage from "../pages/team/TeamUsersPage";
 export default function AppRoutes() {
   return (
     <Routes>
+      <Route path="/" element={<LandingPage />} />
+
       <Route element={<GuestOnly />}>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
@@ -25,7 +28,7 @@ export default function AppRoutes() {
       <Route element={<RequireAuth />}>
         <Route element={<DashboardLayout />}>
           <Route
-            path="/"
+            path="/invoices"
             element={
               <RequirePermission permission={PERMISSIONS.INVOICES_VIEW}>
                 <InvoicesPage />
@@ -92,7 +95,7 @@ export default function AppRoutes() {
           />
 
           <Route path="/403" element={<ForbiddenPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<Navigate to="/invoices" replace />} />
         </Route>
       </Route>
     </Routes>
