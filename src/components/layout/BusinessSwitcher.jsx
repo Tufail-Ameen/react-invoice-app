@@ -1,3 +1,5 @@
+import { faChevronDown, faStore } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { useAuth } from "../../auth/AuthContext";
@@ -25,31 +27,40 @@ export default function BusinessSwitcher() {
 
   if (businesses.length === 1) {
     return (
-      <div className="business-switcher business-switcher-static" title={activeBusiness?.name}>
-        <span className="business-switcher-label">Business</span>
-        <span className="business-switcher-name">{activeBusiness?.name || "—"}</span>
+      <div className="workspace-chip" title={activeBusiness?.name}>
+        <span className="workspace-chip-icon" aria-hidden="true">
+          <FontAwesomeIcon icon={faStore} />
+        </span>
+        <span className="workspace-chip-copy">
+          <span className="workspace-chip-label">Workspace</span>
+          <span className="workspace-chip-name">{activeBusiness?.name || "—"}</span>
+        </span>
       </div>
     );
   }
 
   return (
-    <div className="business-switcher">
-      <label className="business-switcher-label" htmlFor="business-switch">
-        Business
-      </label>
-      <select
-        id="business-switch"
-        className="business-switcher-select"
-        value={activeBusiness?.id || ""}
-        onChange={onChange}
-        disabled={busy || isLoading}
-      >
-        {businesses.map((b) => (
-          <option key={b.id} value={b.id}>
-            {b.name}
-          </option>
-        ))}
-      </select>
+    <div className="workspace-chip is-select">
+      <span className="workspace-chip-icon" aria-hidden="true">
+        <FontAwesomeIcon icon={faStore} />
+      </span>
+      <span className="workspace-chip-copy">
+        <span className="workspace-chip-label">Workspace</span>
+        <select
+          className="workspace-chip-select"
+          value={activeBusiness?.id || ""}
+          onChange={onChange}
+          disabled={busy || isLoading}
+          aria-label="Switch business"
+        >
+          {businesses.map((b) => (
+            <option key={b.id} value={b.id}>
+              {b.name}
+            </option>
+          ))}
+        </select>
+      </span>
+      <FontAwesomeIcon icon={faChevronDown} className="workspace-chip-caret" />
     </div>
   );
 }

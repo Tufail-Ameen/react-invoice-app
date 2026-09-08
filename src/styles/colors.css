@@ -9,11 +9,11 @@
   --color-input: #f7f5f0;
 
   /* Sidebar (dark contrast) */
-  --sidebar-width: 260px;
-  --sidebar-width-collapsed: 88px;
+  --sidebar-width: 272px;
+  --sidebar-width-collapsed: 84px;
   --color-sidebar: #1a2420;
   --color-sidebar-border: #2c3b35;
-  --color-sidebar-active: rgba(45, 106, 86, 0.22);
+  --color-sidebar-active: rgba(45, 106, 86, 0.28);
   --color-sidebar-active-border: #3d8f72;
   --color-on-sidebar: #e7eeea;
   --color-on-sidebar-muted: #9aada5;

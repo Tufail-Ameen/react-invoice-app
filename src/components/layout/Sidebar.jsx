@@ -1,12 +1,11 @@
 import {
-  faBars,
+  faChevronLeft,
+  faChevronRight,
   faFileInvoice,
-  faRightFromBracket,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
-import BusinessSwitcher from "./BusinessSwitcher";
 import {
   filterNavByPermission,
   mainNavLinks,
@@ -18,8 +17,12 @@ import { useSidebar } from "./SidebarContext";
 function NavSection({ label, links, collapsed }) {
   if (!links.length) return null;
   return (
-    <>
-      <p className="sidebar-section-label">{label}</p>
+    <div className="sidebar-section">
+      {collapsed ? (
+        <span className="sidebar-section-rule" aria-hidden="true" />
+      ) : (
+        <p className="sidebar-section-label">{label}</p>
+      )}
       {links.map((link) => (
         <NavLink
           key={link.to}
@@ -34,12 +37,12 @@ function NavSection({ label, links, collapsed }) {
           <span className="sidebar-link-label">{link.label}</span>
         </NavLink>
       ))}
-    </>
+    </div>
   );
 }
 
 export default function Sidebar() {
-  const { user, logout, can } = useAuth();
+  const { user, can } = useAuth();
   const { collapsed, toggleSidebar } = useSidebar();
   const initials = user
     ? `${user.firstName?.[0] || ""}${user.lastName?.[0] || ""}`.toUpperCase()
@@ -52,35 +55,29 @@ export default function Sidebar() {
   return (
     <aside className="app-sidebar">
       <div className="sidebar-header">
-        <NavLink to="/invoices" className="sidebar-brand" aria-label="Go to invoices">
+        <NavLink to="/invoices" className="sidebar-brand" aria-label="Invoice App home">
           <span className="sidebar-brand-icon">
             <FontAwesomeIcon icon={faFileInvoice} />
           </span>
           <span className="sidebar-brand-copy">
             <span className="sidebar-brand-name">Invoice App</span>
-            <span className="sidebar-brand-tagline">Business Manager</span>
+            <span className="sidebar-brand-tagline">Multi-business platform</span>
           </span>
         </NavLink>
-
-        <button
-          type="button"
-          className="sidebar-toggle-btn"
-          onClick={toggleSidebar}
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-        >
-          <FontAwesomeIcon icon={faBars} />
-        </button>
       </div>
 
-      {!collapsed && (
-        <div className="sidebar-business-wrap">
-          <BusinessSwitcher />
-        </div>
-      )}
+      <button
+        type="button"
+        className="sidebar-collapse-btn"
+        onClick={toggleSidebar}
+        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+      >
+        <FontAwesomeIcon icon={collapsed ? faChevronRight : faChevronLeft} />
+      </button>
 
       <nav className="sidebar-nav" aria-label="Main navigation">
-        <NavSection label="Main Menu" links={main} collapsed={collapsed} />
+        <NavSection label="Workspace" links={main} collapsed={collapsed} />
         <NavSection label="Team" links={team} collapsed={collapsed} />
         <NavSection label="Platform" links={platform} collapsed={collapsed} />
       </nav>
@@ -95,15 +92,6 @@ export default function Sidebar() {
             </span>
           </div>
         </div>
-        <button
-          type="button"
-          className="sidebar-logout-btn"
-          title="Sign out"
-          onClick={() => logout()}
-        >
-          <FontAwesomeIcon icon={faRightFromBracket} />
-          <span>Sign out</span>
-        </button>
       </div>
     </aside>
   );
