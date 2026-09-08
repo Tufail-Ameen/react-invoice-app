@@ -46,8 +46,8 @@ export default function RegisterPage() {
           setSubmitting(true);
           try {
             await register(values);
-            toast.success("Business workspace created");
-            navigate("/invoices", { replace: true });
+            toast.success("Business workspace created. Please sign in.");
+            navigate("/login", { replace: true });
           } catch (err) {
             toast.error(getErrorMessage(err, "Register failed"));
           } finally {

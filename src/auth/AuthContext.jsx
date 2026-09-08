@@ -141,15 +141,7 @@ export function AuthProvider({ children }) {
 
   const register = useCallback(
     async (body) => {
-      const data = await registerMutation(body).unwrap();
-      const session = requireSession(data, "Register");
-      tokenStore.set({
-        ...session.tokens,
-        businessId: session.user.activeBusinessId || null,
-      });
-      setUser(applySessionUser(session.user));
-      setStatus("authenticated");
-      return session.user;
+      await registerMutation(body).unwrap();
     },
     [registerMutation]
   );
