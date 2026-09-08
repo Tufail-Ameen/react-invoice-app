@@ -64,9 +64,6 @@ export const platformNavLinks = [
   },
 ];
 
-/** @deprecated use mainNavLinks — BottomNav compatibility */
-export const navLinks = mainNavLinks;
-
 export function getNavPageTitle(pathname) {
   if (pathname.startsWith("/invoices/")) return "Invoice Details";
   const all = [...mainNavLinks, ...teamNavLinks, ...platformNavLinks];

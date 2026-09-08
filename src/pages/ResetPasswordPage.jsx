@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 import AuthShell from "../components/auth/AuthShell";
+import Input from "../components/ui/Input";
 import { getErrorMessage } from "../lib/rtkBaseQuery";
 import { useResetPasswordMutation } from "../services/invoiceApi";
 
@@ -84,6 +85,7 @@ export default function ResetPasswordPage() {
                 <span>At least 8 characters</span>
               </div>
               <Field
+                as={Input}
                 id="password"
                 name="password"
                 type="password"
@@ -95,6 +97,7 @@ export default function ResetPasswordPage() {
             <div className="auth-field">
               <label htmlFor="passwordConfirmation">Confirm password</label>
               <Field
+                as={Input}
                 id="passwordConfirmation"
                 name="passwordConfirmation"
                 type="password"

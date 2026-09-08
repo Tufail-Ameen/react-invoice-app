@@ -1,0 +1,94 @@
+/* Single source of truth for every text/select/textarea in the app. */
+
+.app-input {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 15px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  outline: none;
+  background: var(--color-input);
+  color: var(--color-text);
+  font-size: 13px;
+  line-height: 1.3;
+  box-shadow: none;
+  appearance: none;
+  transition: border-color 0.16s ease, background 0.16s ease;
+}
+
+.app-input::placeholder {
+  color: var(--color-placeholder);
+}
+
+.app-input:hover:not(:disabled):not(:read-only) {
+  border-color: var(--color-border-strong);
+}
+
+.app-input:focus {
+  border-color: var(--color-primary);
+  background: var(--color-surface);
+  box-shadow: none;
+}
+
+.app-input:disabled,
+.app-input:read-only:not(.app-input-computed) {
+  cursor: default;
+  opacity: 0.78;
+}
+
+.app-input-select {
+  padding-right: 2rem;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path fill='%238a958f' d='M1.2 1.5 6 6.3l4.8-4.8' stroke='%238a958f' stroke-width='1.4' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 12px;
+}
+
+.app-input-textarea {
+  min-height: 72px;
+  padding: 10px 15px;
+  resize: vertical;
+}
+
+.app-input-compact {
+  min-height: 32px;
+  height: 32px;
+  padding: 0.2rem 0.55rem;
+  font-size: 0.82rem;
+  border-radius: 8px;
+}
+
+.app-input-select.app-input-compact {
+  padding-right: 1.6rem;
+  background-position: right 0.45rem center;
+  background-size: 10px;
+}
+
+.app-input-computed,
+.app-input-computed:focus,
+.app-input-computed:hover {
+  background: var(--color-primary-soft) !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  color: var(--color-primary) !important;
+  font-weight: 700;
+  cursor: default;
+  opacity: 1;
+}
+
+.app-input-inline {
+  width: auto;
+  display: inline-block;
+}
+
+.app-input-check {
+  width: 1rem;
+  height: 1rem;
+  min-height: 0;
+  padding: 0;
+  margin: 0;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 import ClientList from "../components/clients/ClientList";
+import Input from "../components/ui/Input";
 import CountryDatalist from "../components/ui/CountryDatalist";
 import { useClientMutations, useClients } from "../hooks/useClients";
 import { getErrorMessage } from "../lib/rtkBaseQuery";
@@ -103,36 +104,37 @@ export default function ClientsPage() {
               <div className="product-form-grid client-form-grid">
                 <div className="pf-field">
                   <label className="form-label input-clr" htmlFor="name">Name</label>
-                  <Field name="name" id="name" className="form-control input-settings input-compact" placeholder="Name" />
+                  <Field as={Input} compact name="name" id="name" placeholder="Name" />
                   <ErrorMessage name="name" component="div" className="text-danger small mb-0" />
                 </div>
                 <div className="pf-field">
                   <label className="form-label input-clr" htmlFor="email">Email</label>
-                  <Field name="email" id="email" type="email" className="form-control input-settings input-compact" placeholder="Email" />
+                  <Field as={Input} compact name="email" id="email" type="email" placeholder="Email" />
                   <ErrorMessage name="email" component="div" className="text-danger small mb-0" />
                 </div>
                 <div className="pf-field">
                   <label className="form-label input-clr" htmlFor="address">Street address</label>
-                  <Field name="address" id="address" className="form-control input-settings input-compact" placeholder="Street" />
+                  <Field as={Input} compact name="address" id="address" placeholder="Street" />
                   <ErrorMessage name="address" component="div" className="text-danger small mb-0" />
                 </div>
                 <div className="pf-field">
                   <label className="form-label input-clr" htmlFor="city">City</label>
-                  <Field name="city" id="city" className="form-control input-settings input-compact" placeholder="City" />
+                  <Field as={Input} compact name="city" id="city" placeholder="City" />
                   <ErrorMessage name="city" component="div" className="text-danger small mb-0" />
                 </div>
                 <div className="pf-field">
                   <label className="form-label input-clr" htmlFor="code">Post code</label>
-                  <Field name="code" id="code" className="form-control input-settings input-compact" placeholder="12345" />
+                  <Field as={Input} compact name="code" id="code" placeholder="12345" />
                   <ErrorMessage name="code" component="div" className="text-danger small mb-0" />
                 </div>
                 <div className="pf-field">
                   <label className="form-label input-clr" htmlFor="country">Country</label>
                   <Field
+                    as={Input}
+                    compact
                     name="country"
                     id="country"
                     list="client-countries"
-                    className="form-control input-settings input-compact"
                     placeholder="Country"
                   />
                   <CountryDatalist id="client-countries" />

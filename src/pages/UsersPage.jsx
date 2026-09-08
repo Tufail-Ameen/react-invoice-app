@@ -6,6 +6,7 @@ import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import * as Yup from "yup";
 import UserList from "../components/users/UserList";
+import Input from "../components/ui/Input";
 
 const initialValues = {
   firstName: "",
@@ -116,8 +117,8 @@ export default function UsersPage() {
                   First Name:
                 </label>
                 <Field
+                  as={Input}
                   type="text"
-                  className="form-control input-settings"
                   id="first-name"
                   name="firstName"
                 />
@@ -128,8 +129,8 @@ export default function UsersPage() {
                   Last Name:
                 </label>
                 <Field
+                  as={Input}
                   type="text"
-                  className="form-control input-settings"
                   id="last-name"
                   name="lastName"
                 />
@@ -140,8 +141,8 @@ export default function UsersPage() {
                   Phone No:
                 </label>
                 <Field
+                  as={Input}
                   type="text"
-                  className="form-control input-settings"
                   id="phone-no"
                   name="phoneno"
                 />
@@ -151,7 +152,7 @@ export default function UsersPage() {
                 <label htmlFor="cnic" className="form-label input-clr">
                   CNIC:
                 </label>
-                <Field type="text" className="form-control input-settings" id="cnic" name="cnic" />
+                <Field as={Input} type="text" id="cnic" name="cnic" />
                 <ErrorMessage name="cnic" component="div" className="font-bold text-danger" />
               </div>
               <div>
@@ -159,8 +160,8 @@ export default function UsersPage() {
                   Email:
                 </label>
                 <Field
+                  as={Input}
                   type="email"
-                  className="form-control input-settings"
                   id="email"
                   name="email"
                 />
@@ -170,8 +171,7 @@ export default function UsersPage() {
                 <label className="input-clr mb-2 block">Gender:</label>
                 <div className="flex gap-4">
                   <div className="form-check">
-                    <input
-                      className="form-check-input"
+                    <Input
                       type="radio"
                       name="gender"
                       id="gender-male"
@@ -184,8 +184,7 @@ export default function UsersPage() {
                     </label>
                   </div>
                   <div className="form-check">
-                    <input
-                      className="form-check-input"
+                    <Input
                       type="radio"
                       name="gender"
                       id="gender-female"
@@ -204,8 +203,8 @@ export default function UsersPage() {
                   Address:
                 </label>
                 <Field
+                  as={Input}
                   type="text"
-                  className="form-control input-settings"
                   id="address"
                   name="address"
                 />
@@ -216,8 +215,8 @@ export default function UsersPage() {
                   Salary:
                 </label>
                 <Field
+                  as={Input}
                   type="number"
-                  className="form-control input-settings"
                   id="salary"
                   name="sallary"
                 />
@@ -228,8 +227,8 @@ export default function UsersPage() {
                   Password:
                 </label>
                 <Field
+                  as={Input}
                   type="password"
-                  className="form-control input-settings"
                   id="pasword"
                   name="pasword"
                 />
@@ -240,8 +239,8 @@ export default function UsersPage() {
                   Confirm Password:
                 </label>
                 <Field
+                  as={Input}
                   type="password"
-                  className="form-control input-settings"
                   id="c-pasword"
                   name="cPasword"
                 />

@@ -7,17 +7,6 @@
     @apply inline-flex items-center justify-center gap-1.5 border-0 bg-transparent font-sans text-[13px] font-bold leading-tight no-underline cursor-pointer;
   }
 
-  .form-control,
-  .form-select {
-    @apply block w-full appearance-none rounded-[10px] border border-border bg-input px-3 text-sm text-text outline-none min-h-11;
-  }
-
-  .form-control:focus,
-  .form-select:focus {
-    @apply border-primary;
-    box-shadow: 0 0 0 3px var(--color-primary-soft);
-  }
-
   .form-label {
     @apply mb-1 block text-xs font-semibold text-text;
   }

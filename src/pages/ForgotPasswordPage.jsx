@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 import AuthShell from "../components/auth/AuthShell";
+import Input from "../components/ui/Input";
 import { getErrorMessage } from "../lib/rtkBaseQuery";
 import { useForgotPasswordMutation } from "../services/invoiceApi";
 
@@ -92,6 +93,7 @@ export default function ForgotPasswordPage() {
             <div className="auth-field">
               <label htmlFor="email">Email address</label>
               <Field
+                as={Input}
                 id="email"
                 name="email"
                 type="email"

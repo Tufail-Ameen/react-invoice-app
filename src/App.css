@@ -571,7 +571,7 @@ textarea {
   border-radius: 10px;
 }
 
-/* Mobile header / bottom nav */
+/* Mobile header */
 .mobile-header {
   display: flex;
   align-items: center;
@@ -640,38 +640,6 @@ textarea {
   font-weight: 700;
   font-size: 12px;
   flex-shrink: 0;
-}
-
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(255, 255, 255, 0.96);
-  display: flex;
-  z-index: 40;
-  padding: 8px 4px calc(8px + env(safe-area-inset-bottom));
-  border-top: 1px solid var(--color-border);
-  backdrop-filter: blur(12px);
-}
-
-.bottom-nav-link {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  color: var(--color-text-muted);
-  text-decoration: none;
-  font-size: 11px;
-  font-weight: 600;
-  padding: 6px 4px;
-  border-radius: 12px;
-}
-
-.bottom-nav-link.active,
-.bottom-nav-link:hover {
-  color: var(--color-primary);
 }
 
 /* Invoices */
@@ -848,22 +816,6 @@ textarea {
   color: var(--color-text-muted);
   font-size: 12px;
   font-weight: 600;
-}
-
-.input-settings {
-  box-shadow: none;
-  border: 1px solid var(--color-border);
-  color: var(--color-text);
-  background-color: var(--color-input);
-  border-radius: 10px;
-  min-height: 44px;
-}
-
-.input-settings:focus {
-  box-shadow: 0 0 0 3px var(--color-primary-soft);
-  border: 1px solid var(--color-primary);
-  color: var(--color-text);
-  background-color: var(--color-input);
 }
 
 /* Stock / product form */
@@ -1135,28 +1087,6 @@ textarea {
   background: var(--color-surface-2, #f5f4f2) !important;
   color: var(--color-text-muted);
   cursor: not-allowed;
-}
-
-.input-computed {
-  background: var(--color-primary-soft) !important;
-  border-color: transparent !important;
-  color: var(--color-primary) !important;
-  font-weight: 700;
-  cursor: default;
-}
-
-.input-compact {
-  min-height: 32px;
-  height: 32px;
-  padding: 0.2rem 0.55rem;
-  font-size: 0.82rem;
-  border-radius: 8px;
-}
-
-.form-select.input-compact {
-  padding-top: 0.15rem;
-  padding-bottom: 0.15rem;
-  background-position: right 0.45rem center;
 }
 
 .form-card-compact {
@@ -2046,32 +1976,6 @@ body:has(.auth-page) {
 
 .auth-label-row a:hover {
   text-decoration: underline;
-}
-
-.auth-field input {
-  width: 100%;
-  height: clamp(42px, 5vh, 48px);
-  padding: 0 15px;
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  outline: none;
-  background: var(--color-surface);
-  color: var(--color-text);
-  font-size: 13px;
-  transition: border-color 0.16s ease, box-shadow 0.16s ease;
-}
-
-.auth-field input::placeholder {
-  color: var(--color-placeholder);
-}
-
-.auth-field input:hover {
-  border-color: var(--color-border-strong);
-}
-
-.auth-field input:focus {
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 4px var(--color-primary-soft);
 }
 
 .auth-field-error {

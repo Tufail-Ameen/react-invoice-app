@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import * as Yup from "yup";
 import { useAuth } from "../auth/AuthContext";
 import AuthShell from "../components/auth/AuthShell";
+import Input from "../components/ui/Input";
 import { getErrorMessage } from "../lib/rtkBaseQuery";
 
 const schema = Yup.object({
@@ -59,6 +60,7 @@ export default function RegisterPage() {
             <div className="auth-field">
               <label htmlFor="firstName">First name</label>
               <Field
+                as={Input}
                 id="firstName"
                 name="firstName"
                 autoComplete="given-name"
@@ -69,6 +71,7 @@ export default function RegisterPage() {
             <div className="auth-field">
               <label htmlFor="lastName">Last name</label>
               <Field
+                as={Input}
                 id="lastName"
                 name="lastName"
                 autoComplete="family-name"
@@ -80,6 +83,7 @@ export default function RegisterPage() {
           <div className="auth-field">
             <label htmlFor="businessName">Business name</label>
             <Field
+              as={Input}
               id="businessName"
               name="businessName"
               autoComplete="organization"
@@ -90,6 +94,7 @@ export default function RegisterPage() {
           <div className="auth-field">
             <label htmlFor="email">Work email</label>
             <Field
+              as={Input}
               id="email"
               name="email"
               type="email"
@@ -104,6 +109,7 @@ export default function RegisterPage() {
               <span>At least 8 characters</span>
             </div>
             <Field
+              as={Input}
               id="password"
               name="password"
               type="password"

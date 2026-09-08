@@ -1,5 +1,4 @@
 import { Outlet } from "react-router-dom";
-import BottomNav from "../components/layout/BottomNav";
 import MobileHeader from "../components/layout/MobileHeader";
 import Navbar from "../components/layout/Navbar";
 import Sidebar from "../components/layout/Sidebar";
@@ -14,10 +13,9 @@ function DashboardShell() {
       <div className="app-main">
         <Navbar />
         <MobileHeader />
-        <main className="app-content p-4 pb-[5.75rem] md:px-8 md:pb-10 md:pt-7">
+        <main className="app-content p-4 md:px-8 md:pb-10 md:pt-7">
           <Outlet />
         </main>
-        <BottomNav />
       </div>
     </div>
   );

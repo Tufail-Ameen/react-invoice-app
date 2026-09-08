@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import * as Yup from "yup";
 import { useAuth } from "../auth/AuthContext";
 import AuthShell from "../components/auth/AuthShell";
+import Input from "../components/ui/Input";
 import { isPlatformAdminUser } from "../lib/permissions";
 import { getErrorMessage } from "../lib/rtkBaseQuery";
 
@@ -59,6 +60,7 @@ export default function LoginPage() {
           <div className="auth-field">
             <label htmlFor="email">Email address</label>
             <Field
+              as={Input}
               id="email"
               name="email"
               type="email"
@@ -73,6 +75,7 @@ export default function LoginPage() {
               <Link to="/forgot-password">Forgot password?</Link>
             </div>
             <Field
+              as={Input}
               id="password"
               name="password"
               type="password"

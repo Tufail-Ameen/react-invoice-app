@@ -8,6 +8,7 @@ import * as Yup from "yup";
 import { useAuth } from "../../auth/AuthContext";
 import { Can } from "../../auth/guards";
 import EmptyState from "../../components/ui/EmptyState";
+import Input, { Select } from "../../components/ui/Input";
 import { PERMISSIONS } from "../../lib/permissions";
 import { getErrorMessage } from "../../lib/rtkBaseQuery";
 import {
@@ -117,8 +118,10 @@ export default function TeamUsersPage() {
                 </td>
                 <td className="text-end">
                   <Can permission={PERMISSIONS.USERS_UPDATE}>
-                    <select
-                      className="form-select me-2 inline-block w-auto min-h-9 py-1 text-sm"
+                    <Select
+                      compact
+                      inline
+                      className="me-2"
                       value={member.role?.id || ""}
                       onChange={async (e) => {
                         try {
@@ -134,7 +137,7 @@ export default function TeamUsersPage() {
                           {r.name}
                         </option>
                       ))}
-                    </select>
+                    </Select>
                   </Can>
                   <Can permission={PERMISSIONS.USERS_DELETE}>
                     {member.id !== currentUser?.id && (
@@ -188,28 +191,28 @@ export default function TeamUsersPage() {
                   <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
                     <div>
                       <label className="form-label input-clr">First name</label>
-                      <Field name="firstName" className="form-control input-settings" />
+                      <Field as={Input} name="firstName" />
                       <ErrorMessage name="firstName" component="div" className="text-danger" />
                     </div>
                     <div>
                       <label className="form-label input-clr">Last name</label>
-                      <Field name="lastName" className="form-control input-settings" />
+                      <Field as={Input} name="lastName" />
                       <ErrorMessage name="lastName" component="div" className="text-danger" />
                     </div>
                   </div>
                   <div className="mb-3 mt-2">
                     <label className="form-label input-clr">Email</label>
-                    <Field name="email" type="email" className="form-control input-settings" />
+                    <Field as={Input} name="email" type="email" />
                     <ErrorMessage name="email" component="div" className="text-danger" />
                   </div>
                   <div className="mb-3">
                     <label className="form-label input-clr">Temp password</label>
-                    <Field name="password" type="password" className="form-control input-settings" />
+                    <Field as={Input} name="password" type="password" />
                     <ErrorMessage name="password" component="div" className="text-danger" />
                   </div>
                   <div className="mb-3">
                     <label className="form-label input-clr">Role</label>
-                    <Field as="select" name="roleId" className="form-select input-settings">
+                    <Field as={Select} name="roleId">
                       <option value="">Select role</option>
                       {roles.map((r) => (
                         <option key={r.id} value={r.id}>

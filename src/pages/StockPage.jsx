@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 import EmptyState from "../components/ui/EmptyState";
+import Input, { Select } from "../components/ui/Input";
 import { useProducts } from "../hooks/useProducts";
 import { getErrorMessage } from "../lib/rtkBaseQuery";
 import {
@@ -130,10 +131,11 @@ function ProductFormFields({ editing, categories, onCancel }) {
         <div className="pf-field">
           <label className="form-label input-clr" htmlFor="category">Category</label>
           <Field
+            as={Input}
+            compact
             id="category"
             name="category"
             list="product-categories"
-            className="form-control input-settings input-compact"
             placeholder="Fash Wash"
           />
           <datalist id="product-categories">
@@ -146,16 +148,17 @@ function ProductFormFields({ editing, categories, onCancel }) {
         <div className={`pf-field ${editing ? "pf-span-2" : ""}`}>
           <label className="form-label input-clr" htmlFor="name">Name</label>
           <Field
+            as={Input}
+            compact
             id="name"
             name="name"
-            className="form-control input-settings input-compact"
             placeholder="Golden Pearl"
           />
           <ErrorMessage name="name" component="div" className="text-danger small mb-0" />
         </div>
         <div className="pf-field">
           <label className="form-label input-clr" htmlFor="unit">Unit</label>
-          <Field as="select" id="unit" name="unit" className="form-select input-settings input-compact">
+          <Field as={Select} compact id="unit" name="unit">
             {unitOptions.map((unit) => (
               <option key={unit} value={unit}>{unit}</option>
             ))}
@@ -164,7 +167,7 @@ function ProductFormFields({ editing, categories, onCancel }) {
         {!editing && (
           <div className="pf-field">
             <label className="form-label input-clr" htmlFor="stock">Stock</label>
-            <Field id="stock" name="stock" type="number" min="0" className="form-control input-settings input-compact" />
+            <Field as={Input} compact id="stock" name="stock" type="number" min="0" />
             <ErrorMessage name="stock" component="div" className="text-danger small mb-0" />
           </div>
         )}
@@ -173,12 +176,12 @@ function ProductFormFields({ editing, categories, onCancel }) {
           <label className="form-label input-clr" htmlFor="tpRate">TP Rate</label>
           <Field name="tpRate">
             {({ field }) => (
-              <input
+              <Input
                 {...field}
+                compact
                 id="tpRate"
                 type="number"
                 min="0"
-                className="form-control input-settings input-compact"
                 placeholder="500"
                 onChange={(e) => applyPricing(values, setFieldValue, { tpRate: e.target.value })}
               />
@@ -190,13 +193,13 @@ function ProductFormFields({ editing, categories, onCancel }) {
           <label className="form-label input-clr" htmlFor="discountPercent">Disc %</label>
           <Field name="discountPercent">
             {({ field }) => (
-              <input
+              <Input
                 {...field}
+                compact
                 id="discountPercent"
                 type="number"
                 min="0"
                 max="100"
-                className="form-control input-settings input-compact"
                 placeholder="10"
                 onChange={(e) => applyPricing(values, setFieldValue, { discountPercent: e.target.value })}
               />
@@ -206,26 +209,28 @@ function ProductFormFields({ editing, categories, onCancel }) {
         </div>
         <div className="pf-field">
           <label className="form-label input-clr">After disc.</label>
-          <input
+          <Input
             readOnly
             tabIndex={-1}
+            computed
+            compact
             value={
               values.netRate !== "" && values.netRate != null
                 ? formatAmount("Rs", values.netRate)
                 : ""
             }
             placeholder="Auto"
-            className="form-control input-settings input-compact input-computed"
           />
         </div>
         <div className="pf-field">
           <label className="form-label input-clr" htmlFor="printRate">Price</label>
           <Field
+            as={Input}
+            compact
             id="printRate"
             name="printRate"
             type="number"
             min="0"
-            className="form-control input-settings input-compact"
             placeholder="Price"
           />
           <ErrorMessage name="printRate" component="div" className="text-danger small mb-0" />
@@ -472,7 +477,7 @@ export default function StockPage() {
             <div className="product-form-grid product-form-grid-adjust">
               <div className="pf-field">
                 <label className="form-label input-clr" htmlFor="productId">Product</label>
-                <Field as="select" id="productId" name="productId" className="form-select input-settings input-compact">
+                <Field as={Select} compact id="productId" name="productId">
                   <option value="">Select…</option>
                   {products.map((p) => (
                     <option key={p.id} value={p.id}>
@@ -484,15 +489,16 @@ export default function StockPage() {
               </div>
               <div className="pf-field">
                 <label className="form-label input-clr" htmlFor="quantity">Qty (+/−)</label>
-                <Field id="quantity" name="quantity" type="number" className="form-control input-settings input-compact" />
+                <Field as={Input} compact id="quantity" name="quantity" type="number" />
                 <ErrorMessage name="quantity" component="div" className="text-danger small mb-0" />
               </div>
               <div className="pf-field">
                 <label className="form-label input-clr" htmlFor="reason">Reason</label>
                 <Field
+                  as={Input}
+                  compact
                   id="reason"
                   name="reason"
-                  className="form-control input-settings input-compact"
                   placeholder="e.g. Damaged, Restock"
                 />
                 <ErrorMessage name="reason" component="div" className="text-danger small mb-0" />

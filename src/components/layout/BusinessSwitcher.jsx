@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { Select } from "../ui/Input";
 import { useAuth } from "../../auth/AuthContext";
 import { getErrorMessage } from "../../lib/rtkBaseQuery";
 
@@ -37,8 +38,9 @@ export default function BusinessSwitcher() {
       <label className="business-switcher-label" htmlFor="business-switch">
         Business
       </label>
-      <select
+      <Select
         id="business-switch"
+        unstyled
         className="business-switcher-select"
         value={activeBusiness?.id || ""}
         onChange={onChange}
@@ -49,7 +51,7 @@ export default function BusinessSwitcher() {
             {b.name}
           </option>
         ))}
-      </select>
+      </Select>
     </div>
   );
 }

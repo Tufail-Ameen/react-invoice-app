@@ -13,6 +13,7 @@ import {
   useUpdateInvoiceStatusMutation,
 } from "../../services/invoiceApi";
 import { calcLineTotal } from "../../utils/invoice";
+import Input, { Select } from "../ui/Input";
 
 const schema = Yup.object({
   clientId: Yup.string().required("Client required"),
@@ -114,7 +115,7 @@ export default function InvoiceForm({ invoice, onClose, onSaved }) {
 
               <div className="bill-form mb-2">Client</div>
               <div className="mb-3">
-                <Field as="select" name="clientId" className="form-select input-settings">
+                <Field as={Select} name="clientId">
                   <option value="">Select client…</option>
                   {clients.map((c) => (
                     <option key={c.key || c._id || c.id} value={String(c.id)}>
@@ -128,22 +129,22 @@ export default function InvoiceForm({ invoice, onClose, onSaved }) {
               <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
                 <div>
                   <label className="input-clr mb-1">Invoice date</label>
-                  <Field type="date" name="issueDate" className="form-control input-settings" />
+                  <Field as={Input} type="date" name="issueDate" />
                 </div>
                 <div>
                   <label className="input-clr mb-1">Due date</label>
-                  <Field type="date" name="dueDate" className="form-control input-settings" />
+                  <Field as={Input} type="date" name="dueDate" />
                 </div>
               </div>
 
               <div className="mt-2">
                 <label className="input-clr mb-1">Description</label>
-                <Field name="description" className="form-control input-settings" />
+                <Field as={Input} name="description" />
               </div>
 
               <div className="mt-2">
                 <label className="input-clr mb-1">Currency</label>
-                <Field as="select" name="currency" className="form-select input-settings">
+                <Field as={Select} name="currency">
                   <option value="Rs">Rs</option>
                   <option value="$">$</option>
                 </Field>
@@ -157,8 +158,7 @@ export default function InvoiceForm({ invoice, onClose, onSaved }) {
                   <div className="mb-3 grid grid-cols-12 items-end gap-2" key={line.key}>
                     <div className="col-span-12 md:col-span-5">
                       <label className="input-clr mb-1 md:hidden">Product</label>
-                      <select
-                        className="form-select input-settings"
+                      <Select
                         value={line.productId}
                         onChange={(e) => {
                           const next = [...lines];
@@ -172,14 +172,13 @@ export default function InvoiceForm({ invoice, onClose, onSaved }) {
                             {p.name} — stock {p.stock} — Rs {p.price}
                           </option>
                         ))}
-                      </select>
+                      </Select>
                     </div>
                     <div className="col-span-4 md:col-span-2">
                       <label className="input-clr mb-1 md:hidden">Qty</label>
-                      <input
+                      <Input
                         type="number"
                         min={1}
-                        className="form-control input-settings"
                         value={line.quantity}
                         onChange={(e) => {
                           const next = [...lines];
@@ -190,9 +189,8 @@ export default function InvoiceForm({ invoice, onClose, onSaved }) {
                     </div>
                     <div className="col-span-4 md:col-span-2">
                       <label className="input-clr mb-1 md:hidden">Tax %</label>
-                      <input
+                      <Input
                         type="number"
-                        className="form-control input-settings"
                         value={line.tax}
                         onChange={(e) => {
                           const next = [...lines];

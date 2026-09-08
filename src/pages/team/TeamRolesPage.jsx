@@ -6,6 +6,7 @@ import Swal from "sweetalert2";
 import { useAuth } from "../../auth/AuthContext";
 import { Can } from "../../auth/guards";
 import EmptyState from "../../components/ui/EmptyState";
+import Input, { Textarea } from "../../components/ui/Input";
 import { PERMISSION_GROUPS, PERMISSIONS } from "../../lib/permissions";
 import { getErrorMessage } from "../../lib/rtkBaseQuery";
 import {
@@ -190,7 +191,7 @@ export default function TeamRolesPage() {
                       <div className="rbac-perm-checks">
                         {group.permissions.map((perm) => (
                           <label key={perm.key} className="rbac-perm-check">
-                            <input
+                            <Input
                               type="checkbox"
                               checked={draft.includes(perm.key)}
                               disabled={!canManage}
@@ -231,16 +232,14 @@ export default function TeamRolesPage() {
             </h2>
             <div className="mb-3">
               <label className="form-label input-clr">Name</label>
-              <input
-                className="form-control input-settings"
+              <Input
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
               />
             </div>
             <div className="mb-3">
               <label className="form-label input-clr">Description</label>
-              <textarea
-                className="form-control input-settings"
+              <Textarea
                 rows={2}
                 value={newDesc}
                 onChange={(e) => setNewDesc(e.target.value)}

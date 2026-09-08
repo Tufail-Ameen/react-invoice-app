@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import * as Yup from "yup";
 import { Can } from "../../auth/guards";
 import EmptyState from "../../components/ui/EmptyState";
+import Input from "../../components/ui/Input";
 import { PERMISSIONS } from "../../lib/permissions";
 import { getErrorMessage } from "../../lib/rtkBaseQuery";
 import {
@@ -136,29 +137,29 @@ export default function PlatformBusinessesPage() {
                 <Form>
                   <div className="mb-3">
                     <label className="form-label input-clr">Business name</label>
-                    <Field name="name" className="form-control input-settings" />
+                    <Field as={Input} name="name" />
                     <ErrorMessage name="name" component="div" className="text-danger" />
                   </div>
                   <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
                     <div>
                       <label className="form-label input-clr">Owner first name</label>
-                      <Field name="ownerFirstName" className="form-control input-settings" />
+                      <Field as={Input} name="ownerFirstName" />
                       <ErrorMessage name="ownerFirstName" component="div" className="text-danger" />
                     </div>
                     <div>
                       <label className="form-label input-clr">Owner last name</label>
-                      <Field name="ownerLastName" className="form-control input-settings" />
+                      <Field as={Input} name="ownerLastName" />
                       <ErrorMessage name="ownerLastName" component="div" className="text-danger" />
                     </div>
                   </div>
                   <div className="mb-3 mt-2">
                     <label className="form-label input-clr">Owner email</label>
-                    <Field name="ownerEmail" type="email" className="form-control input-settings" />
+                    <Field as={Input} name="ownerEmail" type="email" />
                     <ErrorMessage name="ownerEmail" component="div" className="text-danger" />
                   </div>
                   <div className="mb-3">
                     <label className="form-label input-clr">Owner password</label>
-                    <Field name="ownerPassword" type="password" className="form-control input-settings" />
+                    <Field as={Input} name="ownerPassword" type="password" />
                     <ErrorMessage name="ownerPassword" component="div" className="text-danger" />
                   </div>
                   <div className="flex justify-end gap-2">
