@@ -5,8 +5,11 @@ import {
   faClipboardList,
   faFileInvoice,
   faFileLines,
+  faMoneyBillWave,
+  faRotateLeft,
   faShieldHalved,
   faTruck,
+  faTruckRampBox,
   faUserGroup,
   faUsers,
 } from "@fortawesome/free-solid-svg-icons";
@@ -26,6 +29,12 @@ export const mainNavLinks = [
     label: "Estimates",
     icon: faFileLines,
     permission: PERMISSIONS.ESTIMATES_VIEW,
+  },
+  {
+    to: "/sales-returns",
+    label: "Sales Returns",
+    icon: faRotateLeft,
+    permission: PERMISSIONS.SALES_RETURNS_VIEW,
   },
   {
     to: "/clients",
@@ -50,6 +59,18 @@ export const mainNavLinks = [
     label: "Purchases",
     icon: faCartShopping,
     permission: PERMISSIONS.PURCHASES_VIEW,
+  },
+  {
+    to: "/purchase-returns",
+    label: "Purchase Returns",
+    icon: faTruckRampBox,
+    permission: PERMISSIONS.PURCHASE_RETURNS_VIEW,
+  },
+  {
+    to: "/expenses",
+    label: "Expenses",
+    icon: faMoneyBillWave,
+    permission: PERMISSIONS.EXPENSES_VIEW,
   },
 ];
 
@@ -98,6 +119,10 @@ export function getNavPageTitle(pathname) {
   if (pathname.startsWith("/estimates/") && pathname !== "/estimates") {
     return "Estimate Details";
   }
+  if (pathname === "/sales-returns/new") return "New Sales Return";
+  if (pathname.startsWith("/sales-returns/") && pathname !== "/sales-returns") {
+    return "Sales Return Details";
+  }
   if (pathname.startsWith("/suppliers/") && pathname !== "/suppliers") {
     return "Supplier Details";
   }
@@ -105,6 +130,18 @@ export function getNavPageTitle(pathname) {
   if (/^\/purchases\/[^/]+\/edit$/.test(pathname)) return "Edit Purchase";
   if (pathname.startsWith("/purchases/") && pathname !== "/purchases") {
     return "Purchase Details";
+  }
+  if (pathname === "/purchase-returns/new") return "New Purchase Return";
+  if (
+    pathname.startsWith("/purchase-returns/") &&
+    pathname !== "/purchase-returns"
+  ) {
+    return "Purchase Return Details";
+  }
+  if (pathname === "/expenses/new") return "New Expense";
+  if (/^\/expenses\/[^/]+\/edit$/.test(pathname)) return "Edit Expense";
+  if (pathname.startsWith("/expenses/") && pathname !== "/expenses") {
+    return "Expense Details";
   }
   const all = [...mainNavLinks, ...teamNavLinks, ...platformNavLinks];
   const match = all.find((link) =>

@@ -12,6 +12,7 @@ import {
   useCancelPurchaseMutation,
   useConfirmPurchaseMutation,
   useGetPurchaseQuery,
+  useReversePurchaseMutation,
 } from "../services/invoiceApi";
 import { formatAmount } from "../utils/invoice";
 
@@ -22,9 +23,12 @@ export default function PurchaseDetailPage() {
   const { data, isLoading, isError, error } = useGetPurchaseQuery(id);
   const [confirmPurchase] = useConfirmPurchaseMutation();
   const [cancelPurchase] = useCancelPurchaseMutation();
+  const [reversePurchase] = useReversePurchaseMutation();
 
   const purchase = data?.purchase;
-  const isDraft = String(purchase?.status || "").toUpperCase() === "DRAFT";
+  const status = String(purchase?.status || "").toUpperCase();
+  const isDraft = status === "DRAFT";
+  const isConfirmed = status === "CONFIRMED";
 
   useEffect(() => {
     if (isError) toast.error(getErrorMessage(error, "Purchase not found"));
@@ -53,6 +57,22 @@ export default function PurchaseDetailPage() {
       toast.success("Purchase cancelled");
     } catch (err) {
       toast.error(getErrorMessage(err, "Cancel failed"));
+    }
+  };
+
+  const onReverse = async () => {
+    if (
+      !window.confirm(
+        "Reverse this purchase? Stock will decrease and the supplier payable will be reversed. Confirmed purchase returns on this purchase will block reversal."
+      )
+    ) {
+      return;
+    }
+    try {
+      await reversePurchase(id).unwrap();
+      toast.success("Purchase reversed — stock and payable restored");
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Reverse failed"));
     }
   };
 
@@ -108,6 +128,27 @@ export default function PurchaseDetailPage() {
             <Can permission={PERMISSIONS.PURCHASES_UPDATE}>
               <button type="button" className="btn cancel py-2 px-3" onClick={onCancel}>
                 Cancel
+              </button>
+            </Can>
+          )}
+          {isConfirmed && (
+            <Can permission={PERMISSIONS.PURCHASE_RETURNS_CREATE}>
+              <Link
+                to={`/purchase-returns/new?purchaseId=${id}`}
+                className="btn input-clr1 edit py-2 px-3"
+              >
+                Create Return
+              </Link>
+            </Can>
+          )}
+          {isConfirmed && (
+            <Can permission={PERMISSIONS.PURCHASES_REVERSE}>
+              <button
+                type="button"
+                className="btn cancel py-2 px-3"
+                onClick={onReverse}
+              >
+                Reverse Purchase
               </button>
             </Can>
           )}

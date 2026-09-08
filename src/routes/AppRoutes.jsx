@@ -7,6 +7,9 @@ import ClientsPage from "../pages/ClientsPage";
 import EstimateDetailPage from "../pages/EstimateDetailPage";
 import EstimateFormPage from "../pages/EstimateFormPage";
 import EstimatesPage from "../pages/EstimatesPage";
+import ExpenseDetailPage from "../pages/ExpenseDetailPage";
+import ExpenseFormPage from "../pages/ExpenseFormPage";
+import ExpensesPage from "../pages/ExpensesPage";
 import ForbiddenPage from "../pages/ForbiddenPage";
 import InvoiceDetailPage from "../pages/InvoiceDetailPage";
 import InvoicesPage from "../pages/InvoicesPage";
@@ -14,8 +17,14 @@ import LandingPage from "../pages/LandingPage";
 import LoginPage from "../pages/LoginPage";
 import PurchaseDetailPage from "../pages/PurchaseDetailPage";
 import PurchaseFormPage from "../pages/PurchaseFormPage";
+import PurchaseReturnDetailPage from "../pages/PurchaseReturnDetailPage";
+import PurchaseReturnFormPage from "../pages/PurchaseReturnFormPage";
+import PurchaseReturnsPage from "../pages/PurchaseReturnsPage";
 import PurchasesPage from "../pages/PurchasesPage";
 import RegisterPage from "../pages/RegisterPage";
+import SalesReturnDetailPage from "../pages/SalesReturnDetailPage";
+import SalesReturnFormPage from "../pages/SalesReturnFormPage";
+import SalesReturnsPage from "../pages/SalesReturnsPage";
 import StockPage from "../pages/StockPage";
 import SupplierDetailPage from "../pages/SupplierDetailPage";
 import SuppliersPage from "../pages/SuppliersPage";
@@ -81,6 +90,30 @@ export default function AppRoutes() {
             element={
               <RequirePermission permission={PERMISSIONS.ESTIMATES_VIEW}>
                 <EstimateDetailPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/sales-returns"
+            element={
+              <RequirePermission permission={PERMISSIONS.SALES_RETURNS_VIEW}>
+                <SalesReturnsPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/sales-returns/new"
+            element={
+              <RequirePermission permission={PERMISSIONS.SALES_RETURNS_CREATE}>
+                <SalesReturnFormPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/sales-returns/:id"
+            element={
+              <RequirePermission permission={PERMISSIONS.SALES_RETURNS_VIEW}>
+                <SalesReturnDetailPage />
               </RequirePermission>
             }
           />
@@ -154,6 +187,63 @@ export default function AppRoutes() {
             element={
               <RequirePermission permission={PERMISSIONS.PURCHASES_VIEW}>
                 <PurchaseDetailPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/purchase-returns"
+            element={
+              <RequirePermission permission={PERMISSIONS.PURCHASE_RETURNS_VIEW}>
+                <PurchaseReturnsPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/purchase-returns/new"
+            element={
+              <RequirePermission permission={PERMISSIONS.PURCHASE_RETURNS_CREATE}>
+                <PurchaseReturnFormPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/purchase-returns/:id"
+            element={
+              <RequirePermission permission={PERMISSIONS.PURCHASE_RETURNS_VIEW}>
+                <PurchaseReturnDetailPage />
+              </RequirePermission>
+            }
+          />
+
+          <Route
+            path="/expenses"
+            element={
+              <RequirePermission permission={PERMISSIONS.EXPENSES_VIEW}>
+                <ExpensesPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/expenses/new"
+            element={
+              <RequirePermission permission={PERMISSIONS.EXPENSES_CREATE}>
+                <ExpenseFormPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/expenses/:id/edit"
+            element={
+              <RequirePermission permission={PERMISSIONS.EXPENSES_UPDATE}>
+                <ExpenseFormPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/expenses/:id"
+            element={
+              <RequirePermission permission={PERMISSIONS.EXPENSES_VIEW}>
+                <ExpenseDetailPage />
               </RequirePermission>
             }
           />

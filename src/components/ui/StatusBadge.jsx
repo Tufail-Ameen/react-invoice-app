@@ -7,6 +7,8 @@ const STATUS_MAP = {
   paid: { label: "Paid", className: "paidbtn", key: 3 },
   confirmed: { label: "Confirmed", className: "paidbtn", key: 3 },
   cancelled: { label: "Cancelled", className: "draftbtn", key: 1 },
+  reversed: { label: "Reversed", className: "draftbtn", key: 1 },
+  void: { label: "Void", className: "draftbtn", key: 1 },
   sent: { label: "Sent", className: "pendingbtn", key: 2 },
   accepted: { label: "Accepted", className: "paidbtn", key: 3 },
   rejected: { label: "Rejected", className: "draftbtn", key: 1 },

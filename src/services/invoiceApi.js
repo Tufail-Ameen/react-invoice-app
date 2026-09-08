@@ -27,6 +27,10 @@ export const invoiceApi = createApi({
     "Supplier",
     "Purchase",
     "SupplierLedger",
+    "SalesReturn",
+    "PurchaseReturn",
+    "Expense",
+    "ExpenseCategory",
     "Auth",
     "User",
     "Role",
@@ -70,6 +74,10 @@ export const invoiceApi = createApi({
         "Supplier",
         "Purchase",
         "SupplierLedger",
+        "SalesReturn",
+        "PurchaseReturn",
+        "Expense",
+        "ExpenseCategory",
         "User",
         "Role",
         "Audit",
@@ -402,6 +410,114 @@ export const invoiceApi = createApi({
         { type: "Movement", id: "LIST" },
       ],
     }),
+    reverseInvoice: builder.mutation({
+      query: (id) => ({ url: `/invoices/${id}/reverse`, method: "POST" }),
+      invalidatesTags: (result, error, id) => [
+        { type: "Invoice", id },
+        { type: "Invoice", id: "LIST" },
+        { type: "Product", id: "LIST" },
+        { type: "Movement", id: "LIST" },
+        "Client",
+        "ClientLedger",
+        { type: "SalesReturn", id: "LIST" },
+      ],
+    }),
+
+    // ---- Sales returns ----
+    getSalesReturns: builder.query({
+      query: (params = {}) => ({ url: "/sales-returns", params }),
+      transformResponse: (response) => ({
+        salesReturns:
+          response?.salesReturns || (Array.isArray(response) ? response : []),
+        pagination: response?.pagination,
+      }),
+      providesTags: (result) =>
+        result?.salesReturns
+          ? [
+              ...result.salesReturns.map(({ id }) => ({
+                type: "SalesReturn",
+                id,
+              })),
+              { type: "SalesReturn", id: "LIST" },
+            ]
+          : [{ type: "SalesReturn", id: "LIST" }],
+    }),
+    getSalesReturn: builder.query({
+      query: (id) => ({ url: `/sales-returns/${id}` }),
+      transformResponse: (response) => ({
+        salesReturn: response?.salesReturn ?? response,
+        returnableItems: response?.returnableItems || null,
+      }),
+      providesTags: (result, error, id) => [{ type: "SalesReturn", id }],
+    }),
+    getSalesReturnable: builder.query({
+      query: (invoiceId) => ({
+        url: `/sales-returns/returnable/${invoiceId}`,
+      }),
+      providesTags: (result, error, invoiceId) => [
+        { type: "SalesReturn", id: `RETURNABLE-${invoiceId}` },
+        { type: "Invoice", id: invoiceId },
+      ],
+    }),
+    createSalesReturn: builder.mutation({
+      query: (body) => ({ url: "/sales-returns", method: "POST", data: body }),
+      transformResponse: (response) => ({
+        salesReturn: response?.salesReturn ?? response,
+      }),
+      invalidatesTags: (result, error, body) =>
+        [
+          { type: "SalesReturn", id: "LIST" },
+          body?.invoiceId
+            ? { type: "SalesReturn", id: `RETURNABLE-${body.invoiceId}` }
+            : null,
+          ...(body?.confirm
+            ? [
+                { type: "Invoice", id: body.invoiceId },
+                { type: "Invoice", id: "LIST" },
+                { type: "Product", id: "LIST" },
+                { type: "Movement", id: "LIST" },
+                "Client",
+                "ClientLedger",
+              ]
+            : []),
+        ].filter(Boolean),
+    }),
+    updateSalesReturn: builder.mutation({
+      query: ({ id, ...body }) => ({
+        url: `/sales-returns/${id}`,
+        method: "PATCH",
+        data: body,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: "SalesReturn", id },
+        { type: "SalesReturn", id: "LIST" },
+      ],
+    }),
+    confirmSalesReturn: builder.mutation({
+      query: (id) => ({
+        url: `/sales-returns/${id}/confirm`,
+        method: "POST",
+      }),
+      invalidatesTags: (result, error, id) => [
+        { type: "SalesReturn", id },
+        { type: "SalesReturn", id: "LIST" },
+        { type: "Invoice", id: "LIST" },
+        { type: "Product", id: "LIST" },
+        { type: "Movement", id: "LIST" },
+        "Client",
+        "ClientLedger",
+      ],
+    }),
+    cancelSalesReturn: builder.mutation({
+      query: (id) => ({
+        url: `/sales-returns/${id}/cancel`,
+        method: "POST",
+      }),
+      invalidatesTags: (result, error, id) => [
+        { type: "SalesReturn", id },
+        { type: "SalesReturn", id: "LIST" },
+      ],
+    }),
 
     // ---- Estimates ----
     getEstimates: builder.query({
@@ -598,6 +714,214 @@ export const invoiceApi = createApi({
       query: (id) => ({ url: `/purchases/${id}`, method: "DELETE" }),
       invalidatesTags: [{ type: "Purchase", id: "LIST" }],
     }),
+    reversePurchase: builder.mutation({
+      query: (id) => ({ url: `/purchases/${id}/reverse`, method: "POST" }),
+      invalidatesTags: (result, error, id) => [
+        { type: "Purchase", id },
+        { type: "Purchase", id: "LIST" },
+        { type: "Product", id: "LIST" },
+        { type: "Movement", id: "LIST" },
+        "Supplier",
+        "SupplierLedger",
+        { type: "PurchaseReturn", id: "LIST" },
+      ],
+    }),
+
+    // ---- Purchase returns ----
+    getPurchaseReturns: builder.query({
+      query: (params = {}) => ({ url: "/purchase-returns", params }),
+      transformResponse: (response) => ({
+        purchaseReturns:
+          response?.purchaseReturns ||
+          (Array.isArray(response) ? response : []),
+        pagination: response?.pagination,
+      }),
+      providesTags: (result) =>
+        result?.purchaseReturns
+          ? [
+              ...result.purchaseReturns.map(({ id }) => ({
+                type: "PurchaseReturn",
+                id,
+              })),
+              { type: "PurchaseReturn", id: "LIST" },
+            ]
+          : [{ type: "PurchaseReturn", id: "LIST" }],
+    }),
+    getPurchaseReturn: builder.query({
+      query: (id) => ({ url: `/purchase-returns/${id}` }),
+      transformResponse: (response) => ({
+        purchaseReturn: response?.purchaseReturn ?? response,
+        returnableItems: response?.returnableItems || null,
+      }),
+      providesTags: (result, error, id) => [{ type: "PurchaseReturn", id }],
+    }),
+    getPurchaseReturnable: builder.query({
+      query: (purchaseId) => ({
+        url: `/purchase-returns/returnable/${purchaseId}`,
+      }),
+      providesTags: (result, error, purchaseId) => [
+        { type: "PurchaseReturn", id: `RETURNABLE-${purchaseId}` },
+        { type: "Purchase", id: purchaseId },
+      ],
+    }),
+    createPurchaseReturn: builder.mutation({
+      query: (body) => ({
+        url: "/purchase-returns",
+        method: "POST",
+        data: body,
+      }),
+      transformResponse: (response) => ({
+        purchaseReturn: response?.purchaseReturn ?? response,
+      }),
+      invalidatesTags: (result, error, body) =>
+        [
+          { type: "PurchaseReturn", id: "LIST" },
+          body?.purchaseId
+            ? { type: "PurchaseReturn", id: `RETURNABLE-${body.purchaseId}` }
+            : null,
+          ...(body?.confirm
+            ? [
+                { type: "Purchase", id: body.purchaseId },
+                { type: "Purchase", id: "LIST" },
+                { type: "Product", id: "LIST" },
+                { type: "Movement", id: "LIST" },
+                "Supplier",
+                "SupplierLedger",
+              ]
+            : []),
+        ].filter(Boolean),
+    }),
+    updatePurchaseReturn: builder.mutation({
+      query: ({ id, ...body }) => ({
+        url: `/purchase-returns/${id}`,
+        method: "PATCH",
+        data: body,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: "PurchaseReturn", id },
+        { type: "PurchaseReturn", id: "LIST" },
+      ],
+    }),
+    confirmPurchaseReturn: builder.mutation({
+      query: (id) => ({
+        url: `/purchase-returns/${id}/confirm`,
+        method: "POST",
+      }),
+      invalidatesTags: (result, error, id) => [
+        { type: "PurchaseReturn", id },
+        { type: "PurchaseReturn", id: "LIST" },
+        { type: "Purchase", id: "LIST" },
+        { type: "Product", id: "LIST" },
+        { type: "Movement", id: "LIST" },
+        "Supplier",
+        "SupplierLedger",
+      ],
+    }),
+    cancelPurchaseReturn: builder.mutation({
+      query: (id) => ({
+        url: `/purchase-returns/${id}/cancel`,
+        method: "POST",
+      }),
+      invalidatesTags: (result, error, id) => [
+        { type: "PurchaseReturn", id },
+        { type: "PurchaseReturn", id: "LIST" },
+      ],
+    }),
+
+    // ---- Expense categories ----
+    getExpenseCategories: builder.query({
+      query: (params = {}) => ({ url: "/expense-categories", params }),
+      transformResponse: (response) => ({
+        categories:
+          response?.categories || (Array.isArray(response) ? response : []),
+      }),
+      providesTags: (result) =>
+        result?.categories
+          ? [
+              ...result.categories.map(({ id }) => ({
+                type: "ExpenseCategory",
+                id,
+              })),
+              { type: "ExpenseCategory", id: "LIST" },
+            ]
+          : [{ type: "ExpenseCategory", id: "LIST" }],
+    }),
+    createExpenseCategory: builder.mutation({
+      query: (body) => ({
+        url: "/expense-categories",
+        method: "POST",
+        data: body,
+      }),
+      transformResponse: (response) => ({
+        category: response?.category ?? response,
+      }),
+      invalidatesTags: [{ type: "ExpenseCategory", id: "LIST" }],
+    }),
+    updateExpenseCategory: builder.mutation({
+      query: ({ id, ...body }) => ({
+        url: `/expense-categories/${id}`,
+        method: "PATCH",
+        data: body,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: "ExpenseCategory", id },
+        { type: "ExpenseCategory", id: "LIST" },
+      ],
+    }),
+    deleteExpenseCategory: builder.mutation({
+      query: (id) => ({ url: `/expense-categories/${id}`, method: "DELETE" }),
+      invalidatesTags: [{ type: "ExpenseCategory", id: "LIST" }],
+    }),
+
+    // ---- Expenses ----
+    getExpenses: builder.query({
+      query: (params = {}) => ({ url: "/expenses", params }),
+      transformResponse: (response) => ({
+        expenses:
+          response?.expenses || (Array.isArray(response) ? response : []),
+        summary: response?.summary || { totalAmount: 0 },
+        pagination: response?.pagination,
+      }),
+      providesTags: (result) =>
+        result?.expenses
+          ? [
+              ...result.expenses.map(({ id }) => ({ type: "Expense", id })),
+              { type: "Expense", id: "LIST" },
+            ]
+          : [{ type: "Expense", id: "LIST" }],
+    }),
+    getExpense: builder.query({
+      query: (id) => ({ url: `/expenses/${id}` }),
+      transformResponse: (response) => ({
+        expense: response?.expense ?? response,
+      }),
+      providesTags: (result, error, id) => [{ type: "Expense", id }],
+    }),
+    createExpense: builder.mutation({
+      query: (body) => ({ url: "/expenses", method: "POST", data: body }),
+      transformResponse: (response) => ({
+        expense: response?.expense ?? response,
+      }),
+      invalidatesTags: [{ type: "Expense", id: "LIST" }],
+    }),
+    updateExpense: builder.mutation({
+      query: ({ id, ...body }) => ({
+        url: `/expenses/${id}`,
+        method: "PATCH",
+        data: body,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: "Expense", id },
+        { type: "Expense", id: "LIST" },
+      ],
+    }),
+    deleteExpense: builder.mutation({
+      query: (id) => ({ url: `/expenses/${id}`, method: "DELETE" }),
+      invalidatesTags: (result, error, id) => [
+        { type: "Expense", id },
+        { type: "Expense", id: "LIST" },
+      ],
+    }),
   }),
 });
 
@@ -648,6 +972,14 @@ export const {
   useUpdateInvoiceStatusMutation,
   useConfirmInvoiceMutation,
   useDeleteInvoiceMutation,
+  useReverseInvoiceMutation,
+  useGetSalesReturnsQuery,
+  useGetSalesReturnQuery,
+  useGetSalesReturnableQuery,
+  useCreateSalesReturnMutation,
+  useUpdateSalesReturnMutation,
+  useConfirmSalesReturnMutation,
+  useCancelSalesReturnMutation,
   useGetEstimatesQuery,
   useGetEstimateQuery,
   useCreateEstimateMutation,
@@ -669,4 +1001,21 @@ export const {
   useConfirmPurchaseMutation,
   useCancelPurchaseMutation,
   useDeletePurchaseMutation,
+  useReversePurchaseMutation,
+  useGetPurchaseReturnsQuery,
+  useGetPurchaseReturnQuery,
+  useGetPurchaseReturnableQuery,
+  useCreatePurchaseReturnMutation,
+  useUpdatePurchaseReturnMutation,
+  useConfirmPurchaseReturnMutation,
+  useCancelPurchaseReturnMutation,
+  useGetExpenseCategoriesQuery,
+  useCreateExpenseCategoryMutation,
+  useUpdateExpenseCategoryMutation,
+  useDeleteExpenseCategoryMutation,
+  useGetExpensesQuery,
+  useGetExpenseQuery,
+  useCreateExpenseMutation,
+  useUpdateExpenseMutation,
+  useDeleteExpenseMutation,
 } = invoiceApi;

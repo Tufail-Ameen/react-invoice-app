@@ -1,7 +1,7 @@
 import { faAngleLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAuth } from "../auth/AuthContext";
 import { Can } from "../auth/guards";
@@ -14,6 +14,7 @@ import {
   useConfirmInvoiceMutation,
   useDeleteInvoiceMutation,
   useGetInvoiceQuery,
+  useReverseInvoiceMutation,
   useUpdateInvoiceStatusMutation,
 } from "../services/invoiceApi";
 import { formatAmount } from "../utils/invoice";
@@ -32,6 +33,7 @@ export default function InvoiceDetailPage() {
   const [updateStatus] = useUpdateInvoiceStatusMutation();
   const [confirmInvoice] = useConfirmInvoiceMutation();
   const [deleteInvoice] = useDeleteInvoiceMutation();
+  const [reverseInvoice] = useReverseInvoiceMutation();
 
   const invoice = data?.invoice;
   const status = normalizeStatus(invoice?.status);
@@ -43,6 +45,7 @@ export default function InvoiceDetailPage() {
     status === "paid" ||
     normalizeStatus(invoice?.uiStatus) === "paid";
   const isCancelled = status === "cancelled";
+  const isReversed = status === "reversed";
   const canConfirm =
     can(PERMISSIONS.INVOICES_CONFIRM) || can(PERMISSIONS.INVOICES_CHANGE_STATUS);
 
@@ -90,6 +93,22 @@ export default function InvoiceDetailPage() {
     }
   };
 
+  const onReverse = async () => {
+    if (
+      !window.confirm(
+        "Reverse this invoice? Stock will be restored and the customer receivable will be reversed. Confirmed sales returns on this invoice will block reversal."
+      )
+    ) {
+      return;
+    }
+    try {
+      await reverseInvoice(id).unwrap();
+      toast.success("Invoice reversed — stock and receivable restored");
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Reverse failed"));
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="page-wrap">
@@ -131,7 +150,7 @@ export default function InvoiceDetailPage() {
               </button>
             </Can>
           )}
-          {!isPaid && !isCancelled && (
+          {!isPaid && !isCancelled && !isReversed && (
             <Can permission={PERMISSIONS.INVOICES_DELETE}>
               <button type="button" className="btn input-clr1 delete py-2 px-3" onClick={onDelete}>
                 Delete
@@ -155,6 +174,27 @@ export default function InvoiceDetailPage() {
                 onClick={() => setStatus("paid")}
               >
                 Mark as Paid
+              </button>
+            </Can>
+          )}
+          {isConfirmed && (
+            <Can permission={PERMISSIONS.SALES_RETURNS_CREATE}>
+              <Link
+                to={`/sales-returns/new?invoiceId=${id}`}
+                className="btn input-clr1 edit py-2 px-3"
+              >
+                Create Return
+              </Link>
+            </Can>
+          )}
+          {isConfirmed && (
+            <Can permission={PERMISSIONS.INVOICES_REVERSE}>
+              <button
+                type="button"
+                className="btn cancel py-2 px-3"
+                onClick={onReverse}
+              >
+                Reverse Invoice
               </button>
             </Can>
           )}
