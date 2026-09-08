@@ -4,6 +4,7 @@ import {
   faCartShopping,
   faClipboardList,
   faFileInvoice,
+  faFileLines,
   faShieldHalved,
   faTruck,
   faUserGroup,
@@ -19,6 +20,12 @@ export const mainNavLinks = [
     icon: faFileInvoice,
     end: true,
     permission: PERMISSIONS.INVOICES_VIEW,
+  },
+  {
+    to: "/estimates",
+    label: "Estimates",
+    icon: faFileLines,
+    permission: PERMISSIONS.ESTIMATES_VIEW,
   },
   {
     to: "/clients",
@@ -83,6 +90,14 @@ export const navLinks = mainNavLinks;
 
 export function getNavPageTitle(pathname) {
   if (pathname.startsWith("/invoices/")) return "Invoice Details";
+  if (pathname.startsWith("/clients/") && pathname !== "/clients") {
+    return "Client Details";
+  }
+  if (pathname === "/estimates/new") return "New Estimate";
+  if (/^\/estimates\/[^/]+\/edit$/.test(pathname)) return "Edit Estimate";
+  if (pathname.startsWith("/estimates/") && pathname !== "/estimates") {
+    return "Estimate Details";
+  }
   if (pathname.startsWith("/suppliers/") && pathname !== "/suppliers") {
     return "Supplier Details";
   }

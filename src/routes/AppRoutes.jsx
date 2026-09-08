@@ -2,7 +2,11 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { GuestOnly, RequireAuth, RequirePermission } from "../auth/guards";
 import DashboardLayout from "../layouts/DashboardLayout";
 import { PERMISSIONS } from "../lib/permissions";
+import ClientDetailPage from "../pages/ClientDetailPage";
 import ClientsPage from "../pages/ClientsPage";
+import EstimateDetailPage from "../pages/EstimateDetailPage";
+import EstimateFormPage from "../pages/EstimateFormPage";
+import EstimatesPage from "../pages/EstimatesPage";
 import ForbiddenPage from "../pages/ForbiddenPage";
 import InvoiceDetailPage from "../pages/InvoiceDetailPage";
 import InvoicesPage from "../pages/InvoicesPage";
@@ -49,10 +53,50 @@ export default function AppRoutes() {
             }
           />
           <Route
+            path="/estimates"
+            element={
+              <RequirePermission permission={PERMISSIONS.ESTIMATES_VIEW}>
+                <EstimatesPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/estimates/new"
+            element={
+              <RequirePermission permission={PERMISSIONS.ESTIMATES_CREATE}>
+                <EstimateFormPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/estimates/:id/edit"
+            element={
+              <RequirePermission permission={PERMISSIONS.ESTIMATES_UPDATE}>
+                <EstimateFormPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/estimates/:id"
+            element={
+              <RequirePermission permission={PERMISSIONS.ESTIMATES_VIEW}>
+                <EstimateDetailPage />
+              </RequirePermission>
+            }
+          />
+          <Route
             path="/clients"
             element={
               <RequirePermission permission={PERMISSIONS.CLIENTS_VIEW}>
                 <ClientsPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/clients/:id"
+            element={
+              <RequirePermission permission={PERMISSIONS.CLIENTS_VIEW}>
+                <ClientDetailPage />
               </RequirePermission>
             }
           />

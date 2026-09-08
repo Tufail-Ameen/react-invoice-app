@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useAuth } from "../auth/AuthContext";
 import { Can } from "../auth/guards";
 import InvoiceForm from "../components/invoices/InvoiceForm";
 import EmptyState from "../components/ui/EmptyState";
@@ -10,33 +11,71 @@ import StatusBadge from "../components/ui/StatusBadge";
 import { PERMISSIONS } from "../lib/permissions";
 import { getErrorMessage } from "../lib/rtkBaseQuery";
 import {
+  useConfirmInvoiceMutation,
   useDeleteInvoiceMutation,
   useGetInvoiceQuery,
   useUpdateInvoiceStatusMutation,
 } from "../services/invoiceApi";
 import { formatAmount } from "../utils/invoice";
 
+function normalizeStatus(status) {
+  return String(status || "").trim().toLowerCase();
+}
+
 export default function InvoiceDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { can } = useAuth();
   const [showForm, setShowForm] = useState(false);
 
   const { data, isLoading, isError, error, refetch } = useGetInvoiceQuery(id);
   const [updateStatus] = useUpdateInvoiceStatusMutation();
+  const [confirmInvoice] = useConfirmInvoiceMutation();
   const [deleteInvoice] = useDeleteInvoiceMutation();
 
   const invoice = data?.invoice;
+  const status = normalizeStatus(invoice?.status);
+  const paymentStatus = normalizeStatus(invoice?.paymentStatus);
+  const isDraft = status === "draft";
+  const isConfirmed = status === "confirmed" || status === "pending";
+  const isPaid =
+    paymentStatus === "paid" ||
+    status === "paid" ||
+    normalizeStatus(invoice?.uiStatus) === "paid";
+  const isCancelled = status === "cancelled";
+  const canConfirm =
+    can(PERMISSIONS.INVOICES_CONFIRM) || can(PERMISSIONS.INVOICES_CHANGE_STATUS);
 
   useEffect(() => {
     if (isError) toast.error(getErrorMessage(error, "Invoice not found"));
   }, [isError, error]);
 
-  const setStatus = async (status) => {
+  const setStatus = async (nextStatus) => {
     try {
-      await updateStatus({ id, status }).unwrap();
-      toast.success(`Status → ${status}`);
+      await updateStatus({ id, status: nextStatus }).unwrap();
+      toast.success(`Status → ${nextStatus}`);
     } catch (err) {
       toast.error(getErrorMessage(err, "Status update failed"));
+    }
+  };
+
+  const onConfirm = async () => {
+    if (
+      !window.confirm(
+        "Confirm this invoice? Stock will be deducted and a customer receivable will be created."
+      )
+    ) {
+      return;
+    }
+    try {
+      if (can(PERMISSIONS.INVOICES_CONFIRM)) {
+        await confirmInvoice(id).unwrap();
+      } else {
+        await updateStatus({ id, status: "pending" }).unwrap();
+      }
+      toast.success("Invoice confirmed — stock updated");
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Confirm failed"));
     }
   };
 
@@ -76,12 +115,12 @@ export default function InvoiceDetailPage() {
       </button>
 
       <div className="detail-toolbar">
-        <div className="d-flex align-items-center gap-3">
+        <div className="d-flex align-items-center gap-3 flex-wrap">
           <span className="edit-discription mb-0">Status</span>
-          <StatusBadge status={invoice.status} />
+          <StatusBadge status={isPaid && isConfirmed ? "paid" : invoice.status} />
         </div>
         <div className="detail-actions">
-          {invoice.status === "draft" && (
+          {isDraft && (
             <Can permission={PERMISSIONS.INVOICES_UPDATE}>
               <button
                 type="button"
@@ -92,25 +131,23 @@ export default function InvoiceDetailPage() {
               </button>
             </Can>
           )}
-          {invoice.status !== "paid" && (
+          {!isPaid && !isCancelled && (
             <Can permission={PERMISSIONS.INVOICES_DELETE}>
               <button type="button" className="btn input-clr1 delete py-2 px-3" onClick={onDelete}>
                 Delete
               </button>
             </Can>
           )}
-          {invoice.status === "draft" && (
-            <Can permission={PERMISSIONS.INVOICES_CHANGE_STATUS}>
-              <button
-                type="button"
-                className="btn input-clr1 save py-2 px-3"
-                onClick={() => setStatus("pending")}
-              >
-                Send (deduct stock)
-              </button>
-            </Can>
+          {isDraft && canConfirm && (
+            <button
+              type="button"
+              className="btn input-clr1 save py-2 px-3"
+              onClick={onConfirm}
+            >
+              Confirm
+            </button>
           )}
-          {(invoice.status === "draft" || invoice.status === "pending") && (
+          {isConfirmed && !isPaid && (
             <Can permission={PERMISSIONS.INVOICES_CHANGE_STATUS}>
               <button
                 type="button"
@@ -121,7 +158,7 @@ export default function InvoiceDetailPage() {
               </button>
             </Can>
           )}
-          {(invoice.status === "draft" || invoice.status === "pending") && (
+          {isDraft && (
             <Can permission={PERMISSIONS.INVOICES_CHANGE_STATUS}>
               <button
                 type="button"
@@ -135,11 +172,17 @@ export default function InvoiceDetailPage() {
         </div>
       </div>
 
+      {isDraft && (
+        <p className="textcklr small mb-3">
+          Stock deducts only when you confirm this invoice.
+        </p>
+      )}
+
       <div className="detail-card">
         <div className="row g-4">
           <div className="col-12 col-md-6">
-            <p className="edit-id">#{invoice.number}</p>
-            <p className="edit-discription">{invoice.description}</p>
+            <p className="edit-id">#{invoice.number || invoice.invoiceNumber}</p>
+            <p className="edit-discription">{invoice.description || invoice.notes}</p>
           </div>
           <div className="col-12 col-md-6 text-md-end">
             <p className="p-0 m-0 line-height">{from.address},</p>
@@ -158,7 +201,9 @@ export default function InvoiceDetailPage() {
           </div>
           <div className="col-6 col-md-4">
             <span className="d-block edit-discription">Bill To</span>
-            <span className="d-block date-bill-email">{snap.name || invoice.clientName}</span>
+            <span className="d-block date-bill-email">
+              {snap.name || invoice.clientName || invoice.customerName}
+            </span>
             <p className="p-0 m-0 mt-2 line-height">{snap.address},</p>
             <p className="p-0 m-0 line-height">{snap.city},</p>
             <p className="p-0 m-0 line-height">{snap.code},</p>
@@ -166,7 +211,9 @@ export default function InvoiceDetailPage() {
           </div>
           <div className="col-12 col-md-5">
             <span className="d-block edit-discription">Sent to</span>
-            <span className="d-block date-bill-email">{snap.email || invoice.clientEmail}</span>
+            <span className="d-block date-bill-email">
+              {snap.email || invoice.clientEmail || "—"}
+            </span>
           </div>
         </div>
 
@@ -177,17 +224,17 @@ export default function InvoiceDetailPage() {
                 <th>Item Name</th>
                 <th>Qty.</th>
                 <th>Price</th>
-                <th>Tax(%)</th>
+                <th>Tax</th>
                 <th>Total</th>
               </tr>
             </thead>
             <tbody>
               {(invoice.items || []).map((item) => (
                 <tr key={`${item.productId}-${item.name}`}>
-                  <td>{item.name}</td>
+                  <td>{item.name || item.productNameSnapshot}</td>
                   <td>{item.quantity}</td>
                   <td>{formatAmount(invoice.currency, item.unitPrice)}</td>
-                  <td>{item.tax}%</td>
+                  <td>{formatAmount(invoice.currency, item.tax)}</td>
                   <td>{formatAmount(invoice.currency, item.lineTotal)}</td>
                 </tr>
               ))}
@@ -195,8 +242,26 @@ export default function InvoiceDetailPage() {
                 <th className="py-4 px-2" colSpan={4}>
                   Amount Due
                 </th>
-                <th className="total-price">{formatAmount(invoice.currency, invoice.total)}</th>
+                <th className="total-price">
+                  {formatAmount(invoice.currency, invoice.total ?? invoice.grandTotal)}
+                </th>
               </tr>
+              {invoice.paidAmount != null && (
+                <tr>
+                  <th className="py-2" colSpan={4}>
+                    Paid
+                  </th>
+                  <th>{formatAmount(invoice.currency, invoice.paidAmount)}</th>
+                </tr>
+              )}
+              {invoice.remainingAmount != null && (
+                <tr>
+                  <th className="py-2" colSpan={4}>
+                    Remaining
+                  </th>
+                  <th>{formatAmount(invoice.currency, invoice.remainingAmount)}</th>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

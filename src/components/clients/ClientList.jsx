@@ -1,3 +1,4 @@
+import { Link, useNavigate } from "react-router-dom";
 import EmptyState from "../ui/EmptyState";
 import { Can } from "../../auth/guards";
 import { useClients } from "../../hooks/useClients";
@@ -11,6 +12,7 @@ export default function ClientList({
   canEditPermission,
   canDeletePermission,
 }) {
+  const navigate = useNavigate();
   const { clients, isLoading } = useClients();
 
   if (isLoading) {
@@ -26,14 +28,26 @@ export default function ClientList({
       {clients.map((client) => (
         <div
           key={client.key || client._id || client.id}
-          className="row align-items-center invoice-row datalist py-3 px-2 m-0"
+          className="row align-items-center invoice-row datalist py-3 px-2 m-0 cursor"
+          onClick={() => navigate(`/clients/${client.id}`)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") navigate(`/clients/${client.id}`);
+          }}
         >
-          <div className="col-12 col-md-4 table-text-size">{client.name}</div>
+          <div className="col-12 col-md-3 table-text-size">{client.name}</div>
           <div className="col-12 col-md-3 textcklr small">{client.email}</div>
-          <div className="col-12 col-md-3 textcklr small">
+          <div className="col-12 col-md-2 textcklr small">
             {client.city}, {client.country}
           </div>
-          <div className="col-12 col-md-2 d-flex gap-2 justify-content-md-end mt-2 mt-md-0">
+          <div
+            className="col-12 col-md-4 d-flex gap-2 justify-content-md-end mt-2 mt-md-0 flex-wrap"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Link to={`/clients/${client.id}`} className="btn edit py-1 px-3">
+              View
+            </Link>
             {canEditPermission ? (
               <Can permission={canEditPermission}>
                 <button

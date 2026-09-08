@@ -22,6 +22,8 @@ export const invoiceApi = createApi({
     "Category",
     "Movement",
     "Invoice",
+    "Estimate",
+    "ClientLedger",
     "Supplier",
     "Purchase",
     "SupplierLedger",
@@ -62,6 +64,8 @@ export const invoiceApi = createApi({
         "Product",
         "Category",
         "Invoice",
+        "Estimate",
+        "ClientLedger",
         "Movement",
         "Supplier",
         "Purchase",
@@ -191,6 +195,39 @@ export const invoiceApi = createApi({
     deleteClient: builder.mutation({
       query: (id) => ({ url: `/clients/${id}`, method: "DELETE" }),
       invalidatesTags: [{ type: "Client", id: "LIST" }],
+    }),
+    getClientLedger: builder.query({
+      query: (id) => ({ url: `/clients/${id}/ledger` }),
+      transformResponse: (response) => ({
+        client: normalizeClient(response?.customer ?? response?.client),
+        entries: response?.entries || [],
+        summary: response?.summary,
+        pagination: response?.pagination,
+      }),
+      providesTags: (result, error, id) => [
+        { type: "ClientLedger", id },
+        { type: "Client", id },
+      ],
+    }),
+    getClientPayments: builder.query({
+      query: (id) => ({ url: `/clients/${id}/payments` }),
+      providesTags: (result, error, id) => [
+        { type: "ClientLedger", id: `PAYMENTS-${id}` },
+      ],
+    }),
+    createClientPayment: builder.mutation({
+      query: ({ id, ...body }) => ({
+        url: `/clients/${id}/payments`,
+        method: "POST",
+        data: body,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: "Client", id },
+        { type: "Client", id: "LIST" },
+        { type: "ClientLedger", id },
+        { type: "ClientLedger", id: `PAYMENTS-${id}` },
+        { type: "Invoice", id: "LIST" },
+      ],
     }),
 
     // ---- Products (GET /products → raw array from Express) ----
@@ -342,6 +379,19 @@ export const invoiceApi = createApi({
         { type: "Invoice", id: "LIST" },
         { type: "Product", id: "LIST" },
         { type: "Movement", id: "LIST" },
+        "Client",
+        "ClientLedger",
+      ],
+    }),
+    confirmInvoice: builder.mutation({
+      query: (id) => ({ url: `/invoices/${id}/confirm`, method: "POST" }),
+      invalidatesTags: (result, error, id) => [
+        { type: "Invoice", id },
+        { type: "Invoice", id: "LIST" },
+        { type: "Product", id: "LIST" },
+        { type: "Movement", id: "LIST" },
+        "Client",
+        "ClientLedger",
       ],
     }),
     deleteInvoice: builder.mutation({
@@ -351,6 +401,62 @@ export const invoiceApi = createApi({
         { type: "Product", id: "LIST" },
         { type: "Movement", id: "LIST" },
       ],
+    }),
+
+    // ---- Estimates ----
+    getEstimates: builder.query({
+      query: (params = {}) => ({ url: "/estimates", params }),
+      transformResponse: (response) => ({
+        estimates: response?.estimates || (Array.isArray(response) ? response : []),
+        pagination: response?.pagination,
+      }),
+      providesTags: (result) =>
+        result?.estimates
+          ? [
+              ...result.estimates.map(({ id }) => ({ type: "Estimate", id })),
+              { type: "Estimate", id: "LIST" },
+            ]
+          : [{ type: "Estimate", id: "LIST" }],
+    }),
+    getEstimate: builder.query({
+      query: (id) => ({ url: `/estimates/${id}` }),
+      transformResponse: (response) => ({
+        estimate: response?.estimate ?? response,
+      }),
+      providesTags: (result, error, id) => [{ type: "Estimate", id }],
+    }),
+    createEstimate: builder.mutation({
+      query: (body) => ({ url: "/estimates", method: "POST", data: body }),
+      transformResponse: (response) => ({
+        estimate: response?.estimate ?? response,
+      }),
+      invalidatesTags: [{ type: "Estimate", id: "LIST" }],
+    }),
+    updateEstimate: builder.mutation({
+      query: ({ id, ...body }) => ({
+        url: `/estimates/${id}`,
+        method: "PATCH",
+        data: body,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: "Estimate", id },
+        { type: "Estimate", id: "LIST" },
+      ],
+    }),
+    convertEstimateToInvoice: builder.mutation({
+      query: (id) => ({
+        url: `/estimates/${id}/convert-to-invoice`,
+        method: "POST",
+      }),
+      invalidatesTags: (result, error, id) => [
+        { type: "Estimate", id },
+        { type: "Estimate", id: "LIST" },
+        { type: "Invoice", id: "LIST" },
+      ],
+    }),
+    deleteEstimate: builder.mutation({
+      query: (id) => ({ url: `/estimates/${id}`, method: "DELETE" }),
+      invalidatesTags: [{ type: "Estimate", id: "LIST" }],
     }),
 
     // ---- Suppliers ----
@@ -519,6 +625,9 @@ export const {
   useCreateClientMutation,
   useUpdateClientMutation,
   useDeleteClientMutation,
+  useGetClientLedgerQuery,
+  useGetClientPaymentsQuery,
+  useCreateClientPaymentMutation,
   useGetProductsQuery,
   useGetProductQuery,
   useCreateProductMutation,
@@ -537,7 +646,14 @@ export const {
   useCreateInvoiceMutation,
   useUpdateInvoiceMutation,
   useUpdateInvoiceStatusMutation,
+  useConfirmInvoiceMutation,
   useDeleteInvoiceMutation,
+  useGetEstimatesQuery,
+  useGetEstimateQuery,
+  useCreateEstimateMutation,
+  useUpdateEstimateMutation,
+  useConvertEstimateToInvoiceMutation,
+  useDeleteEstimateMutation,
   useGetSuppliersQuery,
   useGetSupplierQuery,
   useCreateSupplierMutation,

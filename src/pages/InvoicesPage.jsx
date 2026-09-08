@@ -46,10 +46,10 @@ export default function InvoicesPage() {
             <Dropdown.Menu className="menuclr px-0 py-2 mt-3">
               {[
                 { label: "All", value: "" },
-                { label: "Draft", value: "draft" },
-                { label: "Pending", value: "pending" },
+                { label: "DRAFT", value: "DRAFT" },
+                { label: "CONFIRMED", value: "CONFIRMED" },
+                { label: "CANCELLED", value: "CANCELLED" },
                 { label: "Paid", value: "paid" },
-                { label: "Cancelled", value: "cancelled" },
               ].map((option) => (
                 <Dropdown.Item
                   key={option.value || "all"}
