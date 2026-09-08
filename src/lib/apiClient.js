@@ -73,6 +73,8 @@ api.interceptors.response.use(
     const isAuthEndpoint =
       config?.url === "/login" ||
       config?.url === "/register" ||
+      config?.url === "/auth/forgot-password" ||
+      config?.url === "/auth/reset-password" ||
       config?.url?.includes("/auth/refresh");
 
     if (response.status === 401 && !config._retried && !isAuthEndpoint) {

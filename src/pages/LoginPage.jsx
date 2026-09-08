@@ -70,7 +70,7 @@ export default function LoginPage() {
           <div className="auth-field">
             <div className="auth-label-row">
               <label htmlFor="password">Password</label>
-              <span>Minimum 8 characters</span>
+              <Link to="/forgot-password">Forgot password?</Link>
             </div>
             <Field
               id="password"

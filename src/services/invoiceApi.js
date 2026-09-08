@@ -47,6 +47,20 @@ export const invoiceApi = createApi({
       }),
       invalidatesTags: ["Auth", "Client", "Product", "Invoice", "Movement", "User"],
     }),
+    forgotPassword: builder.mutation({
+      query: (body) => ({
+        url: "/auth/forgot-password",
+        method: "POST",
+        data: body,
+      }),
+    }),
+    resetPassword: builder.mutation({
+      query: (body) => ({
+        url: "/auth/reset-password",
+        method: "POST",
+        data: body,
+      }),
+    }),
 
     // ---- Team: users ----
     getUsers: builder.query({
@@ -280,6 +294,8 @@ export const invoiceApi = createApi({
 export const {
   useLoginMutation,
   useRegisterMutation,
+  useForgotPasswordMutation,
+  useResetPasswordMutation,
   useLogoutMutation,
   useMeQuery,
   useLazyMeQuery,

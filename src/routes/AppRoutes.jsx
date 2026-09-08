@@ -7,8 +7,10 @@ import ForbiddenPage from "../pages/ForbiddenPage";
 import InvoiceDetailPage from "../pages/InvoiceDetailPage";
 import InvoicesPage from "../pages/InvoicesPage";
 import LandingPage from "../pages/LandingPage";
+import ForgotPasswordPage from "../pages/ForgotPasswordPage";
 import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
+import ResetPasswordPage from "../pages/ResetPasswordPage";
 import StockPage from "../pages/StockPage";
 import PlatformBusinessesPage from "../pages/platform/PlatformBusinessesPage";
 import AuditLogPage from "../pages/team/AuditLogPage";
@@ -23,6 +25,8 @@ export default function AppRoutes() {
       <Route element={<GuestOnly />}>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
       </Route>
 
       <Route element={<RequireAuth />}>

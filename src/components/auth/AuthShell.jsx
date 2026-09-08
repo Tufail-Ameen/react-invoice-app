@@ -15,6 +15,9 @@ export default function AuthShell({
   children,
   footer,
   register = false,
+  recover = false,
+  backTo = "/",
+  backLabel = "Back to website",
 }) {
   return (
     <main className={`auth-page ${register ? "auth-page-register" : ""}`}>
@@ -34,12 +37,18 @@ export default function AuthShell({
             <FontAwesomeIcon icon={register ? faChartLine : faShieldHalved} />
           </div>
           <p className="auth-showcase-kicker">
-            {register ? "Built to help you grow" : "Your business, protected"}
+            {register
+              ? "Built to help you grow"
+              : recover
+                ? "Secure account recovery"
+                : "Your business, protected"}
           </p>
           <h2>
             {register
               ? "Run your entire business from one clear workspace."
-              : "Welcome back to your business command center."}
+              : recover
+                ? "Get back into your workspace without losing your data."
+                : "Welcome back to your business command center."}
           </h2>
           <p>
             Invoices, inventory, clients, and team permissions stay connected,
@@ -59,8 +68,8 @@ export default function AuthShell({
 
       <section className="auth-form-side">
         <div className={`auth-form-panel ${register ? "auth-form-panel-wide" : ""}`}>
-          <Link to="/" className="auth-back-link">
-            <FontAwesomeIcon icon={faArrowLeft} /> Back to website
+          <Link to={backTo} className="auth-back-link">
+            <FontAwesomeIcon icon={faArrowLeft} /> {backLabel}
           </Link>
           <div className="auth-form-heading">
             <span>{eyebrow}</span>

@@ -8,6 +8,8 @@ import { del, get, patch, post, put } from "../lib/apiClient";
 export const authApi = {
   login: (body) => post("/login", body),
   register: (body) => post("/register", body),
+  forgotPassword: (body) => post("/auth/forgot-password", body),
+  resetPassword: (body) => post("/auth/reset-password", body),
   logout: (refreshToken) => post("/auth/logout", { refreshToken }),
   me: () => get("/auth/me"),
   refresh: (refreshToken) => post("/auth/refresh", { refreshToken }),
