@@ -210,7 +210,7 @@ export default function PurchaseFormPage() {
         onSubmit={saveDraft}
       >
         <Form className="form-card">
-          <div className="d-flex align-items-center gap-2 mb-3 flex-wrap">
+          <div className="flex items-center gap-2 mb-3 flex-wrap">
             <h1 className="page-title mb-0">
               {isEdit ? "Edit Purchase" : "New Purchase"}
             </h1>
@@ -222,8 +222,8 @@ export default function PurchaseFormPage() {
             Saves as draft only. Stock increases when you confirm on the detail page.
           </p>
 
-          <div className="row g-3 mb-4">
-            <div className="col-12 col-md-6">
+          <div className="mb-4 grid grid-cols-12 gap-3">
+            <div className="col-span-12 md:col-span-6">
               <label className="form-label input-clr" htmlFor="supplierId">
                 Supplier
               </label>
@@ -241,9 +241,9 @@ export default function PurchaseFormPage() {
                   </option>
                 ))}
               </Field>
-              <ErrorMessage name="supplierId" component="div" className="text-danger" />
+              <ErrorMessage name="supplierId" component="div" className="text-red-600" />
             </div>
-            <div className="col-12 col-md-3">
+            <div className="col-span-12 md:col-span-3">
               <label className="form-label input-clr" htmlFor="purchaseDate">
                 Purchase Date
               </label>
@@ -254,7 +254,7 @@ export default function PurchaseFormPage() {
                 className="form-control input-settings"
               />
             </div>
-            <div className="col-12 col-md-3">
+            <div className="col-span-12 md:col-span-3">
               <label className="form-label input-clr" htmlFor="notes">
                 Notes
               </label>
@@ -263,13 +263,13 @@ export default function PurchaseFormPage() {
           </div>
 
           <h2 className="page-title mb-3">Line items</h2>
-          <div className="d-flex flex-column gap-3 mb-3">
+          <div className="flex flex-col gap-3 mb-3">
             {lines.map((line, index) => (
               <div
                 key={line.key}
-                className="row g-2 align-items-end invoice-row datalist py-3 px-2 m-0"
+                className="grid grid-cols-12 items-end gap-2 invoice-row datalist py-3 px-2 m-0"
               >
-                <div className="col-12 col-md-3">
+                <div className="col-span-12 md:col-span-3">
                   <label className="form-label input-clr">Product</label>
                   <select
                     className="form-select input-settings"
@@ -285,7 +285,7 @@ export default function PurchaseFormPage() {
                     ))}
                   </select>
                 </div>
-                <div className="col-6 col-md-1">
+                <div className="col-span-6 md:col-span-1">
                   <label className="form-label input-clr">Variant</label>
                   <input
                     type="number"
@@ -295,7 +295,7 @@ export default function PurchaseFormPage() {
                     placeholder="—"
                   />
                 </div>
-                <div className="col-6 col-md-1">
+                <div className="col-span-6 md:col-span-1">
                   <label className="form-label input-clr">Qty</label>
                   <input
                     type="number"
@@ -306,7 +306,7 @@ export default function PurchaseFormPage() {
                     onChange={(e) => updateLine(line.key, { quantity: e.target.value })}
                   />
                 </div>
-                <div className="col-6 col-md-2">
+                <div className="col-span-6 md:col-span-2">
                   <label className="form-label input-clr">Unit Cost</label>
                   <input
                     type="number"
@@ -317,7 +317,7 @@ export default function PurchaseFormPage() {
                     onChange={(e) => updateLine(line.key, { unitCost: e.target.value })}
                   />
                 </div>
-                <div className="col-6 col-md-1">
+                <div className="col-span-6 md:col-span-1">
                   <label className="form-label input-clr">Disc.</label>
                   <input
                     type="number"
@@ -328,7 +328,7 @@ export default function PurchaseFormPage() {
                     onChange={(e) => updateLine(line.key, { discount: e.target.value })}
                   />
                 </div>
-                <div className="col-6 col-md-1">
+                <div className="col-span-6 md:col-span-1">
                   <label className="form-label input-clr">Tax</label>
                   <input
                     type="number"
@@ -339,11 +339,11 @@ export default function PurchaseFormPage() {
                     onChange={(e) => updateLine(line.key, { tax: e.target.value })}
                   />
                 </div>
-                <div className="col-6 col-md-2">
+                <div className="col-span-6 md:col-span-2">
                   <label className="form-label input-clr">Line total</label>
                   <div className="price py-2">{formatAmount("Rs", preview.lineTotals[index])}</div>
                 </div>
-                <div className="col-6 col-md-1 d-flex justify-content-end">
+                <div className="col-span-6 md:col-span-1 flex justify-end">
                   <button
                     type="button"
                     className="btn cancel py-1 px-2"
@@ -367,28 +367,28 @@ export default function PurchaseFormPage() {
           </button>
 
           <div className="detail-card mb-4">
-            <div className="row g-2">
-              <div className="col-6 col-md-3">
-                <span className="d-block edit-discription">Subtotal</span>
-                <span className="d-block price">{formatAmount("Rs", preview.subtotal)}</span>
+            <div className="grid grid-cols-12 gap-2">
+              <div className="col-span-6 md:col-span-3">
+                <span className="block edit-discription">Subtotal</span>
+                <span className="block price">{formatAmount("Rs", preview.subtotal)}</span>
               </div>
-              <div className="col-6 col-md-3">
-                <span className="d-block edit-discription">Discount</span>
-                <span className="d-block price">{formatAmount("Rs", preview.discount)}</span>
+              <div className="col-span-6 md:col-span-3">
+                <span className="block edit-discription">Discount</span>
+                <span className="block price">{formatAmount("Rs", preview.discount)}</span>
               </div>
-              <div className="col-6 col-md-3">
-                <span className="d-block edit-discription">Tax</span>
-                <span className="d-block price">{formatAmount("Rs", preview.tax)}</span>
+              <div className="col-span-6 md:col-span-3">
+                <span className="block edit-discription">Tax</span>
+                <span className="block price">{formatAmount("Rs", preview.tax)}</span>
               </div>
-              <div className="col-6 col-md-3">
-                <span className="d-block edit-discription">Grand Total</span>
-                <span className="d-block price">{formatAmount("Rs", preview.grandTotal)}</span>
+              <div className="col-span-6 md:col-span-3">
+                <span className="block edit-discription">Grand Total</span>
+                <span className="block price">{formatAmount("Rs", preview.grandTotal)}</span>
               </div>
             </div>
             <p className="textcklr small mt-2 mb-0">Client preview — server recalculates on save.</p>
           </div>
 
-          <div className="d-flex gap-2">
+          <div className="flex gap-2">
             <button type="submit" className="btn input-clr1 save-changes py-2 px-4">
               Save Draft
             </button>

@@ -706,6 +706,49 @@ textarea {
   gap: 12px;
 }
 
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: 1.2;
+  border: none;
+  background: transparent;
+  text-decoration: none;
+  color: inherit;
+}
+
+.form-control,
+.form-select {
+  display: block;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.5;
+  appearance: none;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.fw-semibold {
+  font-weight: 600;
+}
+
+.fw-bold {
+  font-weight: 700;
+}
+
+.small {
+  font-size: 0.875em;
+}
+
 .filter {
   font-size: 14px;
   font-weight: 600;
@@ -726,6 +769,7 @@ textarea {
   color: var(--color-accent);
 }
 
+.new-invoice,
 .new-invoice-btn {
   border: none;
   background-color: var(--color-primary);
@@ -741,6 +785,7 @@ textarea {
   box-shadow: var(--shadow-btn);
 }
 
+.new-invoice:hover,
 .new-invoice-btn:hover {
   background-color: var(--color-primary-hover);
   color: var(--color-text-on-primary);
@@ -1438,12 +1483,18 @@ td {
 }
 
 .table {
+  width: 100%;
+  border-collapse: collapse;
   --bs-table-bg: var(--color-surface);
   --bs-table-striped-bg: var(--color-surface-2);
   --bs-table-color: var(--color-text);
   --bs-table-striped-color: var(--color-text);
   --bs-table-hover-bg: var(--color-surface-3);
   --bs-table-border-color: var(--color-border);
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: var(--color-surface-2);
 }
 
 .pending {

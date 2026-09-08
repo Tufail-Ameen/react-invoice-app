@@ -93,7 +93,7 @@ export default function TeamUsersPage() {
         />
       )}
 
-      <div className="table-responsive data-card mt-3 p-0">
+      <div className="overflow-x-auto data-card mt-3 p-0">
         <table className="table mb-0 rbac-table">
           <thead>
             <tr>
@@ -118,7 +118,7 @@ export default function TeamUsersPage() {
                 <td className="text-end">
                   <Can permission={PERMISSIONS.USERS_UPDATE}>
                     <select
-                      className="form-select form-select-sm d-inline-block w-auto me-2"
+                      className="form-select text-sm inline-block w-auto me-2"
                       value={member.role?.id || ""}
                       onChange={async (e) => {
                         try {
@@ -140,7 +140,7 @@ export default function TeamUsersPage() {
                     {member.id !== currentUser?.id && (
                       <button
                         type="button"
-                        className="btn btn-sm text-danger"
+                        className="btn text-sm text-red-600"
                         onClick={() => onRemove(member)}
                         title="Remove"
                       >
@@ -185,27 +185,27 @@ export default function TeamUsersPage() {
             >
               {({ isSubmitting }) => (
                 <Form>
-                  <div className="row g-2">
-                    <div className="col-md-6">
+                  <div className="grid grid-cols-12 gap-2">
+                    <div className="md:col-span-6">
                       <label className="form-label input-clr">First name</label>
                       <Field name="firstName" className="form-control input-settings" />
-                      <ErrorMessage name="firstName" component="div" className="text-danger" />
+                      <ErrorMessage name="firstName" component="div" className="text-red-600" />
                     </div>
-                    <div className="col-md-6">
+                    <div className="md:col-span-6">
                       <label className="form-label input-clr">Last name</label>
                       <Field name="lastName" className="form-control input-settings" />
-                      <ErrorMessage name="lastName" component="div" className="text-danger" />
+                      <ErrorMessage name="lastName" component="div" className="text-red-600" />
                     </div>
                   </div>
                   <div className="mb-3 mt-2">
                     <label className="form-label input-clr">Email</label>
                     <Field name="email" type="email" className="form-control input-settings" />
-                    <ErrorMessage name="email" component="div" className="text-danger" />
+                    <ErrorMessage name="email" component="div" className="text-red-600" />
                   </div>
                   <div className="mb-3">
                     <label className="form-label input-clr">Temp password</label>
                     <Field name="password" type="password" className="form-control input-settings" />
-                    <ErrorMessage name="password" component="div" className="text-danger" />
+                    <ErrorMessage name="password" component="div" className="text-red-600" />
                   </div>
                   <div className="mb-3">
                     <label className="form-label input-clr">Role</label>
@@ -217,9 +217,9 @@ export default function TeamUsersPage() {
                         </option>
                       ))}
                     </Field>
-                    <ErrorMessage name="roleId" component="div" className="text-danger" />
+                    <ErrorMessage name="roleId" component="div" className="text-red-600" />
                   </div>
-                  <div className="d-flex gap-2 justify-content-end">
+                  <div className="flex justify-end gap-2">
                     <button type="button" className="btn filter" onClick={() => setShowForm(false)}>
                       Cancel
                     </button>

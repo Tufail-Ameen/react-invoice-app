@@ -21,30 +21,30 @@ export default function InvoiceList({ invoices }) {
 
   return (
     <>
-      <div className="d-none d-md-block">
+      <div className="hidden md:block">
         {invoices.map((invoice) => (
           <div
             key={invoice.id}
-            className="row mt-3 py-3 ps-3 invoice-row datalist cursor"
+            className="invoice-row datalist cursor mt-3 grid grid-cols-12 py-3 ps-3"
             onClick={() => openInvoice(invoice)}
           >
-            <div className="col-md-2 position-table table-text-size">
+            <div className="position-table table-text-size md:col-span-2">
               <span className="hash-clr">#</span>
               {invoice.number}
             </div>
-            <div className="col-md-2 position-table table-text-size textcklr">
+            <div className="position-table table-text-size textcklr md:col-span-2">
               {invoice.issueDate}
             </div>
-            <div className="col-md-3 table-text-size textcklr">
+            <div className="table-text-size textcklr md:col-span-3">
               {invoice.clientName}
             </div>
-            <div className="col-md-2 price">
+            <div className="price md:col-span-2">
               {formatAmount(invoice.currency, invoice.total)}
             </div>
-            <div className="col-md-2 position-table-btn p-0">
+            <div className="position-table-btn p-0 md:col-span-2">
               <StatusBadge status={invoice.status} />
             </div>
-            <div className="col-md-1 p-0 m-0 position-table goicon-position">
+            <div className="position-table goicon-position m-0 p-0 md:col-span-1">
               <span className="down-icon goicon">
                 <FontAwesomeIcon icon={faChevronRight} />
               </span>
@@ -53,7 +53,7 @@ export default function InvoiceList({ invoices }) {
         ))}
       </div>
 
-      <div className="d-block d-md-none">
+      <div className="block md:hidden">
         {invoices.map((invoice) => (
           <InvoiceCard key={invoice.id} invoice={invoice} />
         ))}

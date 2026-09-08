@@ -1,14 +1,22 @@
 import { faCirclePlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
-import Dropdown from "react-bootstrap/Dropdown";
 import { toast } from "react-toastify";
 import { Can } from "../auth/guards";
 import InvoiceForm from "../components/invoices/InvoiceForm";
 import InvoiceList from "../components/invoices/InvoiceList";
+import FilterMenu from "../components/ui/FilterMenu";
 import { PERMISSIONS } from "../lib/permissions";
 import { getErrorMessage } from "../lib/rtkBaseQuery";
 import { useGetInvoicesQuery } from "../services/invoiceApi";
+
+const STATUS_OPTIONS = [
+  { label: "All", value: "" },
+  { label: "Draft", value: "draft" },
+  { label: "Pending", value: "pending" },
+  { label: "Paid", value: "paid" },
+  { label: "Cancelled", value: "cancelled" },
+];
 
 export default function InvoicesPage() {
   const [showForm, setShowForm] = useState(false);
@@ -35,34 +43,11 @@ export default function InvoicesPage() {
         </div>
 
         <div className="invoices-header-actions">
-          <Dropdown>
-            <Dropdown.Toggle
-              className="btn filter p-0"
-              id="dropdown-basic"
-              style={{ border: "none", background: "none" }}
-            >
-              <span className="mx-2">Filter by status</span>
-            </Dropdown.Toggle>
-            <Dropdown.Menu className="menuclr px-0 py-2 mt-3">
-              {[
-                { label: "All", value: "" },
-                { label: "Draft", value: "draft" },
-                { label: "Pending", value: "pending" },
-                { label: "Paid", value: "paid" },
-                { label: "Cancelled", value: "cancelled" },
-              ].map((option) => (
-                <Dropdown.Item
-                  key={option.value || "all"}
-                  as="button"
-                  className="menuitem"
-                  onClick={() => setStatusFilter(option.value)}
-                >
-                  {option.label}
-                  {statusFilter === option.value ? " ✓" : ""}
-                </Dropdown.Item>
-              ))}
-            </Dropdown.Menu>
-          </Dropdown>
+          <FilterMenu
+            options={STATUS_OPTIONS}
+            value={statusFilter}
+            onChange={setStatusFilter}
+          />
 
           <Can permission={PERMISSIONS.INVOICES_CREATE}>
             <button type="button" className="btn new-invoice" onClick={() => setShowForm(true)}>

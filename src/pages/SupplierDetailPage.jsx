@@ -109,46 +109,46 @@ export default function SupplierDetailPage() {
       </button>
 
       <div className="detail-toolbar">
-        <div className="d-flex align-items-center gap-3">
+        <div className="flex items-center gap-3">
           <h1 className="page-title mb-0">{supplier.name}</h1>
           <StatusBadge status={supplier.status} compact />
         </div>
       </div>
 
       <div className="detail-card mb-4">
-        <div className="row g-3">
-          <div className="col-12 col-md-6">
-            <span className="d-block edit-discription">Company</span>
-            <span className="d-block date-bill-email">{supplier.companyName || "—"}</span>
-            <span className="d-block edit-discription mt-3">Phone</span>
-            <span className="d-block date-bill-email">{supplier.phone || "—"}</span>
-            <span className="d-block edit-discription mt-3">Email</span>
-            <span className="d-block date-bill-email">{supplier.email || "—"}</span>
+        <div className="grid grid-cols-12 gap-3">
+          <div className="col-span-12 md:col-span-6">
+            <span className="block edit-discription">Company</span>
+            <span className="block date-bill-email">{supplier.companyName || "—"}</span>
+            <span className="block edit-discription mt-3">Phone</span>
+            <span className="block date-bill-email">{supplier.phone || "—"}</span>
+            <span className="block edit-discription mt-3">Email</span>
+            <span className="block date-bill-email">{supplier.email || "—"}</span>
           </div>
-          <div className="col-12 col-md-6">
-            <span className="d-block edit-discription">Address</span>
-            <span className="d-block date-bill-email">
+          <div className="col-span-12 md:col-span-6">
+            <span className="block edit-discription">Address</span>
+            <span className="block date-bill-email">
               {[supplier.address, supplier.city].filter(Boolean).join(", ") || "—"}
             </span>
-            <span className="d-block edit-discription mt-3">Tax Number</span>
-            <span className="d-block date-bill-email">{supplier.taxNumber || "—"}</span>
-            <span className="d-block edit-discription mt-3">Notes</span>
-            <span className="d-block date-bill-email">{supplier.notes || "—"}</span>
+            <span className="block edit-discription mt-3">Tax Number</span>
+            <span className="block date-bill-email">{supplier.taxNumber || "—"}</span>
+            <span className="block edit-discription mt-3">Notes</span>
+            <span className="block date-bill-email">{supplier.notes || "—"}</span>
           </div>
         </div>
 
-        <div className="row g-3 mt-4">
-          <div className="col-4">
-            <span className="d-block edit-discription">Total Purchases</span>
-            <span className="d-block price">{formatAmount("Rs", summary.totalPurchases)}</span>
+        <div className="mt-4 grid grid-cols-12 gap-3">
+          <div className="col-span-4">
+            <span className="block edit-discription">Total Purchases</span>
+            <span className="block price">{formatAmount("Rs", summary.totalPurchases)}</span>
           </div>
-          <div className="col-4">
-            <span className="d-block edit-discription">Total Paid</span>
-            <span className="d-block price">{formatAmount("Rs", summary.totalPaid)}</span>
+          <div className="col-span-4">
+            <span className="block edit-discription">Total Paid</span>
+            <span className="block price">{formatAmount("Rs", summary.totalPaid)}</span>
           </div>
-          <div className="col-4">
-            <span className="d-block edit-discription">Outstanding Payable</span>
-            <span className="d-block price">{formatAmount("Rs", summary.outstandingPayable)}</span>
+          <div className="col-span-4">
+            <span className="block edit-discription">Outstanding Payable</span>
+            <span className="block price">{formatAmount("Rs", summary.outstandingPayable)}</span>
           </div>
         </div>
       </div>
@@ -161,8 +161,8 @@ export default function SupplierDetailPage() {
         >
           <Form className="form-card mb-4">
             <h2 className="page-title">Record Payment</h2>
-            <div className="row g-3">
-              <div className="col-12 col-md-3">
+            <div className="grid grid-cols-12 gap-3">
+              <div className="col-span-12 md:col-span-3">
                 <label className="form-label input-clr" htmlFor="amount">
                   Amount
                 </label>
@@ -174,9 +174,9 @@ export default function SupplierDetailPage() {
                   step="0.01"
                   className="form-control input-settings"
                 />
-                <ErrorMessage name="amount" component="div" className="text-danger" />
+                <ErrorMessage name="amount" component="div" className="text-red-600" />
               </div>
-              <div className="col-12 col-md-3">
+              <div className="col-span-12 md:col-span-3">
                 <label className="form-label input-clr" htmlFor="paymentMethod">
                   Payment Method
                 </label>
@@ -187,19 +187,19 @@ export default function SupplierDetailPage() {
                   placeholder="Cash / Bank / …"
                 />
               </div>
-              <div className="col-12 col-md-3">
+              <div className="col-span-12 md:col-span-3">
                 <label className="form-label input-clr" htmlFor="reference">
                   Reference
                 </label>
                 <Field name="reference" id="reference" className="form-control input-settings" />
               </div>
-              <div className="col-12 col-md-3">
+              <div className="col-span-12 md:col-span-3">
                 <label className="form-label input-clr" htmlFor="notes">
                   Notes
                 </label>
                 <Field name="notes" id="notes" className="form-control input-settings" />
               </div>
-              <div className="col-12">
+              <div className="col-span-12">
                 <button type="submit" className="btn input-clr1 save-changes py-2 px-4">
                   Save Payment
                 </button>
@@ -217,7 +217,7 @@ export default function SupplierDetailPage() {
         {!entries.length ? (
           <EmptyState title="No ledger entries" message="Confirmed purchases and payments appear here." />
         ) : (
-          <div className="table-responsive table-setting">
+          <div className="overflow-x-auto table-setting">
             <table className="table m-0">
               <thead>
                 <tr>

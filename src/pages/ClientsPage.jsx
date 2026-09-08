@@ -111,27 +111,27 @@ export default function ClientsPage() {
                   <div className="pf-field">
                     <label className="form-label input-clr" htmlFor="name">Name</label>
                     <Field name="name" id="name" className="form-control input-settings input-compact" placeholder="Name" />
-                    <ErrorMessage name="name" component="div" className="text-danger small mb-0" />
+                    <ErrorMessage name="name" component="div" className="text-red-600 small mb-0" />
                   </div>
                   <div className="pf-field">
                     <label className="form-label input-clr" htmlFor="email">Email</label>
                     <Field name="email" id="email" type="email" className="form-control input-settings input-compact" placeholder="Email" />
-                    <ErrorMessage name="email" component="div" className="text-danger small mb-0" />
+                    <ErrorMessage name="email" component="div" className="text-red-600 small mb-0" />
                   </div>
                   <div className="pf-field">
                     <label className="form-label input-clr" htmlFor="address">Street address</label>
                     <Field name="address" id="address" className="form-control input-settings input-compact" placeholder="Street" />
-                    <ErrorMessage name="address" component="div" className="text-danger small mb-0" />
+                    <ErrorMessage name="address" component="div" className="text-red-600 small mb-0" />
                   </div>
                   <div className="pf-field">
                     <label className="form-label input-clr" htmlFor="city">City</label>
                     <Field name="city" id="city" className="form-control input-settings input-compact" placeholder="City" />
-                    <ErrorMessage name="city" component="div" className="text-danger small mb-0" />
+                    <ErrorMessage name="city" component="div" className="text-red-600 small mb-0" />
                   </div>
                   <div className="pf-field">
                     <label className="form-label input-clr" htmlFor="code">Post code</label>
                     <Field name="code" id="code" className="form-control input-settings input-compact" placeholder="12345" />
-                    <ErrorMessage name="code" component="div" className="text-danger small mb-0" />
+                    <ErrorMessage name="code" component="div" className="text-red-600 small mb-0" />
                   </div>
                   <div className="pf-field">
                     <label className="form-label input-clr" htmlFor="country">Country</label>
@@ -143,7 +143,7 @@ export default function ClientsPage() {
                       placeholder="Country"
                     />
                     <CountryDatalist id="client-countries" />
-                    <ErrorMessage name="country" component="div" className="text-danger small mb-0" />
+                    <ErrorMessage name="country" component="div" className="text-red-600 small mb-0" />
                   </div>
                 </div>
               </div>
@@ -152,7 +152,7 @@ export default function ClientsPage() {
         </Formik>
       )}
 
-      <div className="d-flex align-items-center justify-content-between mb-2">
+      <div className="flex items-center justify-between mb-2">
         <h2 className="product-list-heading">Clients</h2>
         {!isLoading && clients.length > 0 && (
           <span className="textcklr small">{clients.length}</span>

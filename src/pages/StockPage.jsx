@@ -146,25 +146,25 @@ function ProductFormFields({ editing, categories, onCancel }) {
   }, [values.unit]);
 
   return (
-    <div className="row g-3">
-      <div className="col-12 col-md-4">
+    <div className="grid grid-cols-12 gap-3">
+      <div className="col-span-12 md:col-span-4">
         <label className="form-label input-clr mb-1" htmlFor="name">Name</label>
         <Field id="name" name="name" className="form-control input-settings input-compact" />
-        <ErrorMessage name="name" component="div" className="text-danger small" />
+        <ErrorMessage name="name" component="div" className="text-red-600 small" />
       </div>
-      <div className="col-6 col-md-2">
+      <div className="col-span-6 md:col-span-2">
         <label className="form-label input-clr mb-1" htmlFor="sku">SKU</label>
         <Field id="sku" name="sku" className="form-control input-settings input-compact" />
       </div>
-      <div className="col-6 col-md-2">
+      <div className="col-span-6 md:col-span-2">
         <label className="form-label input-clr mb-1" htmlFor="barcode">Barcode</label>
         <Field id="barcode" name="barcode" className="form-control input-settings input-compact" />
       </div>
-      <div className="col-6 col-md-2">
+      <div className="col-span-6 md:col-span-2">
         <label className="form-label input-clr mb-1" htmlFor="brand">Brand</label>
         <Field id="brand" name="brand" className="form-control input-settings input-compact" />
       </div>
-      <div className="col-6 col-md-2">
+      <div className="col-span-6 md:col-span-2">
         <label className="form-label input-clr mb-1" htmlFor="unit">Unit</label>
         <Field as="select" id="unit" name="unit" className="form-select input-settings input-compact">
           {unitOptions.map((unit) => (
@@ -173,7 +173,7 @@ function ProductFormFields({ editing, categories, onCancel }) {
         </Field>
       </div>
 
-      <div className="col-6 col-md-3">
+      <div className="col-span-6 md:col-span-3">
         <label className="form-label input-clr mb-1" htmlFor="categoryId">Category</label>
         <Field as="select" id="categoryId" name="categoryId" className="form-select input-settings input-compact">
           <option value="">None</option>
@@ -184,43 +184,43 @@ function ProductFormFields({ editing, categories, onCancel }) {
             ))}
         </Field>
       </div>
-      <div className="col-6 col-md-3">
+      <div className="col-span-6 md:col-span-3">
         <label className="form-label input-clr mb-1" htmlFor="purchasePrice">Purchase price</label>
         <Field id="purchasePrice" name="purchasePrice" type="number" min="0" className="form-control input-settings input-compact" />
       </div>
-      <div className="col-6 col-md-3">
+      <div className="col-span-6 md:col-span-3">
         <label className="form-label input-clr mb-1" htmlFor="salePrice">Sale price</label>
         <Field id="salePrice" name="salePrice" type="number" min="0" className="form-control input-settings input-compact" />
       </div>
-      <div className="col-6 col-md-3">
+      <div className="col-span-6 md:col-span-3">
         <label className="form-label input-clr mb-1" htmlFor="wholesalePrice">Wholesale price</label>
         <Field id="wholesalePrice" name="wholesalePrice" type="number" min="0" className="form-control input-settings input-compact" />
       </div>
 
-      <div className="col-6 col-md-2">
+      <div className="col-span-6 md:col-span-2">
         <label className="form-label input-clr mb-1" htmlFor="minimumStockLevel">Min stock</label>
         <Field id="minimumStockLevel" name="minimumStockLevel" type="number" min="0" className="form-control input-settings input-compact" />
-        <ErrorMessage name="minimumStockLevel" component="div" className="text-danger small" />
+        <ErrorMessage name="minimumStockLevel" component="div" className="text-red-600 small" />
       </div>
       {!editing && (
-        <div className="col-6 col-md-2">
+        <div className="col-span-6 md:col-span-2">
           <label className="form-label input-clr mb-1" htmlFor="openingStock">Opening stock</label>
           <Field id="openingStock" name="openingStock" type="number" min="0" className="form-control input-settings input-compact" />
         </div>
       )}
-      <div className="col-6 col-md-2">
+      <div className="col-span-6 md:col-span-2">
         <label className="form-label input-clr mb-1" htmlFor="status">Status</label>
         <Field as="select" id="status" name="status" className="form-select input-settings input-compact">
           <option value="active">Active</option>
           <option value="inactive">Inactive</option>
         </Field>
       </div>
-      <div className="col-12 col-md-6">
+      <div className="col-span-12 md:col-span-6">
         <label className="form-label input-clr mb-1" htmlFor="description">Description</label>
         <Field id="description" name="description" className="form-control input-settings input-compact" />
       </div>
 
-      <div className="col-12 d-flex flex-wrap gap-2 pt-1">
+      <div className="col-span-12 flex flex-wrap gap-2 pt-1">
         <button type="submit" className="btn save-changes py-2 px-4">
           {editing ? "Update" : "Add product"}
         </button>
@@ -447,8 +447,8 @@ export default function StockPage() {
           )}
 
           <div className="form-card form-card-compact mb-3">
-            <div className="row g-2 align-items-end">
-              <div className="col-12 col-md-4">
+            <div className="grid grid-cols-12 items-end gap-2">
+              <div className="col-span-12 md:col-span-4">
                 <label className="form-label input-clr mb-1">Search</label>
                 <input
                   className="form-control input-settings input-compact"
@@ -457,7 +457,7 @@ export default function StockPage() {
                   onChange={(e) => setSearch(e.target.value)}
                 />
               </div>
-              <div className="col-6 col-md-3">
+              <div className="col-span-6 md:col-span-3">
                 <label className="form-label input-clr mb-1">Category</label>
                 <select
                   className="form-select input-settings input-compact"
@@ -470,7 +470,7 @@ export default function StockPage() {
                   ))}
                 </select>
               </div>
-              <div className="col-6 col-md-2">
+              <div className="col-span-6 md:col-span-2">
                 <label className="form-label input-clr mb-1">Status</label>
                 <select
                   className="form-select input-settings input-compact"
@@ -482,11 +482,11 @@ export default function StockPage() {
                   <option value="">All</option>
                 </select>
               </div>
-              <div className="col-12 col-md-3">
-                <label className="form-check d-flex align-items-center gap-2 mb-0 mt-3">
+              <div className="col-span-12 md:col-span-3">
+                <label className="mt-3 mb-0 flex items-center gap-2">
                   <input
                     type="checkbox"
-                    className="form-check-input"
+                    className="size-4 accent-[var(--color-primary)]"
                     checked={lowStockOnly}
                     onChange={(e) => setLowStockOnly(e.target.checked)}
                   />
@@ -496,7 +496,7 @@ export default function StockPage() {
             </div>
           </div>
 
-          <div className="d-flex align-items-center justify-content-between mb-2">
+          <div className="flex items-center justify-between mb-2">
             <h2 className="page-title mb-0">Products</h2>
             {!isLoading && products.length > 0 && (
               <span className="textcklr small">{products.length}</span>
@@ -529,7 +529,7 @@ export default function StockPage() {
                         <td className="table-text-size">
                           <button
                             type="button"
-                            className="btn btn-link p-0 text-decoration-none"
+                            className="btn bg-transparent p-0 no-underline"
                             onClick={() => {
                               setSelectedProductId(String(p.id));
                               setTab("movements");
@@ -625,24 +625,24 @@ export default function StockPage() {
                   <h2 className="bill-form mb-3">
                     {editingCategory ? "Edit category" : "Add category"}
                   </h2>
-                  <div className="row g-3">
-                    <div className="col-md-4">
+                  <div className="grid grid-cols-12 gap-3">
+                    <div className="md:col-span-4">
                       <label className="form-label input-clr mb-1">Name</label>
                       <Field name="name" className="form-control input-settings input-compact" />
-                      <ErrorMessage name="name" component="div" className="text-danger small" />
+                      <ErrorMessage name="name" component="div" className="text-red-600 small" />
                     </div>
-                    <div className="col-md-5">
+                    <div className="md:col-span-5">
                       <label className="form-label input-clr mb-1">Description</label>
                       <Field name="description" className="form-control input-settings input-compact" />
                     </div>
-                    <div className="col-md-2">
+                    <div className="md:col-span-2">
                       <label className="form-label input-clr mb-1">Status</label>
                       <Field as="select" name="status" className="form-select input-settings input-compact">
                         <option value="active">Active</option>
                         <option value="inactive">Inactive</option>
                       </Field>
                     </div>
-                    <div className="col-12 d-flex gap-2">
+                    <div className="col-span-12 flex gap-2">
                       <button type="submit" className="btn save-changes py-2 px-4">
                         {editingCategory ? "Update" : "Add category"}
                       </button>
@@ -734,8 +734,8 @@ export default function StockPage() {
               Positive qty increases stock, negative decreases. Reason is required.
               Changes are written to the stock ledger (not via product edit).
             </p>
-            <div className="row g-3">
-              <div className="col-12 col-md-4">
+            <div className="grid grid-cols-12 gap-3">
+              <div className="col-span-12 md:col-span-4">
                 <label className="input-clr mb-1">Product</label>
                 <Field as="select" name="productId" className="form-select input-settings">
                   <option value="">Select…</option>
@@ -745,23 +745,23 @@ export default function StockPage() {
                     </option>
                   ))}
                 </Field>
-                <ErrorMessage name="productId" component="div" className="text-danger" />
+                <ErrorMessage name="productId" component="div" className="text-red-600" />
               </div>
-              <div className="col-6 col-md-3">
+              <div className="col-span-6 md:col-span-3">
                 <label className="input-clr mb-1">Quantity (+/−)</label>
                 <Field name="quantity" type="number" className="form-control input-settings" />
-                <ErrorMessage name="quantity" component="div" className="text-danger" />
+                <ErrorMessage name="quantity" component="div" className="text-red-600" />
               </div>
-              <div className="col-6 col-md-5">
+              <div className="col-span-6 md:col-span-5">
                 <label className="input-clr mb-1">Reason</label>
                 <Field
                   name="reason"
                   className="form-control input-settings"
                   placeholder="e.g. Damaged goods"
                 />
-                <ErrorMessage name="reason" component="div" className="text-danger" />
+                <ErrorMessage name="reason" component="div" className="text-red-600" />
               </div>
-              <div className="col-12">
+              <div className="col-span-12">
                 <button type="submit" className="btn save-changes py-2 px-4">
                   Apply adjustment
                 </button>
@@ -774,8 +774,8 @@ export default function StockPage() {
       {tab === "movements" && (
         <>
           <div className="form-card form-card-compact mb-3">
-            <div className="row g-2 align-items-end">
-              <div className="col-md-6">
+            <div className="grid grid-cols-12 items-end gap-2">
+              <div className="md:col-span-6">
                 <label className="form-label input-clr mb-1">Product</label>
                 <select
                   className="form-select input-settings input-compact"
@@ -791,7 +791,7 @@ export default function StockPage() {
                 </select>
               </div>
               {selectedProduct && (
-                <div className="col-md-6">
+                <div className="md:col-span-6">
                   <div className="small textcklr">
                     Current stock: <strong>{selectedProduct.currentStock}</strong>
                     {" · "}
