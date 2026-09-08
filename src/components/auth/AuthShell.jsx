@@ -20,8 +20,13 @@ export default function AuthShell({
     <main className="auth-page">
       <section className="auth-showcase">
         <Link to="/" className="auth-brand">
-          <span><FontAwesomeIcon icon={faFileInvoice} /></span>
-          <strong>Invoice App</strong>
+          <span className="auth-brand-mark">
+            <FontAwesomeIcon icon={faFileInvoice} />
+          </span>
+          <span className="auth-brand-text">
+            <strong>Invoice App</strong>
+            <small>One platform. Many businesses.</small>
+          </span>
         </Link>
 
         <div className="auth-showcase-copy">

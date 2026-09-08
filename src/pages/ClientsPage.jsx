@@ -5,7 +5,7 @@ import * as Yup from "yup";
 import { useAuth } from "../auth/AuthContext";
 import ClientList from "../components/clients/ClientList";
 import CountryDatalist from "../components/ui/CountryDatalist";
-import { useClientMutations } from "../hooks/useClients";
+import { useClientMutations, useClients } from "../hooks/useClients";
 import { PERMISSIONS } from "../lib/permissions";
 import { getErrorMessage } from "../lib/rtkBaseQuery";
 
@@ -34,6 +34,7 @@ const validationSchema = Yup.object({
 export default function ClientsPage() {
   const [editing, setEditing] = useState(null);
   const { can } = useAuth();
+  const { clients, isLoading } = useClients();
   const { createClient, updateClient, deleteClient } = useClientMutations();
   const canShowForm = editing
     ? can(PERMISSIONS.CLIENTS_UPDATE)
@@ -67,6 +68,15 @@ export default function ClientsPage() {
 
   return (
     <div className="page-wrap">
+      <div className="invoices-header mb-2">
+        <div>
+          <h1 className="page-title mb-1">Clients</h1>
+          <p className="count-invoices-tect mb-0">
+            Add and manage billing clients
+          </p>
+        </div>
+      </div>
+
       {canShowForm && (
         <Formik
           initialValues={editing || emptyForm}
@@ -75,73 +85,66 @@ export default function ClientsPage() {
           onSubmit={onSubmit}
         >
           {({ resetForm }) => (
-            <Form className="form-card mb-4">
-              <h1 className="page-title">{editing ? "Edit Client" : "Add Client"}</h1>
-              <div className="row g-3">
-                <div className="col-12 col-md-6">
-                  <label className="form-label input-clr" htmlFor="name">
-                    Name
-                  </label>
-                  <Field name="name" id="name" className="form-control input-settings" />
-                  <ErrorMessage name="name" component="div" className="text-danger" />
-                </div>
-                <div className="col-12 col-md-6">
-                  <label className="form-label input-clr" htmlFor="email">
-                    Email
-                  </label>
-                  <Field name="email" id="email" type="email" className="form-control input-settings" />
-                  <ErrorMessage name="email" component="div" className="text-danger" />
-                </div>
-                <div className="col-12 col-md-6">
-                  <label className="form-label input-clr" htmlFor="address">
-                    Street Address
-                  </label>
-                  <Field name="address" id="address" className="form-control input-settings" />
-                  <ErrorMessage name="address" component="div" className="text-danger" />
-                </div>
-                <div className="col-12 col-md-6">
-                  <label className="form-label input-clr" htmlFor="city">
-                    City
-                  </label>
-                  <Field name="city" id="city" className="form-control input-settings" />
-                  <ErrorMessage name="city" component="div" className="text-danger" />
-                </div>
-                <div className="col-12 col-md-6">
-                  <label className="form-label input-clr" htmlFor="code">
-                    Post Code
-                  </label>
-                  <Field name="code" id="code" className="form-control input-settings" />
-                  <ErrorMessage name="code" component="div" className="text-danger" />
-                </div>
-                <div className="col-12 col-md-6">
-                  <label className="form-label input-clr" htmlFor="country">
-                    Country
-                  </label>
-                  <Field
-                    name="country"
-                    id="country"
-                    list="client-countries"
-                    className="form-control input-settings"
-                  />
-                  <CountryDatalist id="client-countries" />
-                  <ErrorMessage name="country" component="div" className="text-danger" />
-                </div>
-                <div className="col-12 d-flex gap-2">
-                  <button type="submit" className="btn input-clr1 save-changes py-2 px-4">
-                    {editing ? "Update" : "Add Client"}
-                  </button>
-                  {editing && (
-                    <button
-                      type="button"
-                      className="btn cancel py-2 px-3"
-                      onClick={() => {
-                        setEditing(null);
-                        resetForm();
-                      }}
-                    >
-                      Cancel edit
+            <Form className="form-card form-card-compact mb-3">
+              <div className="product-form">
+                <div className="product-form-head">
+                  <h2 className="bill-form mb-0">{editing ? "Edit client" : "Add client"}</h2>
+                  <div className="product-form-head-actions">
+                    <button type="submit" className="btn save-changes btn-compact">
+                      {editing ? "Update" : "Add client"}
                     </button>
-                  )}
+                    {editing && (
+                      <button
+                        type="button"
+                        className="btn cancel btn-compact"
+                        onClick={() => {
+                          setEditing(null);
+                          resetForm();
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <div className="product-form-grid client-form-grid">
+                  <div className="pf-field">
+                    <label className="form-label input-clr" htmlFor="name">Name</label>
+                    <Field name="name" id="name" className="form-control input-settings input-compact" placeholder="Name" />
+                    <ErrorMessage name="name" component="div" className="text-danger small mb-0" />
+                  </div>
+                  <div className="pf-field">
+                    <label className="form-label input-clr" htmlFor="email">Email</label>
+                    <Field name="email" id="email" type="email" className="form-control input-settings input-compact" placeholder="Email" />
+                    <ErrorMessage name="email" component="div" className="text-danger small mb-0" />
+                  </div>
+                  <div className="pf-field">
+                    <label className="form-label input-clr" htmlFor="address">Street address</label>
+                    <Field name="address" id="address" className="form-control input-settings input-compact" placeholder="Street" />
+                    <ErrorMessage name="address" component="div" className="text-danger small mb-0" />
+                  </div>
+                  <div className="pf-field">
+                    <label className="form-label input-clr" htmlFor="city">City</label>
+                    <Field name="city" id="city" className="form-control input-settings input-compact" placeholder="City" />
+                    <ErrorMessage name="city" component="div" className="text-danger small mb-0" />
+                  </div>
+                  <div className="pf-field">
+                    <label className="form-label input-clr" htmlFor="code">Post code</label>
+                    <Field name="code" id="code" className="form-control input-settings input-compact" placeholder="12345" />
+                    <ErrorMessage name="code" component="div" className="text-danger small mb-0" />
+                  </div>
+                  <div className="pf-field">
+                    <label className="form-label input-clr" htmlFor="country">Country</label>
+                    <Field
+                      name="country"
+                      id="country"
+                      list="client-countries"
+                      className="form-control input-settings input-compact"
+                      placeholder="Country"
+                    />
+                    <CountryDatalist id="client-countries" />
+                    <ErrorMessage name="country" component="div" className="text-danger small mb-0" />
+                  </div>
                 </div>
               </div>
             </Form>
@@ -149,7 +152,12 @@ export default function ClientsPage() {
         </Formik>
       )}
 
-      <h2 className="page-title mb-3">Clients</h2>
+      <div className="d-flex align-items-center justify-content-between mb-2">
+        <h2 className="product-list-heading">Clients</h2>
+        {!isLoading && clients.length > 0 && (
+          <span className="textcklr small">{clients.length}</span>
+        )}
+      </div>
       <ClientList
         onEdit={(client) => {
           if (can(PERMISSIONS.CLIENTS_UPDATE)) setEditing(client);
