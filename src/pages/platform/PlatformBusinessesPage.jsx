@@ -50,12 +50,9 @@ export default function PlatformBusinessesPage() {
   return (
     <div className="page-wrap">
       <div className="invoices-header">
-        <div>
-          <h1 className="invoice-text mb-1">Platform Businesses</h1>
-          <p className="count-invoices-tect mb-0">
-            Aap platform owner ho — yahan nayi companies add / manage karti hain.
-          </p>
-        </div>
+        <p className="count-invoices-tect mb-0">
+          Aap platform owner ho — yahan nayi companies add / manage karti hain.
+        </p>
         <Can permission={PERMISSIONS.PLATFORM_MANAGE_BUSINESSES}>
           <button type="button" className="btn new-invoice" onClick={() => setShowForm(true)}>
             <span className="circle-plus me-2">

@@ -1,18 +1,18 @@
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faTrash, faXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ErrorMessage, Field, Form, Formik } from "formik";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
-import { getErrorMessage } from "../../lib/rtkBaseQuery";
 import { useClients } from "../../hooks/useClients";
+import { getErrorMessage } from "../../lib/rtkBaseQuery";
 import {
   useCreateInvoiceMutation,
   useGetProductsQuery,
   useUpdateInvoiceMutation,
   useUpdateInvoiceStatusMutation,
 } from "../../services/invoiceApi";
-import { calcLineTotal } from "../../utils/invoice";
+import { calcLineTotal, formatAmount } from "../../utils/invoice";
 
 const schema = Yup.object({
   clientId: Yup.string().required("Client required"),
@@ -34,6 +34,7 @@ export default function InvoiceForm({ invoice, onClose, onSaved }) {
   const [updateStatus] = useUpdateInvoiceStatusMutation();
 
   const products = productsData?.products || [];
+  const isEdit = Boolean(invoice);
 
   const [lines, setLines] = useState(
     invoice?.items?.length
@@ -46,7 +47,31 @@ export default function InvoiceForm({ invoice, onClose, onSaved }) {
       : [emptyLine()]
   );
 
+  useEffect(() => {
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") onClose?.();
+    };
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [onClose]);
+
   const productById = (id) => products.find((p) => p.id === id);
+
+  const updateLine = (index, patch) => {
+    setLines((current) =>
+      current.map((line, i) => (i === index ? { ...line, ...patch } : line))
+    );
+  };
+
+  const grandTotal = lines.reduce((sum, line) => {
+    const product = productById(line.productId);
+    return sum + (calcLineTotal(line.quantity, product?.price, line.tax) || 0);
+  }, 0);
 
   const initialValues = {
     clientId: invoice?.clientId || "",
@@ -100,147 +125,220 @@ export default function InvoiceForm({ invoice, onClose, onSaved }) {
     <Formik initialValues={initialValues} validationSchema={schema} enableReinitialize onSubmit={() => {}}>
       {({ values }) => (
         <Form>
-          <div className="invoice-drawer" onClick={onClose}>
-            <div className="invoice-drawer-panel" onClick={(e) => e.stopPropagation()}>
-              <div className="flex items-center justify-between mb-3">
-                <div className="edit-text">
-                  <span className="hash-clr">#</span>
-                  {invoice?.number || "New"}
+          <div className="invoice-modal" onClick={onClose} role="presentation">
+            <div
+              className="invoice-modal-panel"
+              onClick={(e) => e.stopPropagation()}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="invoice-modal-title"
+            >
+              <header className="invoice-modal-head">
+                <div>
+                  <p className="invoice-modal-kicker">{isEdit ? "Edit invoice" : "New invoice"}</p>
+                  <h2 id="invoice-modal-title" className="invoice-modal-title">
+                    {invoice?.number ? `#${invoice.number}` : "Create invoice"}
+                  </h2>
                 </div>
-                <button type="button" className="btn cancel py-2 px-3 md:hidden" onClick={onClose}>
-                  Close
+                <button
+                  type="button"
+                  className="invoice-modal-close"
+                  onClick={onClose}
+                  aria-label="Close"
+                >
+                  <FontAwesomeIcon icon={faXmark} />
                 </button>
-              </div>
+              </header>
 
-              <div className="bill-form mb-2">Client</div>
-              <div className="mb-3">
-                <Field as="select" name="clientId" className="form-select input-settings">
-                  <option value="">Select client…</option>
-                  {clients.map((c) => (
-                    <option key={c.key || c._id || c.id} value={String(c.id)}>
-                      {c.name} ({c.email})
-                    </option>
-                  ))}
-                </Field>
-                <ErrorMessage name="clientId" component="div" className="text-red-600" />
-              </div>
+              <div className="invoice-modal-body">
+                <section className="invoice-modal-section">
+                  <div className="invoice-field">
+                    <label className="invoice-label" htmlFor="invoice-client">
+                      Client
+                    </label>
+                    <Field
+                      as="select"
+                      id="invoice-client"
+                      name="clientId"
+                      className="form-select input-settings"
+                    >
+                      <option value="">Select client…</option>
+                      {clients.map((c) => (
+                        <option key={c.key || c._id || c.id} value={String(c.id)}>
+                          {c.name} ({c.email})
+                        </option>
+                      ))}
+                    </Field>
+                    <ErrorMessage name="clientId" component="div" className="invoice-field-error" />
+                  </div>
 
-              <div className="grid grid-cols-12 gap-2">
-                <div className="md:col-span-6">
-                  <label className="input-clr mb-1">Invoice date</label>
-                  <Field type="date" name="issueDate" className="form-control input-settings" />
-                </div>
-                <div className="md:col-span-6">
-                  <label className="input-clr mb-1">Due date</label>
-                  <Field type="date" name="dueDate" className="form-control input-settings" />
-                </div>
-              </div>
-
-              <div className="mt-2">
-                <label className="input-clr mb-1">Description</label>
-                <Field name="description" className="form-control input-settings" />
-              </div>
-
-              <div className="mt-2">
-                <label className="input-clr mb-1">Currency</label>
-                <Field as="select" name="currency" className="form-select input-settings">
-                  <option value="Rs">Rs</option>
-                  <option value="$">$</option>
-                </Field>
-              </div>
-
-              <div className="item-list mt-4 mb-2">Items (from stock)</div>
-              {lines.map((line, index) => {
-                const product = productById(line.productId);
-                const lineTotal = calcLineTotal(line.quantity, product?.price, line.tax);
-                return (
-                  <div className="grid grid-cols-12 items-end gap-2 mb-3" key={line.key}>
-                    <div className="col-span-12 md:col-span-5">
-                      <label className="md:hidden input-clr mb-1">Product</label>
-                      <select
+                  <div className="invoice-field-grid">
+                    <div className="invoice-field">
+                      <label className="invoice-label" htmlFor="invoice-issue-date">
+                        Invoice date
+                      </label>
+                      <Field
+                        type="date"
+                        id="invoice-issue-date"
+                        name="issueDate"
+                        className="form-control input-settings"
+                      />
+                    </div>
+                    <div className="invoice-field">
+                      <label className="invoice-label" htmlFor="invoice-due-date">
+                        Due date
+                      </label>
+                      <Field
+                        type="date"
+                        id="invoice-due-date"
+                        name="dueDate"
+                        className="form-control input-settings"
+                      />
+                    </div>
+                    <div className="invoice-field">
+                      <label className="invoice-label" htmlFor="invoice-currency">
+                        Currency
+                      </label>
+                      <Field
+                        as="select"
+                        id="invoice-currency"
+                        name="currency"
                         className="form-select input-settings"
-                        value={line.productId}
-                        onChange={(e) => {
-                          const next = [...lines];
-                          next[index] = { ...line, productId: e.target.value };
-                          setLines(next);
-                        }}
                       >
-                        <option value="">Select product…</option>
-                        {products.map((p) => (
-                          <option key={p.id} value={p.id}>
-                            {p.name} — stock {p.stock} — Rs {p.price}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="col-span-4 md:col-span-2">
-                      <label className="md:hidden input-clr mb-1">Qty</label>
-                      <input
-                        type="number"
-                        min={1}
-                        className="form-control input-settings"
-                        value={line.quantity}
-                        onChange={(e) => {
-                          const next = [...lines];
-                          next[index] = { ...line, quantity: e.target.value };
-                          setLines(next);
-                        }}
-                      />
-                    </div>
-                    <div className="col-span-4 md:col-span-2">
-                      <label className="md:hidden input-clr mb-1">Tax %</label>
-                      <input
-                        type="number"
-                        className="form-control input-settings"
-                        value={line.tax}
-                        onChange={(e) => {
-                          const next = [...lines];
-                          next[index] = { ...line, tax: e.target.value };
-                          setLines(next);
-                        }}
-                      />
-                    </div>
-                    <div className="col-span-3 md:col-span-2 text-center py-2">{(lineTotal || 0).toFixed(0)}</div>
-                    <div className="col-span-1 trash">
-                      <span
-                        className="cursor basket"
-                        onClick={() => setLines(lines.filter((_, i) => i !== index))}
-                      >
-                        <FontAwesomeIcon icon={faTrash} />
-                      </span>
+                        <option value="Rs">Rs</option>
+                        <option value="$">$</option>
+                      </Field>
                     </div>
                   </div>
-                );
-              })}
 
-              <button
-                type="button"
-                className="btn input-clr1 add-btn py-2 w-full"
-                onClick={() => setLines([...lines, emptyLine()])}
-              >
-                + Add product line
-              </button>
+                  <div className="invoice-field">
+                    <label className="invoice-label" htmlFor="invoice-description">
+                      Description
+                    </label>
+                    <Field
+                      as="textarea"
+                      id="invoice-description"
+                      name="description"
+                      rows={3}
+                      className="form-control input-settings invoice-textarea"
+                      placeholder="Optional note for the client"
+                    />
+                  </div>
+                </section>
 
-              <div className="invoice-form-actions mt-4">
-                <button type="button" className="btn cancel py-2 px-3" onClick={onClose}>
+                <section className="invoice-modal-section">
+                  <div className="invoice-lines-head">
+                    <div>
+                      <h3 className="invoice-lines-title">Line items</h3>
+                      <p className="invoice-lines-hint">Products come from stock. Creating an invoice deducts quantity.</p>
+                    </div>
+                  </div>
+
+                  <div className="invoice-lines">
+                    <div className="invoice-line-row is-head" aria-hidden="true">
+                      <span>Product</span>
+                      <span>Qty</span>
+                      <span>Price</span>
+                      <span>Tax %</span>
+                      <span>Total</span>
+                      <span />
+                    </div>
+
+                    {lines.map((line, index) => {
+                      const product = productById(line.productId);
+                      const lineTotal = calcLineTotal(line.quantity, product?.price, line.tax);
+                      return (
+                        <div className="invoice-line-row" key={line.key}>
+                          <label className="invoice-label md:hidden">Product</label>
+                          <select
+                            className="form-select input-settings"
+                            value={line.productId}
+                            onChange={(e) => updateLine(index, { productId: e.target.value })}
+                          >
+                            <option value="">Select product…</option>
+                            {products.map((p) => (
+                              <option key={p.id} value={p.id}>
+                                {p.name} — stock {p.stock} — {formatAmount(values.currency, p.price)}
+                              </option>
+                            ))}
+                          </select>
+
+                          <label className="invoice-label md:hidden">Qty</label>
+                          <input
+                            type="number"
+                            min={1}
+                            className="form-control input-settings"
+                            value={line.quantity}
+                            onChange={(e) => updateLine(index, { quantity: e.target.value })}
+                          />
+
+                          <label className="invoice-label md:hidden">Price</label>
+                          <div className="invoice-line-static">
+                            {product ? formatAmount(values.currency, product.price) : "—"}
+                          </div>
+
+                          <label className="invoice-label md:hidden">Tax %</label>
+                          <input
+                            type="number"
+                            min={0}
+                            className="form-control input-settings"
+                            value={line.tax}
+                            onChange={(e) => updateLine(index, { tax: e.target.value })}
+                          />
+
+                          <div className="invoice-line-total">
+                            {formatAmount(values.currency, lineTotal)}
+                          </div>
+
+                          <button
+                            type="button"
+                            className="invoice-line-remove"
+                            onClick={() => setLines(lines.filter((_, i) => i !== index))}
+                            aria-label="Remove line"
+                            disabled={lines.length === 1}
+                          >
+                            <FontAwesomeIcon icon={faTrash} />
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <button
+                    type="button"
+                    className="invoice-add-line"
+                    onClick={() => setLines([...lines, emptyLine()])}
+                  >
+                    <FontAwesomeIcon icon={faPlus} />
+                    Add product line
+                  </button>
+
+                  <div className="invoice-total-card">
+                    <span>Amount due</span>
+                    <strong>{formatAmount(values.currency, grandTotal)}</strong>
+                  </div>
+                </section>
+              </div>
+
+              <footer className="invoice-modal-foot">
+                <button type="button" className="btn invoice-btn-ghost" onClick={onClose}>
                   Cancel
                 </button>
                 <button
                   type="button"
-                  className="btn save py-2 px-3"
+                  className="btn invoice-btn-secondary"
                   onClick={() => save(values, "draft")}
                 >
                   Save draft
                 </button>
                 <button
                   type="button"
-                  className="btn save-changes py-2 px-3"
+                  className="btn invoice-btn-primary"
                   onClick={() => save(values, "pending")}
                 >
-                  Create (deduct stock)
+                  {isEdit ? "Save invoice" : "Create invoice"}
                 </button>
-              </div>
+              </footer>
             </div>
           </div>
         </Form>

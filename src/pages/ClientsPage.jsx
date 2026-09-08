@@ -69,12 +69,9 @@ export default function ClientsPage() {
   return (
     <div className="page-wrap">
       <div className="invoices-header mb-2">
-        <div>
-          <h1 className="page-title mb-1">Clients</h1>
-          <p className="count-invoices-tect mb-0">
-            Add and manage billing clients
-          </p>
-        </div>
+        <p className="count-invoices-tect mb-0">
+          Add and manage billing clients
+        </p>
       </div>
 
       {canShowForm && (

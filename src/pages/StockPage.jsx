@@ -388,12 +388,9 @@ export default function StockPage() {
   return (
     <div className="page-wrap">
       <div className="invoices-header mb-3">
-        <div>
-          <h1 className="page-title mb-1">Products &amp; Stock</h1>
-          <p className="count-invoices-tect mb-0">
-            Catalog, categories, and stock ledger
-          </p>
-        </div>
+        <p className="count-invoices-tect mb-0">
+          Catalog, categories, and stock ledger
+        </p>
       </div>
 
       <nav className="stock-tab-nav mb-4" aria-label="Stock sections">

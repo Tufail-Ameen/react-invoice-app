@@ -210,17 +210,14 @@ export default function PurchaseFormPage() {
         onSubmit={saveDraft}
       >
         <Form className="form-card">
-          <div className="flex items-center gap-2 mb-3 flex-wrap">
-            <h1 className="page-title mb-0">
-              {isEdit ? "Edit Purchase" : "New Purchase"}
-            </h1>
+          <div className="invoices-header mb-3">
+            <p className="count-invoices-tect mb-0">
+              Saves as draft only. Stock increases when you confirm on the detail page.
+            </p>
             <span className="btn draftbtn px-3 py-1" style={{ fontSize: "12px" }}>
               Draft
             </span>
           </div>
-          <p className="textcklr small mb-3">
-            Saves as draft only. Stock increases when you confirm on the detail page.
-          </p>
 
           <div className="mb-4 grid grid-cols-12 gap-3">
             <div className="col-span-12 md:col-span-6">

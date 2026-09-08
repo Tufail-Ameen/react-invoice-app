@@ -68,12 +68,9 @@ export default function TeamUsersPage() {
   return (
     <div className="page-wrap">
       <div className="invoices-header">
-        <div>
-          <h1 className="invoice-text mb-1">Team Users</h1>
-          <p className="count-invoices-tect mb-0">
-            {activeBusiness?.name || "Business"} — staff invite aur role assign.
-          </p>
-        </div>
+        <p className="count-invoices-tect mb-0">
+          {activeBusiness?.name || "Business"} — staff invite aur role assign.
+        </p>
         <Can permission={PERMISSIONS.USERS_INVITE}>
           <button type="button" className="btn new-invoice" onClick={() => setShowForm(true)}>
             <span className="circle-plus me-2">

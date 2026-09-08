@@ -111,12 +111,9 @@ export default function TeamRolesPage() {
   return (
     <div className="page-wrap">
       <div className="invoices-header">
-        <div>
-          <h1 className="invoice-text mb-1">Roles & Permissions</h1>
-          <p className="count-invoices-tect mb-0">
-            Role = job title. Permissions = us role ki ijazatain.
-          </p>
-        </div>
+        <p className="count-invoices-tect mb-0">
+          Role = job title. Permissions = us role ki ijazatain.
+        </p>
         <Can permission={PERMISSIONS.ROLES_MANAGE}>
           <button type="button" className="btn new-invoice" onClick={() => setCreating(true)}>
             <span className="circle-plus me-2">

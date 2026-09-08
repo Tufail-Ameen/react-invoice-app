@@ -35,12 +35,9 @@ export default function InvoicesPage() {
   return (
     <div className="page-wrap">
       <div className="invoices-header">
-        <div>
-          <h1 className="invoice-text mb-1">Invoices</h1>
-          <p className="count-invoices-tect mb-0">
-            There are {invoices.length} total Invoices
-          </p>
-        </div>
+        <p className="count-invoices-tect mb-0">
+          There are {invoices.length} total Invoices
+        </p>
 
         <div className="invoices-header-actions">
           <FilterMenu

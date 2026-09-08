@@ -88,7 +88,7 @@ export default function SuppliersPage() {
         >
           {({ resetForm }) => (
             <Form className="form-card mb-4">
-              <h1 className="page-title">{editing ? "Edit Supplier" : "Add Supplier"}</h1>
+              <h2 className="bill-form mb-3">{editing ? "Edit Supplier" : "Add Supplier"}</h2>
               <div className="grid grid-cols-12 gap-3">
                 <div className="col-span-12 md:col-span-6">
                   <label className="form-label input-clr" htmlFor="name">
@@ -182,7 +182,6 @@ export default function SuppliersPage() {
         </Formik>
       )}
 
-      <h2 className="page-title mb-3">Suppliers</h2>
       <SupplierList
         onEdit={(supplier) => {
           if (can(PERMISSIONS.SUPPLIERS_UPDATE)) setEditing(supplier);

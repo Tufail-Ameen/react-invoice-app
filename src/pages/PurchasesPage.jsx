@@ -36,12 +36,9 @@ export default function PurchasesPage() {
   return (
     <div className="page-wrap">
       <div className="invoices-header">
-        <div>
-          <h1 className="invoice-text mb-1">Purchases</h1>
-          <p className="count-invoices-tect mb-0">
-            There are {purchases.length} total Purchases
-          </p>
-        </div>
+        <p className="count-invoices-tect mb-0">
+          There are {purchases.length} total Purchases
+        </p>
 
         <div className="invoices-header-actions">
           <FilterMenu

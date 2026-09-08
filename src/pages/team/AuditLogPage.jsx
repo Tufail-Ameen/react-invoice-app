@@ -19,12 +19,9 @@ export default function AuditLogPage() {
   return (
     <div className="page-wrap">
       <div className="invoices-header">
-        <div>
-          <h1 className="invoice-text mb-1">Audit Log</h1>
-          <p className="count-invoices-tect mb-0">
-            Team actions ka trail — invite, role change, business updates.
-          </p>
-        </div>
+        <p className="count-invoices-tect mb-0">
+          Team actions ka trail — invite, role change, business updates.
+        </p>
       </div>
 
       {isLoading && <p className="textcklr mt-4">Loading…</p>}
