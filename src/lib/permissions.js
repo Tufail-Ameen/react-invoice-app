@@ -31,6 +31,12 @@ export const PERMISSIONS = {
   INVOICES_CHANGE_STATUS: "invoices.change_status",
   INVOICES_PRINT: "invoices.print",
 
+  RATE_LISTS_VIEW: "rate_lists.view",
+  RATE_LISTS_CREATE: "rate_lists.create",
+  RATE_LISTS_UPDATE: "rate_lists.update",
+  RATE_LISTS_DELETE: "rate_lists.delete",
+  RATE_LISTS_SEND: "rate_lists.send",
+
   SUPPLIERS_VIEW: "suppliers.view",
   SUPPLIERS_CREATE: "suppliers.create",
   SUPPLIERS_UPDATE: "suppliers.update",
@@ -115,6 +121,18 @@ export const PERMISSION_GROUPS = [
       { key: PERMISSIONS.INVOICES_DELETE, label: "Delete invoices" },
       { key: PERMISSIONS.INVOICES_CHANGE_STATUS, label: "Change status" },
       { key: PERMISSIONS.INVOICES_PRINT, label: "Print invoices" },
+    ],
+  },
+  {
+    key: "rate_lists",
+    label: "Rate lists",
+    description: "Client-specific product rates and share links",
+    permissions: [
+      { key: PERMISSIONS.RATE_LISTS_VIEW, label: "View rate lists" },
+      { key: PERMISSIONS.RATE_LISTS_CREATE, label: "Create rate lists" },
+      { key: PERMISSIONS.RATE_LISTS_UPDATE, label: "Update drafts" },
+      { key: PERMISSIONS.RATE_LISTS_DELETE, label: "Delete / archive" },
+      { key: PERMISSIONS.RATE_LISTS_SEND, label: "Send / share" },
     ],
   },
   {

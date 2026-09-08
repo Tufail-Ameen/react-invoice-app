@@ -6,9 +6,9 @@ import { api, ApiError } from "./apiClient";
  */
 export const axiosBaseQuery =
   () =>
-  async ({ url, method = "GET", data, params, headers }) => {
+  async ({ url, method = "GET", data, params, headers, skipAuth }) => {
     try {
-      const result = await api({ url, method, data, params, headers });
+      const result = await api({ url, method, data, params, headers, skipAuth });
       return { data: result.data?.data ?? result.data };
     } catch (err) {
       if (err instanceof ApiError) {
@@ -36,4 +36,8 @@ export function getErrorMessage(error, fallback = "Kuch ghalat ho gaya.") {
   if (!error) return fallback;
   if (typeof error === "string") return error;
   return error?.data?.message || error?.message || fallback;
+}
+
+export function getErrorCode(error) {
+  return error?.data?.code || error?.code || null;
 }

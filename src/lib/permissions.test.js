@@ -60,4 +60,20 @@ describe("multi-tenant role permissions", () => {
       hasUserPermission(user, PERMISSIONS.PLATFORM_MANAGE_BUSINESSES)
     ).toBe(true);
   });
+
+  test("rate list permissions are in the catalog", () => {
+    expect(PERMISSIONS.RATE_LISTS_VIEW).toBe("rate_lists.view");
+    expect(
+      hasUserPermission(
+        { permissions: [PERMISSIONS.RATE_LISTS_SEND] },
+        PERMISSIONS.RATE_LISTS_SEND
+      )
+    ).toBe(true);
+    expect(
+      hasUserPermission(
+        { permissions: [PERMISSIONS.RATE_LISTS_VIEW] },
+        PERMISSIONS.RATE_LISTS_SEND
+      )
+    ).toBe(false);
+  });
 });

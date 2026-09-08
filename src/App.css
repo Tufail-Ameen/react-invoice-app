@@ -2791,3 +2791,261 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     margin-top: 26px;
   }
 }
+
+/* Rate lists */
+.page-wrap.rate-list-editor-page {
+  max-width: 1180px;
+}
+
+.rate-list-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 1rem;
+  align-items: start;
+}
+
+.rate-list-picker-table {
+  min-width: 560px;
+}
+
+.rate-list-picker-table tbody tr {
+  cursor: pointer;
+}
+
+.rate-list-check-col {
+  width: 2.2rem;
+}
+
+.product-table tbody tr.rate-list-row-selected,
+.product-table tbody tr.rate-list-row-selected:hover {
+  background: var(--color-primary-soft);
+}
+
+.rate-list-cart {
+  position: sticky;
+  top: 1rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  padding: 1rem;
+  box-shadow: var(--shadow-card);
+}
+
+.rate-list-cart-toggle {
+  display: none;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.rate-list-selected-table {
+  min-width: 0;
+}
+
+.rate-list-selected-table th,
+.rate-list-selected-table td {
+  padding: 0.5rem 0.4rem;
+}
+
+.rate-delta-up {
+  color: var(--color-paid);
+  font-weight: 700;
+}
+
+.rate-delta-down {
+  color: var(--color-danger);
+  font-weight: 700;
+}
+
+.rate-delta-flat {
+  color: var(--color-text-subtle);
+}
+
+.rate-status-archived {
+  opacity: 0.72;
+}
+
+.rate-list-banner {
+  background: var(--color-accent-soft);
+  color: var(--color-text);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.rate-list-banner-muted {
+  background: var(--color-draft-soft);
+  color: var(--color-text-muted);
+}
+
+.rate-list-channel-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.rate-list-channel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  color: var(--color-text);
+}
+
+.rate-list-client-link {
+  color: var(--color-primary);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.rate-list-client-link:hover {
+  text-decoration: underline;
+}
+
+.product-table tbody tr.cursor-pointer {
+  cursor: pointer;
+}
+
+.public-rate-list-page {
+  min-height: 100vh;
+  background: var(--color-bg);
+  padding: 2rem 1rem 3rem;
+}
+
+.public-rate-list {
+  max-width: 760px;
+  margin: 0 auto;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 18px;
+  padding: 1.75rem;
+  box-shadow: var(--shadow-card);
+}
+
+.public-rate-list-empty {
+  text-align: center;
+}
+
+.public-rate-list-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.public-rate-list-kicker {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.public-rate-list h1 {
+  margin: 0.25rem 0 0.35rem;
+  font-size: 1.7rem;
+  letter-spacing: -0.03em;
+}
+
+.public-rate-list-client,
+.public-rate-list-date {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.public-rate-list-table {
+  width: 100%;
+}
+
+.public-rate-list-table th,
+.public-rate-list-table td {
+  padding: 0.7rem 0.4rem;
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
+}
+
+.public-rate-list-table th {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+}
+
+.public-rate-list-table td:last-child {
+  font-weight: 700;
+}
+
+@media (max-width: 900px) {
+  .rate-list-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .rate-list-layout {
+    padding-bottom: 5.5rem;
+  }
+
+  .rate-list-cart {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: calc(72px + env(safe-area-inset-bottom));
+    top: auto;
+    z-index: 45;
+    max-height: 55vh;
+    overflow: auto;
+    padding: 0.75rem 1rem 1rem;
+  }
+
+  .rate-list-cart-toggle {
+    display: flex;
+    padding: 0.35rem 0 0.5rem;
+  }
+
+  .rate-list-cart:not(.is-open) .rate-list-cart-body {
+    display: none;
+  }
+
+  .rate-list-cart.is-open {
+    box-shadow: var(--shadow-hover);
+  }
+}
+
+@media print {
+  .no-print,
+  .app-sidebar,
+  .app-navbar,
+  .mobile-header,
+  .bottom-nav,
+  .back-link {
+    display: none !important;
+  }
+
+  .public-rate-list-page {
+    background: #fff;
+    padding: 0;
+  }
+
+  .public-rate-list,
+  .rate-list-print .detail-card {
+    box-shadow: none;
+    border: none;
+    padding: 0;
+  }
+
+  .app-shell,
+  .app-main,
+  .app-content {
+    display: block !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}

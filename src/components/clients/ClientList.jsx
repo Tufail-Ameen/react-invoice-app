@@ -1,5 +1,6 @@
 import { faPen, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Link } from "react-router-dom";
 import { Can } from "../../auth/guards";
 import { useClients } from "../../hooks/useClients";
 import EmptyState from "../ui/EmptyState";
@@ -70,7 +71,15 @@ export default function ClientList({
           <tbody>
             {clients.map((client) => (
               <tr key={client.key || client._id || client.id}>
-                <td className="table-text-size">{formatCell(client.name)}</td>
+                <td className="table-text-size">
+                  {client.id != null ? (
+                    <Link to={`/clients/${client.id}`} className="rate-list-client-link">
+                      {formatCell(client.name)}
+                    </Link>
+                  ) : (
+                    formatCell(client.name)
+                  )}
+                </td>
                 <td className="cell-muted">{formatCell(client.email)}</td>
                 <td>{formatCell(client.address)}</td>
                 <td>

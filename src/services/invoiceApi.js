@@ -30,6 +30,7 @@ export const invoiceApi = createApi({
     "Role",
     "Business",
     "Audit",
+    "RateList",
   ],
   endpoints: (builder) => ({
     // ---- Auth ----
@@ -70,6 +71,7 @@ export const invoiceApi = createApi({
         "Role",
         "Audit",
         "Business",
+        "RateList",
       ],
     }),
 
@@ -492,6 +494,94 @@ export const invoiceApi = createApi({
       query: (id) => ({ url: `/purchases/${id}`, method: "DELETE" }),
       invalidatesTags: [{ type: "Purchase", id: "LIST" }],
     }),
+
+    // ---- Rate lists ----
+    getRateLists: builder.query({
+      query: (params = {}) => ({ url: "/rate-lists", params }),
+      transformResponse: (response) => ({
+        rateLists: response?.rateLists || (Array.isArray(response) ? response : []),
+        pagination: response?.pagination,
+      }),
+      providesTags: (result) =>
+        result?.rateLists
+          ? [
+              ...result.rateLists.map(({ id }) => ({ type: "RateList", id })),
+              { type: "RateList", id: "LIST" },
+            ]
+          : [{ type: "RateList", id: "LIST" }],
+    }),
+    getRateList: builder.query({
+      query: (id) => ({ url: `/rate-lists/${id}` }),
+      transformResponse: (response) => response?.rateList ?? response,
+      providesTags: (result, error, id) => [{ type: "RateList", id }],
+    }),
+    getClientRateLists: builder.query({
+      query: (id) => ({ url: `/clients/${id}/rate-lists` }),
+      transformResponse: (response) => ({
+        rateLists: response?.rateLists || (Array.isArray(response) ? response : []),
+        pagination: response?.pagination,
+      }),
+      providesTags: (result, error, id) => [
+        { type: "RateList", id: `CLIENT-${id}` },
+        { type: "RateList", id: "LIST" },
+      ],
+    }),
+    createRateList: builder.mutation({
+      query: (body) => ({ url: "/rate-lists", method: "POST", data: body }),
+      transformResponse: (response) => response?.rateList ?? response,
+      invalidatesTags: [
+        { type: "RateList", id: "LIST" },
+        { type: "Client", id: "LIST" },
+      ],
+    }),
+    updateRateList: builder.mutation({
+      query: ({ id, ...body }) => ({
+        url: `/rate-lists/${id}`,
+        method: "PATCH",
+        data: body,
+      }),
+      transformResponse: (response) => response?.rateList ?? response,
+      invalidatesTags: (result, error, { id }) => [
+        { type: "RateList", id },
+        { type: "RateList", id: "LIST" },
+        { type: "Client", id: "LIST" },
+      ],
+    }),
+    deleteRateList: builder.mutation({
+      query: (id) => ({ url: `/rate-lists/${id}`, method: "DELETE" }),
+      invalidatesTags: (result, error, id) => [
+        { type: "RateList", id },
+        { type: "RateList", id: "LIST" },
+        { type: "Client", id: "LIST" },
+      ],
+    }),
+    sendRateList: builder.mutation({
+      query: ({ id, ...body }) => ({
+        url: `/rate-lists/${id}/send`,
+        method: "POST",
+        data: body,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: "RateList", id },
+        { type: "RateList", id: "LIST" },
+        { type: "Client", id: "LIST" },
+      ],
+    }),
+    duplicateRateList: builder.mutation({
+      query: (id) => ({ url: `/rate-lists/${id}/duplicate`, method: "POST" }),
+      transformResponse: (response) => response?.rateList ?? response,
+      invalidatesTags: [
+        { type: "RateList", id: "LIST" },
+        { type: "Client", id: "LIST" },
+      ],
+    }),
+    getPublicRateList: builder.query({
+      query: (token) => ({
+        url: `/public/rate-lists/${token}`,
+        skipAuth: true,
+      }),
+      transformResponse: (response) => response?.rateList ?? response,
+    }),
   }),
 });
 
@@ -553,4 +643,13 @@ export const {
   useConfirmPurchaseMutation,
   useCancelPurchaseMutation,
   useDeletePurchaseMutation,
+  useGetRateListsQuery,
+  useGetRateListQuery,
+  useGetClientRateListsQuery,
+  useCreateRateListMutation,
+  useUpdateRateListMutation,
+  useDeleteRateListMutation,
+  useSendRateListMutation,
+  useDuplicateRateListMutation,
+  useGetPublicRateListQuery,
 } = invoiceApi;

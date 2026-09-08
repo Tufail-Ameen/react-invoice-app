@@ -4,6 +4,7 @@ import {
   faCartShopping,
   faClipboardList,
   faFileInvoice,
+  faTags,
   faShieldHalved,
   faTruck,
   faUserGroup,
@@ -25,6 +26,12 @@ export const mainNavLinks = [
     label: "Clients",
     icon: faUsers,
     permission: PERMISSIONS.CLIENTS_VIEW,
+  },
+  {
+    to: "/rate-lists",
+    label: "Rate lists",
+    icon: faTags,
+    permission: PERMISSIONS.RATE_LISTS_VIEW,
   },
   {
     to: "/stock",
@@ -83,6 +90,11 @@ export const navLinks = mainNavLinks;
 
 export function getNavPageTitle(pathname) {
   if (pathname.startsWith("/invoices/")) return "Invoice Details";
+  if (pathname === "/rate-lists/new") return "New rate list";
+  if (pathname.startsWith("/rate-lists/") && pathname !== "/rate-lists") {
+    return "Rate list";
+  }
+  if (pathname.startsWith("/clients/") && pathname !== "/clients") return "Client";
   if (pathname.startsWith("/suppliers/") && pathname !== "/suppliers") {
     return "Supplier Details";
   }

@@ -67,3 +67,14 @@ export const platformApi = {
 export const auditApi = {
   list: (params) => get("/audit-logs", params),
 };
+
+export const rateListsApi = {
+  list: (params) => get("/rate-lists", params),
+  detail: (id) => get(`/rate-lists/${id}`),
+  clientLists: (id) => get(`/clients/${id}/rate-lists`),
+  create: (body) => post("/rate-lists", body),
+  update: ({ id, ...body }) => patch(`/rate-lists/${id}`, body),
+  remove: (id) => del(`/rate-lists/${id}`),
+  send: ({ id, ...body }) => post(`/rate-lists/${id}/send`, body),
+  duplicate: (id) => post(`/rate-lists/${id}/duplicate`),
+};

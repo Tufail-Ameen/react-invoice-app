@@ -28,6 +28,11 @@ export class ApiError extends Error {
 }
 
 api.interceptors.request.use((config) => {
+  if (config.skipAuth) {
+    delete config.headers.Authorization;
+    delete config.headers["X-Business-Id"];
+    return config;
+  }
   const token = tokenStore.access;
   if (token) config.headers.Authorization = `Bearer ${token}`;
   const businessId = tokenStore.businessId;
@@ -75,7 +80,7 @@ api.interceptors.response.use(
       config?.url === "/register" ||
       config?.url?.includes("/auth/refresh");
 
-    if (response.status === 401 && !config._retried && !isAuthEndpoint) {
+    if (response.status === 401 && !config._retried && !isAuthEndpoint && !config.skipAuth) {
       config._retried = true;
       try {
         await refreshTokens();

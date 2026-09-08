@@ -2,15 +2,20 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { GuestOnly, RequireAuth, RequirePermission } from "../auth/guards";
 import DashboardLayout from "../layouts/DashboardLayout";
 import { PERMISSIONS } from "../lib/permissions";
+import ClientDetailPage from "../pages/ClientDetailPage";
 import ClientsPage from "../pages/ClientsPage";
 import ForbiddenPage from "../pages/ForbiddenPage";
 import InvoiceDetailPage from "../pages/InvoiceDetailPage";
 import InvoicesPage from "../pages/InvoicesPage";
 import LandingPage from "../pages/LandingPage";
 import LoginPage from "../pages/LoginPage";
+import PublicRateListPage from "../pages/PublicRateListPage";
 import PurchaseDetailPage from "../pages/PurchaseDetailPage";
 import PurchaseFormPage from "../pages/PurchaseFormPage";
 import PurchasesPage from "../pages/PurchasesPage";
+import RateListDetailPage from "../pages/RateListDetailPage";
+import RateListEditorPage from "../pages/RateListEditorPage";
+import RateListsPage from "../pages/RateListsPage";
 import RegisterPage from "../pages/RegisterPage";
 import StockPage from "../pages/StockPage";
 import SupplierDetailPage from "../pages/SupplierDetailPage";
@@ -24,6 +29,7 @@ export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<LandingPage />} />
+      <Route path="/share/rate-lists/:token" element={<PublicRateListPage />} />
 
       <Route element={<GuestOnly />}>
         <Route path="/login" element={<LoginPage />} />
@@ -53,6 +59,38 @@ export default function AppRoutes() {
             element={
               <RequirePermission permission={PERMISSIONS.CLIENTS_VIEW}>
                 <ClientsPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/clients/:id"
+            element={
+              <RequirePermission permission={PERMISSIONS.CLIENTS_VIEW}>
+                <ClientDetailPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/rate-lists"
+            element={
+              <RequirePermission permission={PERMISSIONS.RATE_LISTS_VIEW}>
+                <RateListsPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/rate-lists/new"
+            element={
+              <RequirePermission permission={PERMISSIONS.RATE_LISTS_CREATE}>
+                <RateListEditorPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/rate-lists/:id"
+            element={
+              <RequirePermission permission={PERMISSIONS.RATE_LISTS_VIEW}>
+                <RateListDetailPage />
               </RequirePermission>
             }
           />
