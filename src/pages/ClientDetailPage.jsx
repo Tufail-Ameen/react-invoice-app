@@ -111,46 +111,46 @@ export default function ClientDetailPage() {
       </button>
 
       <div className="detail-toolbar">
-        <div className="d-flex align-items-center gap-3">
+        <div className="flex items-center gap-3">
           <h1 className="page-title mb-0">{client.name}</h1>
           <StatusBadge status={client.status} compact />
         </div>
       </div>
 
       <div className="detail-card mb-4">
-        <div className="row g-3">
-          <div className="col-12 col-md-6">
-            <span className="d-block edit-discription">Company</span>
-            <span className="d-block date-bill-email">{client.companyName || "—"}</span>
-            <span className="d-block edit-discription mt-3">Phone</span>
-            <span className="d-block date-bill-email">{client.phone || "—"}</span>
-            <span className="d-block edit-discription mt-3">Email</span>
-            <span className="d-block date-bill-email">{client.email || "—"}</span>
+        <div className="grid grid-cols-12 gap-3">
+          <div className="col-span-12 md:col-span-6">
+            <span className="edit-discription block">Company</span>
+            <span className="date-bill-email block">{client.companyName || "—"}</span>
+            <span className="edit-discription mt-3 block">Phone</span>
+            <span className="date-bill-email block">{client.phone || "—"}</span>
+            <span className="edit-discription mt-3 block">Email</span>
+            <span className="date-bill-email block">{client.email || "—"}</span>
           </div>
-          <div className="col-12 col-md-6">
-            <span className="d-block edit-discription">Address</span>
-            <span className="d-block date-bill-email">
+          <div className="col-span-12 md:col-span-6">
+            <span className="edit-discription block">Address</span>
+            <span className="date-bill-email block">
               {[client.address, client.city, client.country].filter(Boolean).join(", ") || "—"}
             </span>
-            <span className="d-block edit-discription mt-3">Tax Number</span>
-            <span className="d-block date-bill-email">{client.taxNumber || "—"}</span>
-            <span className="d-block edit-discription mt-3">Notes</span>
-            <span className="d-block date-bill-email">{client.notes || "—"}</span>
+            <span className="edit-discription mt-3 block">Tax Number</span>
+            <span className="date-bill-email block">{client.taxNumber || "—"}</span>
+            <span className="edit-discription mt-3 block">Notes</span>
+            <span className="date-bill-email block">{client.notes || "—"}</span>
           </div>
         </div>
 
-        <div className="row g-3 mt-4">
-          <div className="col-4">
-            <span className="d-block edit-discription">Total Sales</span>
-            <span className="d-block price">{formatAmount("Rs", summary.totalSales)}</span>
+        <div className="mt-4 grid grid-cols-12 gap-3">
+          <div className="col-span-4">
+            <span className="edit-discription block">Total Sales</span>
+            <span className="price block">{formatAmount("Rs", summary.totalSales)}</span>
           </div>
-          <div className="col-4">
-            <span className="d-block edit-discription">Total Paid</span>
-            <span className="d-block price">{formatAmount("Rs", summary.totalPaid)}</span>
+          <div className="col-span-4">
+            <span className="edit-discription block">Total Paid</span>
+            <span className="price block">{formatAmount("Rs", summary.totalPaid)}</span>
           </div>
-          <div className="col-4">
-            <span className="d-block edit-discription">Outstanding Receivable</span>
-            <span className="d-block price">
+          <div className="col-span-4">
+            <span className="edit-discription block">Outstanding Receivable</span>
+            <span className="price block">
               {formatAmount("Rs", summary.outstandingReceivable)}
             </span>
           </div>
@@ -165,8 +165,8 @@ export default function ClientDetailPage() {
         >
           <Form className="form-card mb-4">
             <h2 className="page-title">Record Payment</h2>
-            <div className="row g-3">
-              <div className="col-12 col-md-3">
+            <div className="grid grid-cols-12 gap-3">
+              <div className="col-span-12 md:col-span-3">
                 <label className="form-label input-clr" htmlFor="amount">
                   Amount
                 </label>
@@ -178,9 +178,9 @@ export default function ClientDetailPage() {
                   step="0.01"
                   className="form-control input-settings"
                 />
-                <ErrorMessage name="amount" component="div" className="text-danger" />
+                <ErrorMessage name="amount" component="div" className="text-red-600" />
               </div>
-              <div className="col-12 col-md-3">
+              <div className="col-span-12 md:col-span-3">
                 <label className="form-label input-clr" htmlFor="paymentMethod">
                   Payment Method
                 </label>
@@ -191,20 +191,20 @@ export default function ClientDetailPage() {
                   placeholder="Cash / Bank / …"
                 />
               </div>
-              <div className="col-12 col-md-3">
+              <div className="col-span-12 md:col-span-3">
                 <label className="form-label input-clr" htmlFor="reference">
                   Reference
                 </label>
                 <Field name="reference" id="reference" className="form-control input-settings" />
               </div>
-              <div className="col-12 col-md-3">
+              <div className="col-span-12 md:col-span-3">
                 <label className="form-label input-clr" htmlFor="notes">
                   Notes
                 </label>
                 <Field name="notes" id="notes" className="form-control input-settings" />
               </div>
-              <div className="col-12">
-                <button type="submit" className="btn input-clr1 save-changes py-2 px-4">
+              <div className="col-span-12">
+                <button type="submit" className="btn input-clr1 save-changes px-4 py-2">
                   Save Payment
                 </button>
               </div>
@@ -224,7 +224,7 @@ export default function ClientDetailPage() {
             message="Confirmed invoices and payments appear here."
           />
         ) : (
-          <div className="table-responsive table-setting">
+          <div className="table-setting overflow-x-auto">
             <table className="table m-0">
               <thead>
                 <tr>

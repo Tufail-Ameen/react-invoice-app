@@ -85,7 +85,7 @@ export default function EstimateDetailPage() {
       </button>
 
       <div className="detail-toolbar">
-        <div className="d-flex align-items-center gap-3 flex-wrap">
+        <div className="flex flex-wrap items-center gap-3">
           <span className="btn pendingbtn px-3 py-1" style={{ fontSize: "12px" }}>
             ESTIMATE
           </span>
@@ -136,24 +136,24 @@ export default function EstimateDetailPage() {
       )}
 
       <div className="detail-card">
-        <div className="row g-4">
-          <div className="col-12 col-md-6">
+        <div className="grid grid-cols-12 gap-4">
+          <div className="col-span-12 md:col-span-6">
             <p className="edit-id">#{estimate.estimateNumber}</p>
             <p className="edit-discription">{estimate.notes || "Customer estimate"}</p>
           </div>
-          <div className="col-12 col-md-6 text-md-end">
-            <span className="d-block edit-discription">Customer</span>
-            <span className="d-block date-bill-email">
+          <div className="col-span-12 md:col-span-6 md:text-end">
+            <span className="edit-discription block">Customer</span>
+            <span className="date-bill-email block">
               {estimate.clientName || estimate.customerName || `#${estimate.clientId}`}
             </span>
-            <span className="d-block edit-discription mt-3">Estimate Date</span>
-            <span className="d-block date-bill-email">
+            <span className="edit-discription mt-3 block">Estimate Date</span>
+            <span className="date-bill-email block">
               {estimate.estimateDate
                 ? new Date(estimate.estimateDate).toLocaleDateString()
                 : "—"}
             </span>
-            <span className="d-block edit-discription mt-3">Valid Until</span>
-            <span className="d-block date-bill-email">
+            <span className="edit-discription mt-3 block">Valid Until</span>
+            <span className="date-bill-email block">
               {estimate.validUntil
                 ? new Date(estimate.validUntil).toLocaleDateString()
                 : "—"}
@@ -161,7 +161,7 @@ export default function EstimateDetailPage() {
           </div>
         </div>
 
-        <div className="table-responsive table-setting my-4">
+        <div className="table-setting my-4 overflow-x-auto">
           <table className="table m-0">
             <thead>
               <tr>
@@ -205,7 +205,7 @@ export default function EstimateDetailPage() {
                 <th>{formatAmount("Rs", estimate.tax)}</th>
               </tr>
               <tr className="total">
-                <th className="py-4 px-2" colSpan={5}>
+                <th className="px-2 py-4" colSpan={5}>
                   Grand Total
                 </th>
                 <th className="total-price">{formatAmount("Rs", estimate.grandTotal)}</th>

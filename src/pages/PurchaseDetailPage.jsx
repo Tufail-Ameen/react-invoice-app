@@ -78,7 +78,7 @@ export default function PurchaseDetailPage() {
       </button>
 
       <div className="detail-toolbar">
-        <div className="d-flex align-items-center gap-3">
+        <div className="flex items-center gap-3">
           <span className="edit-discription mb-0">Status</span>
           <StatusBadge status={purchase.status} />
         </div>
@@ -115,24 +115,24 @@ export default function PurchaseDetailPage() {
       </div>
 
       {isDraft && (
-        <p className="textcklr small mb-3">
+        <p className="textcklr mb-3 text-sm">
           Stock increases only when you confirm this purchase.
         </p>
       )}
 
       <div className="detail-card">
-        <div className="row g-4">
-          <div className="col-12 col-md-6">
+        <div className="grid grid-cols-12 gap-4">
+          <div className="col-span-12 md:col-span-6">
             <p className="edit-id">#{purchase.purchaseNumber}</p>
             <p className="edit-discription">{purchase.notes || "Purchase order"}</p>
           </div>
-          <div className="col-12 col-md-6 text-md-end">
-            <span className="d-block edit-discription">Supplier</span>
-            <span className="d-block date-bill-email">
+          <div className="col-span-12 md:col-span-6 md:text-end">
+            <span className="edit-discription block">Supplier</span>
+            <span className="date-bill-email block">
               {purchase.supplierName || `#${purchase.supplierId}`}
             </span>
-            <span className="d-block edit-discription mt-3">Purchase Date</span>
-            <span className="d-block date-bill-email">
+            <span className="edit-discription mt-3 block">Purchase Date</span>
+            <span className="date-bill-email block">
               {purchase.purchaseDate
                 ? new Date(purchase.purchaseDate).toLocaleDateString()
                 : "—"}
@@ -140,7 +140,7 @@ export default function PurchaseDetailPage() {
           </div>
         </div>
 
-        <div className="table-responsive table-setting my-4">
+        <div className="table-setting my-4 overflow-x-auto">
           <table className="table m-0">
             <thead>
               <tr>

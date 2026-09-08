@@ -1,11 +1,11 @@
 import { faCirclePlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
-import Dropdown from "react-bootstrap/Dropdown";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Can } from "../auth/guards";
 import EmptyState from "../components/ui/EmptyState";
+import FilterMenu from "../components/ui/FilterMenu";
 import StatusBadge from "../components/ui/StatusBadge";
 import { PERMISSIONS } from "../lib/permissions";
 import { getErrorMessage } from "../lib/rtkBaseQuery";
@@ -48,28 +48,11 @@ export default function EstimatesPage() {
         </div>
 
         <div className="invoices-header-actions">
-          <Dropdown>
-            <Dropdown.Toggle
-              className="btn filter p-0"
-              id="estimate-status-filter"
-              style={{ border: "none", background: "none" }}
-            >
-              <span className="mx-2">Filter by status</span>
-            </Dropdown.Toggle>
-            <Dropdown.Menu className="menuclr px-0 py-2 mt-3">
-              {STATUS_OPTIONS.map((option) => (
-                <Dropdown.Item
-                  key={option.value || "all"}
-                  as="button"
-                  className="menuitem"
-                  onClick={() => setStatusFilter(option.value)}
-                >
-                  {option.label}
-                  {statusFilter === option.value ? " ✓" : ""}
-                </Dropdown.Item>
-              ))}
-            </Dropdown.Menu>
-          </Dropdown>
+          <FilterMenu
+            options={STATUS_OPTIONS}
+            value={statusFilter}
+            onChange={setStatusFilter}
+          />
 
           <Can permission={PERMISSIONS.ESTIMATES_CREATE}>
             <Link to="/estimates/new" className="btn new-invoice">
@@ -90,11 +73,11 @@ export default function EstimatesPage() {
           message="Create a draft estimate to quote a customer."
         />
       ) : (
-        <div className="d-flex flex-column gap-2 mt-3">
+        <div className="mt-3 flex flex-col gap-2">
           {estimates.map((estimate) => (
             <div
               key={estimate.id}
-              className="row align-items-center invoice-row datalist py-3 px-2 m-0 cursor"
+              className="invoice-row datalist cursor m-0 grid grid-cols-12 items-center px-2 py-3"
               onClick={() => navigate(`/estimates/${estimate.id}`)}
               role="button"
               tabIndex={0}
@@ -102,22 +85,22 @@ export default function EstimatesPage() {
                 if (e.key === "Enter") navigate(`/estimates/${estimate.id}`);
               }}
             >
-              <div className="col-12 col-md-2 table-text-size">
+              <div className="table-text-size col-span-12 md:col-span-2">
                 <span className="hash-clr">#</span>
                 {estimate.estimateNumber}
               </div>
-              <div className="col-12 col-md-3 textcklr small">
+              <div className="textcklr col-span-12 text-sm md:col-span-3">
                 {estimate.clientName || estimate.customerName || `Client #${estimate.clientId}`}
               </div>
-              <div className="col-6 col-md-2 textcklr small">
+              <div className="textcklr col-span-6 text-sm md:col-span-2">
                 {estimate.estimateDate
                   ? new Date(estimate.estimateDate).toLocaleDateString()
                   : "—"}
               </div>
-              <div className="col-6 col-md-2 price">
+              <div className="price col-span-6 md:col-span-2">
                 {formatAmount("Rs", estimate.grandTotal)}
               </div>
-              <div className="col-12 col-md-3 mt-2 mt-md-0 d-flex justify-content-md-end">
+              <div className="col-span-12 mt-2 flex md:col-span-3 md:mt-0 md:justify-end">
                 <StatusBadge status={estimate.status} compact />
               </div>
             </div>

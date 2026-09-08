@@ -27,21 +27,21 @@ export default function SupplierList({
   }
 
   return (
-    <div className="d-flex flex-column gap-2">
+    <div className="flex flex-col gap-2">
       {suppliers.map((supplier) => (
         <div
           key={supplier.key || supplier._id || supplier.id}
-          className="row align-items-center invoice-row datalist py-3 px-2 m-0"
+          className="invoice-row datalist m-0 grid grid-cols-12 items-center px-2 py-3"
         >
-          <div className="col-12 col-md-3 table-text-size">{supplier.name}</div>
-          <div className="col-12 col-md-2 textcklr small">{supplier.phone || "—"}</div>
-          <div className="col-6 col-md-2 mt-2 mt-md-0">
+          <div className="table-text-size col-span-12 md:col-span-3">{supplier.name}</div>
+          <div className="textcklr col-span-12 text-sm md:col-span-2">{supplier.phone || "—"}</div>
+          <div className="col-span-6 mt-2 md:col-span-2 md:mt-0">
             <StatusBadge status={supplier.status} compact />
           </div>
-          <div className="col-6 col-md-2 price mt-2 mt-md-0">
+          <div className="price col-span-6 mt-2 md:col-span-2 md:mt-0">
             {formatAmount("Rs", supplier.currentBalance)}
           </div>
-          <div className="col-12 col-md-3 d-flex gap-2 justify-content-md-end mt-2 mt-md-0 flex-wrap">
+          <div className="col-span-12 mt-2 flex flex-wrap gap-2 md:col-span-3 md:mt-0 md:justify-end">
             <Link
               to={`/suppliers/${supplier.id}`}
               className="btn edit py-1 px-3"

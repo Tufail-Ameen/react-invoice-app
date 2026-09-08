@@ -89,15 +89,15 @@ export default function SuppliersPage() {
           {({ resetForm }) => (
             <Form className="form-card mb-4">
               <h1 className="page-title">{editing ? "Edit Supplier" : "Add Supplier"}</h1>
-              <div className="row g-3">
-                <div className="col-12 col-md-6">
+              <div className="grid grid-cols-12 gap-3">
+                <div className="col-span-12 md:col-span-6">
                   <label className="form-label input-clr" htmlFor="name">
                     Name
                   </label>
                   <Field name="name" id="name" className="form-control input-settings" />
-                  <ErrorMessage name="name" component="div" className="text-danger" />
+                  <ErrorMessage name="name" component="div" className="text-red-600" />
                 </div>
-                <div className="col-12 col-md-6">
+                <div className="col-span-12 md:col-span-6">
                   <label className="form-label input-clr" htmlFor="companyName">
                     Company Name
                   </label>
@@ -106,16 +106,16 @@ export default function SuppliersPage() {
                     id="companyName"
                     className="form-control input-settings"
                   />
-                  <ErrorMessage name="companyName" component="div" className="text-danger" />
+                  <ErrorMessage name="companyName" component="div" className="text-red-600" />
                 </div>
-                <div className="col-12 col-md-6">
+                <div className="col-span-12 md:col-span-6">
                   <label className="form-label input-clr" htmlFor="phone">
                     Phone
                   </label>
                   <Field name="phone" id="phone" className="form-control input-settings" />
-                  <ErrorMessage name="phone" component="div" className="text-danger" />
+                  <ErrorMessage name="phone" component="div" className="text-red-600" />
                 </div>
-                <div className="col-12 col-md-6">
+                <div className="col-span-12 md:col-span-6">
                   <label className="form-label input-clr" htmlFor="email">
                     Email
                   </label>
@@ -125,23 +125,23 @@ export default function SuppliersPage() {
                     type="email"
                     className="form-control input-settings"
                   />
-                  <ErrorMessage name="email" component="div" className="text-danger" />
+                  <ErrorMessage name="email" component="div" className="text-red-600" />
                 </div>
-                <div className="col-12 col-md-6">
+                <div className="col-span-12 md:col-span-6">
                   <label className="form-label input-clr" htmlFor="address">
                     Address
                   </label>
                   <Field name="address" id="address" className="form-control input-settings" />
-                  <ErrorMessage name="address" component="div" className="text-danger" />
+                  <ErrorMessage name="address" component="div" className="text-red-600" />
                 </div>
-                <div className="col-12 col-md-6">
+                <div className="col-span-12 md:col-span-6">
                   <label className="form-label input-clr" htmlFor="city">
                     City
                   </label>
                   <Field name="city" id="city" className="form-control input-settings" />
-                  <ErrorMessage name="city" component="div" className="text-danger" />
+                  <ErrorMessage name="city" component="div" className="text-red-600" />
                 </div>
-                <div className="col-12 col-md-6">
+                <div className="col-span-12 md:col-span-6">
                   <label className="form-label input-clr" htmlFor="taxNumber">
                     Tax Number
                   </label>
@@ -150,16 +150,16 @@ export default function SuppliersPage() {
                     id="taxNumber"
                     className="form-control input-settings"
                   />
-                  <ErrorMessage name="taxNumber" component="div" className="text-danger" />
+                  <ErrorMessage name="taxNumber" component="div" className="text-red-600" />
                 </div>
-                <div className="col-12 col-md-6">
+                <div className="col-span-12 md:col-span-6">
                   <label className="form-label input-clr" htmlFor="notes">
                     Notes
                   </label>
                   <Field name="notes" id="notes" className="form-control input-settings" />
-                  <ErrorMessage name="notes" component="div" className="text-danger" />
+                  <ErrorMessage name="notes" component="div" className="text-red-600" />
                 </div>
-                <div className="col-12 d-flex gap-2">
+                <div className="col-span-12 flex gap-2">
                   <button type="submit" className="btn input-clr1 save-changes py-2 px-4">
                     {editing ? "Update" : "Add Supplier"}
                   </button>

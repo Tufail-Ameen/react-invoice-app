@@ -110,8 +110,8 @@ export default function UsersPage() {
         {({ values, handleChange }) => (
           <Form className="form-card">
             <h1 className="page-title">Register to Create Invoice</h1>
-            <div className="row g-3">
-              <div className="col-12 col-md-6">
+            <div className="grid grid-cols-12 gap-3">
+              <div className="col-span-12 md:col-span-6">
                 <label htmlFor="first-name" className="form-label input-clr">
                   First Name:
                 </label>
@@ -121,9 +121,9 @@ export default function UsersPage() {
                   id="first-name"
                   name="firstName"
                 />
-                <ErrorMessage name="firstName" component="div" className="text-danger fw-bold" />
+                <ErrorMessage name="firstName" component="div" className="text-red-600 fw-bold" />
               </div>
-              <div className="col-12 col-md-6">
+              <div className="col-span-12 md:col-span-6">
                 <label htmlFor="last-name" className="form-label input-clr">
                   Last Name:
                 </label>
@@ -133,9 +133,9 @@ export default function UsersPage() {
                   id="last-name"
                   name="lastName"
                 />
-                <ErrorMessage name="lastName" component="div" className="text-danger fw-bold" />
+                <ErrorMessage name="lastName" component="div" className="text-red-600 fw-bold" />
               </div>
-              <div className="col-12 col-md-6">
+              <div className="col-span-12 md:col-span-6">
                 <label htmlFor="phone-no" className="form-label input-clr">
                   Phone No:
                 </label>
@@ -145,16 +145,16 @@ export default function UsersPage() {
                   id="phone-no"
                   name="phoneno"
                 />
-                <ErrorMessage name="phoneno" component="div" className="text-danger fw-bold" />
+                <ErrorMessage name="phoneno" component="div" className="text-red-600 fw-bold" />
               </div>
-              <div className="col-12 col-md-6">
+              <div className="col-span-12 md:col-span-6">
                 <label htmlFor="cnic" className="form-label input-clr">
                   CNIC:
                 </label>
                 <Field type="text" className="form-control input-settings" id="cnic" name="cnic" />
-                <ErrorMessage name="cnic" component="div" className="text-danger fw-bold" />
+                <ErrorMessage name="cnic" component="div" className="text-red-600 fw-bold" />
               </div>
-              <div className="col-12 col-md-6">
+              <div className="col-span-12 md:col-span-6">
                 <label htmlFor="email" className="form-label input-clr">
                   Email:
                 </label>
@@ -164,14 +164,14 @@ export default function UsersPage() {
                   id="email"
                   name="email"
                 />
-                <ErrorMessage name="email" component="div" className="text-danger fw-bold" />
+                <ErrorMessage name="email" component="div" className="text-red-600 fw-bold" />
               </div>
-              <div className="col-12 col-md-6">
-                <label className="input-clr d-block mb-2">Gender:</label>
-                <div className="d-flex gap-4">
-                  <div className="form-check">
+              <div className="col-span-12 md:col-span-6">
+                <label className="input-clr block mb-2">Gender:</label>
+                <div className="flex gap-4">
+                  <div className="flex items-center gap-2">
                     <input
-                      className="form-check-input"
+                      className="size-4 accent-[var(--color-primary)]"
                       type="radio"
                       name="gender"
                       id="gender-male"
@@ -179,13 +179,13 @@ export default function UsersPage() {
                       checked={values.gender === "Male"}
                       onChange={handleChange}
                     />
-                    <label className="form-check-label setfont" htmlFor="gender-male">
+                    <label className="setfont" htmlFor="gender-male">
                       Male
                     </label>
                   </div>
-                  <div className="form-check">
+                  <div className="flex items-center gap-2">
                     <input
-                      className="form-check-input"
+                      className="size-4 accent-[var(--color-primary)]"
                       type="radio"
                       name="gender"
                       id="gender-female"
@@ -193,13 +193,13 @@ export default function UsersPage() {
                       checked={values.gender === "Female"}
                       onChange={handleChange}
                     />
-                    <label className="form-check-label setfont" htmlFor="gender-female">
+                    <label className="setfont" htmlFor="gender-female">
                       Female
                     </label>
                   </div>
                 </div>
               </div>
-              <div className="col-12 col-md-6">
+              <div className="col-span-12 md:col-span-6">
                 <label htmlFor="address" className="form-label input-clr">
                   Address:
                 </label>
@@ -209,9 +209,9 @@ export default function UsersPage() {
                   id="address"
                   name="address"
                 />
-                <ErrorMessage name="address" component="div" className="text-danger fw-bold" />
+                <ErrorMessage name="address" component="div" className="text-red-600 fw-bold" />
               </div>
-              <div className="col-12 col-md-6">
+              <div className="col-span-12 md:col-span-6">
                 <label htmlFor="salary" className="form-label input-clr">
                   Salary:
                 </label>
@@ -221,9 +221,9 @@ export default function UsersPage() {
                   id="salary"
                   name="sallary"
                 />
-                <ErrorMessage name="sallary" component="div" className="text-danger fw-bold" />
+                <ErrorMessage name="sallary" component="div" className="text-red-600 fw-bold" />
               </div>
-              <div className="col-12 col-md-6">
+              <div className="col-span-12 md:col-span-6">
                 <label htmlFor="pasword" className="form-label input-clr">
                   Password:
                 </label>
@@ -233,9 +233,9 @@ export default function UsersPage() {
                   id="pasword"
                   name="pasword"
                 />
-                <ErrorMessage name="pasword" component="div" className="text-danger fw-bold" />
+                <ErrorMessage name="pasword" component="div" className="text-red-600 fw-bold" />
               </div>
-              <div className="col-12 col-md-6">
+              <div className="col-span-12 md:col-span-6">
                 <label htmlFor="c-pasword" className="form-label input-clr">
                   Confirm Password:
                 </label>
@@ -245,9 +245,9 @@ export default function UsersPage() {
                   id="c-pasword"
                   name="cPasword"
                 />
-                <ErrorMessage name="cPasword" component="div" className="text-danger fw-bold" />
+                <ErrorMessage name="cPasword" component="div" className="text-red-600 fw-bold" />
               </div>
-              <div className="col-12 col-md-6">
+              <div className="col-span-12 md:col-span-6">
                 <button type="submit" className="btn input-clr1 save-changes py-2 btn-responsive-width">
                   {buttonUpdate || "Register"}
                 </button>

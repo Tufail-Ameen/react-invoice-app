@@ -130,12 +130,12 @@ export default function InvoiceForm({ invoice, onClose, onSaved }) {
         <Form>
           <div className="invoice-drawer" onClick={onClose}>
             <div className="invoice-drawer-panel" onClick={(e) => e.stopPropagation()}>
-              <div className="d-flex justify-content-between align-items-center mb-3">
+              <div className="mb-3 flex items-center justify-between">
                 <div className="edit-text">
                   <span className="hash-clr">#</span>
                   {invoice?.number || invoice?.invoiceNumber || "New"}
                 </div>
-                <button type="button" className="btn cancel py-2 px-3 d-md-none" onClick={onClose}>
+                <button type="button" className="btn cancel py-2 px-3 md:hidden" onClick={onClose}>
                   Close
                 </button>
               </div>
@@ -154,15 +154,15 @@ export default function InvoiceForm({ invoice, onClose, onSaved }) {
                     </option>
                   ))}
                 </Field>
-                <ErrorMessage name="clientId" component="div" className="text-danger" />
+                <ErrorMessage name="clientId" component="div" className="text-red-600" />
               </div>
 
-              <div className="row g-2">
-                <div className="col-md-6">
+              <div className="grid grid-cols-12 gap-2">
+                <div className="col-span-12 md:col-span-6">
                   <label className="input-clr mb-1">Invoice date</label>
                   <Field type="date" name="issueDate" className="form-control input-settings" />
                 </div>
-                <div className="col-md-6">
+                <div className="col-span-12 md:col-span-6">
                   <label className="input-clr mb-1">Due date</label>
                   <Field type="date" name="dueDate" className="form-control input-settings" />
                 </div>
@@ -187,9 +187,9 @@ export default function InvoiceForm({ invoice, onClose, onSaved }) {
                 const unitPrice = Number(line.unitPrice) || productSalePrice(product);
                 const lineTotal = calcLineTotal(line.quantity, unitPrice, 0) + (Number(line.tax) || 0);
                 return (
-                  <div className="row g-2 align-items-end mb-3" key={line.key}>
-                    <div className="col-12 col-md-4">
-                      <label className="d-md-none input-clr mb-1">Product</label>
+                  <div className="mb-3 grid grid-cols-12 items-end gap-2" key={line.key}>
+                    <div className="col-span-12 md:col-span-4">
+                      <label className="input-clr mb-1 md:hidden">Product</label>
                       <select
                         className="form-select input-settings"
                         value={line.productId}
@@ -213,8 +213,8 @@ export default function InvoiceForm({ invoice, onClose, onSaved }) {
                         ))}
                       </select>
                     </div>
-                    <div className="col-4 col-md-2">
-                      <label className="d-md-none input-clr mb-1">Qty</label>
+                    <div className="col-span-4 md:col-span-2">
+                      <label className="input-clr mb-1 md:hidden">Qty</label>
                       <input
                         type="number"
                         min={1}
@@ -227,8 +227,8 @@ export default function InvoiceForm({ invoice, onClose, onSaved }) {
                         }}
                       />
                     </div>
-                    <div className="col-4 col-md-2">
-                      <label className="d-md-none input-clr mb-1">Price</label>
+                    <div className="col-span-4 md:col-span-2">
+                      <label className="input-clr mb-1 md:hidden">Price</label>
                       <input
                         type="number"
                         min={0}
@@ -242,8 +242,8 @@ export default function InvoiceForm({ invoice, onClose, onSaved }) {
                         }}
                       />
                     </div>
-                    <div className="col-4 col-md-2">
-                      <label className="d-md-none input-clr mb-1">Tax</label>
+                    <div className="col-span-4 md:col-span-2">
+                      <label className="input-clr mb-1 md:hidden">Tax</label>
                       <input
                         type="number"
                         className="form-control input-settings"
@@ -255,8 +255,10 @@ export default function InvoiceForm({ invoice, onClose, onSaved }) {
                         }}
                       />
                     </div>
-                    <div className="col-3 col-md-1 text-center py-2">{(lineTotal || 0).toFixed(0)}</div>
-                    <div className="col-1 trash">
+                    <div className="col-span-3 py-2 text-center md:col-span-1">
+                      {(lineTotal || 0).toFixed(0)}
+                    </div>
+                    <div className="col-span-1 trash">
                       <span
                         className="cursor basket"
                         onClick={() => setLines(lines.filter((_, i) => i !== index))}
@@ -270,7 +272,7 @@ export default function InvoiceForm({ invoice, onClose, onSaved }) {
 
               <button
                 type="button"
-                className="btn input-clr1 add-btn py-2 w-100"
+                className="btn input-clr1 add-btn w-full py-2"
                 onClick={() => setLines([...lines, emptyLine()])}
               >
                 + Add product line

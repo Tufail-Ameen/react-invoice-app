@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
-import EmptyState from "../ui/EmptyState";
 import { Can } from "../../auth/guards";
 import { useClients } from "../../hooks/useClients";
+import EmptyState from "../ui/EmptyState";
 
 /**
  * Clients list — data GET /clients se aati hai (useClients hook).
@@ -24,11 +24,11 @@ export default function ClientList({
   }
 
   return (
-    <div className="d-flex flex-column gap-2">
+    <div className="flex flex-col gap-2">
       {clients.map((client) => (
         <div
           key={client.key || client._id || client.id}
-          className="row align-items-center invoice-row datalist py-3 px-2 m-0 cursor"
+          className="invoice-row datalist m-0 grid cursor grid-cols-12 items-center px-2 py-3"
           onClick={() => navigate(`/clients/${client.id}`)}
           role="button"
           tabIndex={0}
@@ -36,13 +36,13 @@ export default function ClientList({
             if (e.key === "Enter") navigate(`/clients/${client.id}`);
           }}
         >
-          <div className="col-12 col-md-3 table-text-size">{client.name}</div>
-          <div className="col-12 col-md-3 textcklr small">{client.email}</div>
-          <div className="col-12 col-md-2 textcklr small">
+          <div className="table-text-size col-span-12 md:col-span-3">{client.name}</div>
+          <div className="textcklr col-span-12 text-sm md:col-span-3">{client.email}</div>
+          <div className="textcklr col-span-12 text-sm md:col-span-2">
             {client.city}, {client.country}
           </div>
           <div
-            className="col-12 col-md-4 d-flex gap-2 justify-content-md-end mt-2 mt-md-0 flex-wrap"
+            className="col-span-12 mt-2 flex flex-wrap gap-2 md:col-span-4 md:mt-0 md:justify-end"
             onClick={(e) => e.stopPropagation()}
           >
             <Link to={`/clients/${client.id}`} className="btn edit py-1 px-3">
