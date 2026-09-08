@@ -34,7 +34,7 @@ export default function ClientList({ onEdit, onDelete }) {
               <th>City</th>
               <th>Post code</th>
               <th>Country</th>
-              <th className="text-end col-actions">Actions</th>
+              <th className="col-actions text-end">Actions</th>
             </tr>
           </thead>
           <tbody>

@@ -17,7 +17,7 @@ export default function AuthShell({
   register = false,
 }) {
   return (
-    <main className="auth-page">
+    <main className={`auth-page ${register ? "auth-page-register" : ""}`}>
       <section className="auth-showcase">
         <Link to="/" className="auth-brand">
           <span className="auth-brand-mark">

@@ -110,8 +110,8 @@ export default function UsersPage() {
         {({ values, handleChange }) => (
           <Form className="form-card">
             <h1 className="page-title">Register to Create Invoice</h1>
-            <div className="row g-3">
-              <div className="col-12 col-md-6">
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              <div>
                 <label htmlFor="first-name" className="form-label input-clr">
                   First Name:
                 </label>
@@ -121,9 +121,9 @@ export default function UsersPage() {
                   id="first-name"
                   name="firstName"
                 />
-                <ErrorMessage name="firstName" component="div" className="text-danger fw-bold" />
+                <ErrorMessage name="firstName" component="div" className="font-bold text-danger" />
               </div>
-              <div className="col-12 col-md-6">
+              <div>
                 <label htmlFor="last-name" className="form-label input-clr">
                   Last Name:
                 </label>
@@ -133,9 +133,9 @@ export default function UsersPage() {
                   id="last-name"
                   name="lastName"
                 />
-                <ErrorMessage name="lastName" component="div" className="text-danger fw-bold" />
+                <ErrorMessage name="lastName" component="div" className="font-bold text-danger" />
               </div>
-              <div className="col-12 col-md-6">
+              <div>
                 <label htmlFor="phone-no" className="form-label input-clr">
                   Phone No:
                 </label>
@@ -145,16 +145,16 @@ export default function UsersPage() {
                   id="phone-no"
                   name="phoneno"
                 />
-                <ErrorMessage name="phoneno" component="div" className="text-danger fw-bold" />
+                <ErrorMessage name="phoneno" component="div" className="font-bold text-danger" />
               </div>
-              <div className="col-12 col-md-6">
+              <div>
                 <label htmlFor="cnic" className="form-label input-clr">
                   CNIC:
                 </label>
                 <Field type="text" className="form-control input-settings" id="cnic" name="cnic" />
-                <ErrorMessage name="cnic" component="div" className="text-danger fw-bold" />
+                <ErrorMessage name="cnic" component="div" className="font-bold text-danger" />
               </div>
-              <div className="col-12 col-md-6">
+              <div>
                 <label htmlFor="email" className="form-label input-clr">
                   Email:
                 </label>
@@ -164,11 +164,11 @@ export default function UsersPage() {
                   id="email"
                   name="email"
                 />
-                <ErrorMessage name="email" component="div" className="text-danger fw-bold" />
+                <ErrorMessage name="email" component="div" className="font-bold text-danger" />
               </div>
-              <div className="col-12 col-md-6">
-                <label className="input-clr d-block mb-2">Gender:</label>
-                <div className="d-flex gap-4">
+              <div>
+                <label className="input-clr mb-2 block">Gender:</label>
+                <div className="flex gap-4">
                   <div className="form-check">
                     <input
                       className="form-check-input"
@@ -199,7 +199,7 @@ export default function UsersPage() {
                   </div>
                 </div>
               </div>
-              <div className="col-12 col-md-6">
+              <div>
                 <label htmlFor="address" className="form-label input-clr">
                   Address:
                 </label>
@@ -209,9 +209,9 @@ export default function UsersPage() {
                   id="address"
                   name="address"
                 />
-                <ErrorMessage name="address" component="div" className="text-danger fw-bold" />
+                <ErrorMessage name="address" component="div" className="font-bold text-danger" />
               </div>
-              <div className="col-12 col-md-6">
+              <div>
                 <label htmlFor="salary" className="form-label input-clr">
                   Salary:
                 </label>
@@ -221,9 +221,9 @@ export default function UsersPage() {
                   id="salary"
                   name="sallary"
                 />
-                <ErrorMessage name="sallary" component="div" className="text-danger fw-bold" />
+                <ErrorMessage name="sallary" component="div" className="font-bold text-danger" />
               </div>
-              <div className="col-12 col-md-6">
+              <div>
                 <label htmlFor="pasword" className="form-label input-clr">
                   Password:
                 </label>
@@ -233,9 +233,9 @@ export default function UsersPage() {
                   id="pasword"
                   name="pasword"
                 />
-                <ErrorMessage name="pasword" component="div" className="text-danger fw-bold" />
+                <ErrorMessage name="pasword" component="div" className="font-bold text-danger" />
               </div>
-              <div className="col-12 col-md-6">
+              <div>
                 <label htmlFor="c-pasword" className="form-label input-clr">
                   Confirm Password:
                 </label>
@@ -245,10 +245,10 @@ export default function UsersPage() {
                   id="c-pasword"
                   name="cPasword"
                 />
-                <ErrorMessage name="cPasword" component="div" className="text-danger fw-bold" />
+                <ErrorMessage name="cPasword" component="div" className="font-bold text-danger" />
               </div>
-              <div className="col-12 col-md-6">
-                <button type="submit" className="btn input-clr1 save-changes py-2 btn-responsive-width">
+              <div>
+                <button type="submit" className="btn input-clr1 save-changes w-full min-h-12 py-2 md:w-auto">
                   {buttonUpdate || "Register"}
                 </button>
               </div>

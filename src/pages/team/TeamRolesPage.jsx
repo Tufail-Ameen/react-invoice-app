@@ -147,7 +147,7 @@ export default function TeamRolesPage() {
                 onClick={() => setSelectedId(role.id)}
               >
                 <strong>{role.name}</strong>
-                <span className="textcklr small d-block">
+                <span className="textcklr block text-sm">
                   {role.isSystem ? "System" : "Custom"} ·{" "}
                   {role.permissions?.includes("*")
                     ? "All access"
@@ -162,14 +162,14 @@ export default function TeamRolesPage() {
               <p className="textcklr mb-0">Role select karein</p>
             ) : (
               <>
-                <div className="d-flex justify-content-between align-items-start gap-2 mb-3">
+                <div className="mb-3 flex items-start justify-between gap-2">
                   <div>
                     <h2 className="rbac-entity-title mb-1">{selected.name}</h2>
                     <p className="textcklr mb-0">{selected.description || "—"}</p>
                   </div>
                   <Can permission={PERMISSIONS.ROLES_MANAGE}>
                     {!selected.isSystem && (
-                      <button type="button" className="btn btn-sm text-danger" onClick={onDelete}>
+                      <button type="button" className="btn text-sm text-danger" onClick={onDelete}>
                         <FontAwesomeIcon icon={faTrash} />
                       </button>
                     )}
@@ -246,7 +246,7 @@ export default function TeamRolesPage() {
                 onChange={(e) => setNewDesc(e.target.value)}
               />
             </div>
-            <div className="d-flex gap-2 justify-content-end">
+            <div className="flex justify-end gap-2">
               <button type="button" className="btn filter" onClick={() => setCreating(false)}>
                 Cancel
               </button>

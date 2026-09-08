@@ -50,7 +50,7 @@ export default function Sidebar() {
   const platform = filterNavByPermission(platformNavLinks, can);
 
   return (
-    <aside className="app-sidebar">
+    <aside className="app-sidebar hidden md:flex">
       <div className="sidebar-header">
         <NavLink to="/invoices" className="sidebar-brand" aria-label="Go to invoices">
           <span className="sidebar-brand-icon">

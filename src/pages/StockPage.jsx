@@ -366,7 +366,7 @@ export default function StockPage() {
             )}
           </Formik>
 
-          <div className="d-flex align-items-center justify-content-between mb-2">
+          <div className="mb-2 flex items-center justify-between">
             <h2 className="product-list-heading">Products</h2>
             {!isLoading && products.length > 0 && (
               <span className="textcklr small">{products.length}</span>
@@ -508,17 +508,17 @@ export default function StockPage() {
           {!movements.length ? (
             <EmptyState title="No movements" message="Adjustments and invoice sales appear here." />
           ) : (
-            <div className="d-flex flex-column gap-2">
+            <div className="flex flex-col gap-2">
               {movements.map((m) => (
-                <div key={m.id} className="row invoice-row datalist py-2 px-2 m-0 small">
-                  <div className="col-md-3 table-text-size">{m.productName}</div>
-                  <div className="col-md-2 textcklr">{m.type}</div>
-                  <div className="col-md-2 price">
+                <div key={m.id} className="invoice-row datalist grid grid-cols-2 gap-2 px-2 py-2 text-sm md:grid-cols-12">
+                  <div className="table-text-size md:col-span-3">{m.productName}</div>
+                  <div className="textcklr md:col-span-2">{m.type}</div>
+                  <div className="price md:col-span-2">
                     {m.quantity > 0 ? "+" : ""}
                     {m.quantity}
                   </div>
-                  <div className="col-md-3 textcklr">{m.reason}</div>
-                  <div className="col-md-2 textcklr">{m.createdAt?.slice(0, 10)}</div>
+                  <div className="textcklr md:col-span-3">{m.reason}</div>
+                  <div className="textcklr md:col-span-2">{m.createdAt?.slice(0, 10)}</div>
                 </div>
               ))}
             </div>

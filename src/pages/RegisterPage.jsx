@@ -25,7 +25,7 @@ export default function RegisterPage() {
       register
       eyebrow="Start today"
       title="Create your business workspace"
-      description="Set up your company account. You’ll become the Business Owner and can invite your team next."
+      description="You’ll become the Business Owner and can invite your team next."
       footer={
         <p>
           Already have an account? <Link to="/login">Sign in instead</Link>

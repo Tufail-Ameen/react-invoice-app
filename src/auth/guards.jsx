@@ -7,7 +7,7 @@ export function RequireAuth() {
 
   if (isLoading) {
     return (
-      <div className="page-wrap d-flex justify-content-center align-items-center" style={{ minHeight: "50vh" }}>
+      <div className="page-wrap flex min-h-[50vh] items-center justify-center">
         <p className="textcklr mb-0">Loading…</p>
       </div>
     );
@@ -24,7 +24,7 @@ export function GuestOnly() {
   const { isAuthenticated, isLoading } = useAuth();
   if (isLoading) {
     return (
-      <div className="page-wrap d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
+      <div className="page-wrap flex min-h-screen items-center justify-center">
         <p className="textcklr mb-0">Loading…</p>
       </div>
     );
@@ -40,7 +40,7 @@ export function RequirePermission({ permission, children }) {
 
   if (isLoading) {
     return (
-      <div className="page-wrap d-flex justify-content-center align-items-center" style={{ minHeight: "50vh" }}>
+      <div className="page-wrap flex min-h-[50vh] items-center justify-center">
         <p className="textcklr mb-0">Checking access…</p>
       </div>
     );

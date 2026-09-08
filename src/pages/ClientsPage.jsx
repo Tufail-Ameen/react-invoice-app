@@ -144,7 +144,7 @@ export default function ClientsPage() {
         )}
       </Formik>
 
-      <div className="d-flex align-items-center justify-content-between mb-2">
+      <div className="mb-2 flex items-center justify-between">
         <h2 className="product-list-heading">Clients</h2>
         {!isLoading && clients.length > 0 && (
           <span className="textcklr small">{clients.length}</span>

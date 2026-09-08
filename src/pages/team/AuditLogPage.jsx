@@ -37,7 +37,7 @@ export default function AuditLogPage() {
       )}
 
       {!!logs.length && (
-        <div className="table-responsive data-card mt-3 p-0">
+        <div className="data-card mt-3 overflow-x-auto p-0">
           <table className="table mb-0 rbac-table">
             <thead>
               <tr>

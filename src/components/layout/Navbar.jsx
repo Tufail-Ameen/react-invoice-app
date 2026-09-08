@@ -15,14 +15,14 @@ export default function Navbar() {
     : "??";
 
   return (
-    <header className="app-navbar">
+    <header className="app-navbar hidden md:flex">
       <div className="navbar-start">
         <p className="navbar-eyebrow">{activeBusiness?.name || "Dashboard"}</p>
         <h1 className="navbar-title">{pageTitle}</h1>
       </div>
 
       <div className="navbar-end">
-        <div className="navbar-business-desktop">
+        <div className="navbar-business-desktop hidden lg:block">
           <BusinessSwitcher />
         </div>
 

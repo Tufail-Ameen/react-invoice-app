@@ -74,7 +74,7 @@ export default function InvoiceDetailPage() {
       </button>
 
       <div className="detail-toolbar">
-        <div className="d-flex align-items-center gap-3">
+        <div className="flex items-center gap-3">
           <span className="edit-discription mb-0">Status</span>
           <StatusBadge status={invoice.status} />
         </div>
@@ -124,41 +124,41 @@ export default function InvoiceDetailPage() {
       </div>
 
       <div className="detail-card">
-        <div className="row g-4">
-          <div className="col-12 col-md-6">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div>
             <p className="edit-id">#{invoice.number}</p>
             <p className="edit-discription">{invoice.description}</p>
           </div>
-          <div className="col-12 col-md-6 text-md-end">
-            <p className="p-0 m-0 line-height">{from.address},</p>
-            <p className="p-0 m-0 line-height">{from.city},</p>
-            <p className="p-0 m-0 line-height">{from.code},</p>
-            <p className="p-0 m-0 line-height">{from.country}</p>
+          <div className="md:text-end">
+            <p className="line-height m-0 p-0">{from.address},</p>
+            <p className="line-height m-0 p-0">{from.city},</p>
+            <p className="line-height m-0 p-0">{from.code},</p>
+            <p className="line-height m-0 p-0">{from.country}</p>
           </div>
         </div>
 
-        <div className="row g-4 mt-2">
-          <div className="col-6 col-md-3">
-            <span className="d-block edit-discription">Invoice Date</span>
-            <span className="d-block date-bill-email">{invoice.issueDate}</span>
-            <span className="d-block edit-discription mt-4">Payment Due</span>
-            <span className="d-block date-bill-email">{invoice.dueDate}</span>
+        <div className="mt-2 grid grid-cols-2 gap-4 md:grid-cols-12">
+          <div className="md:col-span-3">
+            <span className="edit-discription block">Invoice Date</span>
+            <span className="date-bill-email block">{invoice.issueDate}</span>
+            <span className="edit-discription mt-4 block">Payment Due</span>
+            <span className="date-bill-email block">{invoice.dueDate}</span>
           </div>
-          <div className="col-6 col-md-4">
-            <span className="d-block edit-discription">Bill To</span>
-            <span className="d-block date-bill-email">{snap.name || invoice.clientName}</span>
-            <p className="p-0 m-0 mt-2 line-height">{snap.address},</p>
-            <p className="p-0 m-0 line-height">{snap.city},</p>
-            <p className="p-0 m-0 line-height">{snap.code},</p>
-            <p className="p-0 m-0 line-height">{snap.country}</p>
+          <div className="md:col-span-4">
+            <span className="edit-discription block">Bill To</span>
+            <span className="date-bill-email block">{snap.name || invoice.clientName}</span>
+            <p className="line-height mt-2 m-0 p-0">{snap.address},</p>
+            <p className="line-height m-0 p-0">{snap.city},</p>
+            <p className="line-height m-0 p-0">{snap.code},</p>
+            <p className="line-height m-0 p-0">{snap.country}</p>
           </div>
-          <div className="col-12 col-md-5">
-            <span className="d-block edit-discription">Sent to</span>
-            <span className="d-block date-bill-email">{snap.email || invoice.clientEmail}</span>
+          <div className="col-span-2 md:col-span-5">
+            <span className="edit-discription block">Sent to</span>
+            <span className="date-bill-email block">{snap.email || invoice.clientEmail}</span>
           </div>
         </div>
 
-        <div className="table-responsive table-setting my-4">
+        <div className="table-setting my-4 overflow-x-auto">
           <table className="table m-0">
             <thead>
               <tr>

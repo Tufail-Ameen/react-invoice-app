@@ -11,7 +11,7 @@ export default function BottomNav() {
   ].slice(0, 4);
 
   return (
-    <nav className="bottom-nav" aria-label="Primary">
+    <nav className="bottom-nav md:hidden" aria-label="Primary">
       {links.map((link) => (
         <NavLink
           key={link.to}

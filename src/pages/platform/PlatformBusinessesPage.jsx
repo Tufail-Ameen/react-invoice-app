@@ -139,13 +139,13 @@ export default function PlatformBusinessesPage() {
                     <Field name="name" className="form-control input-settings" />
                     <ErrorMessage name="name" component="div" className="text-danger" />
                   </div>
-                  <div className="row g-2">
-                    <div className="col-md-6">
+                  <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+                    <div>
                       <label className="form-label input-clr">Owner first name</label>
                       <Field name="ownerFirstName" className="form-control input-settings" />
                       <ErrorMessage name="ownerFirstName" component="div" className="text-danger" />
                     </div>
-                    <div className="col-md-6">
+                    <div>
                       <label className="form-label input-clr">Owner last name</label>
                       <Field name="ownerLastName" className="form-control input-settings" />
                       <ErrorMessage name="ownerLastName" component="div" className="text-danger" />
@@ -161,7 +161,7 @@ export default function PlatformBusinessesPage() {
                     <Field name="ownerPassword" type="password" className="form-control input-settings" />
                     <ErrorMessage name="ownerPassword" component="div" className="text-danger" />
                   </div>
-                  <div className="d-flex gap-2 justify-content-end">
+                  <div className="flex justify-end gap-2">
                     <button type="button" className="btn filter" onClick={() => setShowForm(false)}>
                       Cancel
                     </button>

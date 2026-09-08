@@ -14,7 +14,7 @@ function DashboardShell() {
       <div className="app-main">
         <Navbar />
         <MobileHeader />
-        <main className="app-content">
+        <main className="app-content p-4 pb-[5.75rem] md:px-8 md:pb-10 md:pt-7">
           <Outlet />
         </main>
         <BottomNav />

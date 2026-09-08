@@ -93,7 +93,7 @@ export default function TeamUsersPage() {
         />
       )}
 
-      <div className="table-responsive data-card mt-3 p-0">
+      <div className="data-card mt-3 overflow-x-auto p-0">
         <table className="table mb-0 rbac-table">
           <thead>
             <tr>
@@ -118,7 +118,7 @@ export default function TeamUsersPage() {
                 <td className="text-end">
                   <Can permission={PERMISSIONS.USERS_UPDATE}>
                     <select
-                      className="form-select form-select-sm d-inline-block w-auto me-2"
+                      className="form-select me-2 inline-block w-auto min-h-9 py-1 text-sm"
                       value={member.role?.id || ""}
                       onChange={async (e) => {
                         try {
@@ -140,7 +140,7 @@ export default function TeamUsersPage() {
                     {member.id !== currentUser?.id && (
                       <button
                         type="button"
-                        className="btn btn-sm text-danger"
+                        className="btn text-sm text-danger"
                         onClick={() => onRemove(member)}
                         title="Remove"
                       >
@@ -185,13 +185,13 @@ export default function TeamUsersPage() {
             >
               {({ isSubmitting }) => (
                 <Form>
-                  <div className="row g-2">
-                    <div className="col-md-6">
+                  <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+                    <div>
                       <label className="form-label input-clr">First name</label>
                       <Field name="firstName" className="form-control input-settings" />
                       <ErrorMessage name="firstName" component="div" className="text-danger" />
                     </div>
-                    <div className="col-md-6">
+                    <div>
                       <label className="form-label input-clr">Last name</label>
                       <Field name="lastName" className="form-control input-settings" />
                       <ErrorMessage name="lastName" component="div" className="text-danger" />
@@ -219,7 +219,7 @@ export default function TeamUsersPage() {
                     </Field>
                     <ErrorMessage name="roleId" component="div" className="text-danger" />
                   </div>
-                  <div className="d-flex gap-2 justify-content-end">
+                  <div className="flex justify-end gap-2">
                     <button type="button" className="btn filter" onClick={() => setShowForm(false)}>
                       Cancel
                     </button>

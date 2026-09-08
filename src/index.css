@@ -1,13 +1,61 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-1.5 border-0 bg-transparent font-sans text-[13px] font-bold leading-tight no-underline cursor-pointer;
+  }
+
+  .form-control,
+  .form-select {
+    @apply block w-full appearance-none rounded-[10px] border border-border bg-input px-3 text-sm text-text outline-none min-h-11;
+  }
+
+  .form-control:focus,
+  .form-select:focus {
+    @apply border-primary;
+    box-shadow: 0 0 0 3px var(--color-primary-soft);
+  }
+
+  .form-label {
+    @apply mb-1 block text-xs font-semibold text-text;
+  }
+
+  .form-check {
+    @apply flex items-center gap-2;
+  }
+
+  .form-check-input {
+    @apply h-4 w-4 accent-primary;
+  }
+
+  .form-check-label {
+    @apply text-sm text-text;
+  }
+
+  .table {
+    @apply w-full border-collapse text-left text-sm;
+  }
+
+  .table th,
+  .table td {
+    @apply border-0 px-3 py-2.5 align-middle;
+  }
+
+  .table-striped tbody tr:nth-child(even) {
+    @apply bg-surface-2;
+  }
+
+  .new-invoice {
+    @apply inline-flex min-h-[46px] items-center justify-center rounded-full border-0 bg-primary px-4 py-2.5 text-[13px] font-bold text-text-on shadow-btn;
+  }
+
+  .new-invoice:hover {
+    @apply bg-primary-hover text-text-on;
+  }
+
+  .small {
+    @apply text-sm;
+  }
 }

@@ -1,11 +1,11 @@
 export default function UserList({ users, onEdit, onDelete }) {
   if (!users.length) {
-    return <p className="text-center textcklr py-4 mb-0">No users registered yet.</p>;
+    return <p className="textcklr mb-0 py-4 text-center">No users registered yet.</p>;
   }
 
   return (
     <>
-      <div className="d-none d-lg-block table-responsive">
+      <div className="hidden overflow-x-auto lg:block">
         <table className="table table-striped">
           <thead>
             <tr>
@@ -34,7 +34,7 @@ export default function UserList({ users, onEdit, onDelete }) {
                 <td className="body-settings">{user.address}</td>
                 <td className="body-settings">{user.sallary}</td>
                 <td className="body-settings">
-                  <div className="d-flex gap-2">
+                  <div className="flex gap-2">
                     <button
                       onClick={() => onEdit(index)}
                       type="button"
@@ -57,7 +57,7 @@ export default function UserList({ users, onEdit, onDelete }) {
         </table>
       </div>
 
-      <div className="d-block d-lg-none">
+      <div className="block lg:hidden">
         {users.map((user, index) => (
           <div key={`${user.email}-${index}`} className="data-card mb-3">
             <p className="mb-2">
@@ -70,12 +70,12 @@ export default function UserList({ users, onEdit, onDelete }) {
               <strong className="text-accent">Email:</strong>
               <span className="ms-2">{user.email}</span>
             </p>
-            <div className="row">
-              <div className="col-6 mb-2">
+            <div className="grid grid-cols-2">
+              <div className="mb-2">
                 <strong className="text-accent">Phone:</strong>
                 <span className="ms-2">{user.phoneno}</span>
               </div>
-              <div className="col-6 mb-2">
+              <div className="mb-2">
                 <strong className="text-accent">Gender:</strong>
                 <span className="ms-2">{user.gender}</span>
               </div>
@@ -92,13 +92,13 @@ export default function UserList({ users, onEdit, onDelete }) {
               <strong className="text-accent">Salary:</strong>
               <span className="ms-2">{user.sallary}</span>
             </p>
-            <div className="d-flex gap-2">
-              <button type="button" className="btn edit flex-fill" onClick={() => onEdit(index)}>
+            <div className="flex gap-2">
+              <button type="button" className="btn edit flex-1" onClick={() => onEdit(index)}>
                 Edit
               </button>
               <button
                 type="button"
-                className="btn delete flex-fill"
+                className="btn delete flex-1"
                 onClick={() => onDelete(index)}
               >
                 Delete

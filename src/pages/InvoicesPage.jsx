@@ -1,10 +1,10 @@
 import { faCirclePlus } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
-import Dropdown from "react-bootstrap/Dropdown";
 import { toast } from "react-toastify";
 import InvoiceForm from "../components/invoices/InvoiceForm";
 import InvoiceList from "../components/invoices/InvoiceList";
+import FilterDropdown from "../components/ui/FilterDropdown";
 import { getErrorMessage } from "../lib/rtkBaseQuery";
 import { useGetInvoicesQuery } from "../services/invoiceApi";
 
@@ -32,37 +32,21 @@ export default function InvoicesPage() {
           </p>
         </div>
 
-        <div className="invoices-header-actions">
-          <Dropdown>
-            <Dropdown.Toggle
-              className="btn filter p-0"
-              id="dropdown-basic"
-              style={{ border: "none", background: "none" }}
-            >
-              <span className="mx-2">Filter by status</span>
-            </Dropdown.Toggle>
-            <Dropdown.Menu className="menuclr px-0 py-2 mt-3">
-              {[
-                { label: "All", value: "" },
-                { label: "Draft", value: "draft" },
-                { label: "Pending", value: "pending" },
-                { label: "Paid", value: "paid" },
-                { label: "Cancelled", value: "cancelled" },
-              ].map((option) => (
-                <Dropdown.Item
-                  key={option.value || "all"}
-                  as="button"
-                  className="menuitem"
-                  onClick={() => setStatusFilter(option.value)}
-                >
-                  {option.label}
-                  {statusFilter === option.value ? " ✓" : ""}
-                </Dropdown.Item>
-              ))}
-            </Dropdown.Menu>
-          </Dropdown>
+        <div className="invoices-header-actions w-full md:w-auto">
+          <FilterDropdown
+            label="Filter by status"
+            value={statusFilter}
+            onChange={setStatusFilter}
+            options={[
+              { label: "All", value: "" },
+              { label: "Draft", value: "draft" },
+              { label: "Pending", value: "pending" },
+              { label: "Paid", value: "paid" },
+              { label: "Cancelled", value: "cancelled" },
+            ]}
+          />
 
-          <button type="button" className="btn new-invoice" onClick={() => setShowForm(true)}>
+          <button type="button" className="btn new-invoice w-full md:w-auto" onClick={() => setShowForm(true)}>
             <span className="circle-plus me-2">
               <FontAwesomeIcon icon={faCirclePlus} />
             </span>
