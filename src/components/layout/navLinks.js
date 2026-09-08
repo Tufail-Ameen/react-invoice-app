@@ -5,12 +5,15 @@ import {
   faClipboardList,
   faFileInvoice,
   faFileLines,
+  faClipboardCheck,
+  faMapLocationDot,
   faMoneyBillWave,
   faRotateLeft,
   faShieldHalved,
   faTruck,
   faTruckRampBox,
   faUserGroup,
+  faUserTie,
   faUsers,
 } from "@fortawesome/free-solid-svg-icons";
 import { PERMISSIONS } from "../../lib/permissions";
@@ -29,6 +32,24 @@ export const mainNavLinks = [
     label: "Estimates",
     icon: faFileLines,
     permission: PERMISSIONS.ESTIMATES_VIEW,
+  },
+  {
+    to: "/orders",
+    label: "Orders",
+    icon: faClipboardCheck,
+    permissions: [PERMISSIONS.ORDERS_VIEW, PERMISSIONS.ORDERS_VIEW_OWN],
+  },
+  {
+    to: "/salesmen",
+    label: "Salesmen",
+    icon: faUserTie,
+    permission: PERMISSIONS.SALESMEN_VIEW,
+  },
+  {
+    to: "/visits",
+    label: "Visits",
+    icon: faMapLocationDot,
+    permission: PERMISSIONS.VISITS_VIEW,
   },
   {
     to: "/sales-returns",
@@ -119,6 +140,18 @@ export function getNavPageTitle(pathname) {
   if (pathname.startsWith("/estimates/") && pathname !== "/estimates") {
     return "Estimate Details";
   }
+  if (pathname === "/orders/new") return "New Order";
+  if (/^\/orders\/[^/]+\/edit$/.test(pathname)) return "Edit Order";
+  if (pathname.startsWith("/orders/") && pathname !== "/orders") {
+    return "Order Details";
+  }
+  if (pathname.startsWith("/salesmen/") && pathname !== "/salesmen") {
+    return "Salesman Details";
+  }
+  if (pathname === "/visits/new") return "New Visit";
+  if (pathname.startsWith("/visits/") && pathname !== "/visits") {
+    return "Visit Details";
+  }
   if (pathname === "/sales-returns/new") return "New Sales Return";
   if (pathname.startsWith("/sales-returns/") && pathname !== "/sales-returns") {
     return "Sales Return Details";
@@ -150,6 +183,15 @@ export function getNavPageTitle(pathname) {
   return match?.label ?? "Dashboard";
 }
 
+/**
+ * Filter nav links by permission.
+ * Supports `permission` (single) or `permissions` (any-of array).
+ */
 export function filterNavByPermission(links, can) {
-  return links.filter((link) => !link.permission || can(link.permission));
+  return links.filter((link) => {
+    if (Array.isArray(link.permissions) && link.permissions.length) {
+      return link.permissions.some((p) => can(p));
+    }
+    return !link.permission || can(link.permission);
+  });
 }

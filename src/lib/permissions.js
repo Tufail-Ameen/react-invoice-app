@@ -91,9 +91,22 @@ export const PERMISSIONS = {
   BUSINESS_SETTINGS: "business.settings",
   BUSINESS_MANAGE_TEAM: "business.manage_team",
 
+  SALESMEN_VIEW: "salesmen.view",
+  SALESMEN_CREATE: "salesmen.create",
+  SALESMEN_UPDATE: "salesmen.update",
+  SALESMEN_ARCHIVE: "salesmen.archive",
+
+  VISITS_VIEW: "visits.view",
+  VISITS_CREATE: "visits.create",
+  VISITS_UPDATE: "visits.update",
+  VISITS_DELETE: "visits.delete",
+
   ORDERS_VIEW: "orders.view",
+  ORDERS_VIEW_OWN: "orders.view_own",
   ORDERS_CREATE: "orders.create",
   ORDERS_UPDATE: "orders.update",
+  ORDERS_SUBMIT: "orders.submit",
+  ORDERS_CANCEL: "orders.cancel",
   ORDERS_CONVERT: "orders.convert",
 
   REPORTS_VIEW: "reports.view",
@@ -175,14 +188,39 @@ export const PERMISSION_GROUPS = [
     ],
   },
   {
+    key: "salesmen",
+    label: "Salesmen",
+    description: "Field sales / order booker profiles",
+    permissions: [
+      { key: PERMISSIONS.SALESMEN_VIEW, label: "View salesmen" },
+      { key: PERMISSIONS.SALESMEN_CREATE, label: "Create salesmen" },
+      { key: PERMISSIONS.SALESMEN_UPDATE, label: "Update salesmen" },
+      { key: PERMISSIONS.SALESMEN_ARCHIVE, label: "Archive salesmen" },
+    ],
+  },
+  {
+    key: "visits",
+    label: "Visits",
+    description: "Customer field visits",
+    permissions: [
+      { key: PERMISSIONS.VISITS_VIEW, label: "View visits" },
+      { key: PERMISSIONS.VISITS_CREATE, label: "Create visits" },
+      { key: PERMISSIONS.VISITS_UPDATE, label: "Update visits" },
+      { key: PERMISSIONS.VISITS_DELETE, label: "Delete visits" },
+    ],
+  },
+  {
     key: "orders",
     label: "Orders",
-    description: "Order booker flows (APIs in later phases)",
+    description: "Sales orders (draft → submit → convert to invoice; no stock until invoice confirm)",
     permissions: [
-      { key: PERMISSIONS.ORDERS_VIEW, label: "View orders" },
+      { key: PERMISSIONS.ORDERS_VIEW, label: "View all orders" },
+      { key: PERMISSIONS.ORDERS_VIEW_OWN, label: "View own orders" },
       { key: PERMISSIONS.ORDERS_CREATE, label: "Create orders" },
       { key: PERMISSIONS.ORDERS_UPDATE, label: "Update orders" },
-      { key: PERMISSIONS.ORDERS_CONVERT, label: "Convert orders" },
+      { key: PERMISSIONS.ORDERS_SUBMIT, label: "Submit orders" },
+      { key: PERMISSIONS.ORDERS_CANCEL, label: "Cancel orders" },
+      { key: PERMISSIONS.ORDERS_CONVERT, label: "Convert orders to invoice" },
     ],
   },
   {

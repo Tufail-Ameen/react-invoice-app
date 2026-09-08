@@ -254,6 +254,28 @@ export default function InvoiceDetailPage() {
             <span className="date-bill-email block">
               {snap.email || invoice.clientEmail || "—"}
             </span>
+            {(invoice.salesmanName || invoice.salesmanId != null) && (
+              <>
+                <span className="edit-discription mt-4 block">Salesman</span>
+                <span className="date-bill-email block">
+                  {invoice.salesmanName || `#${invoice.salesmanId}`}
+                </span>
+              </>
+            )}
+            {(invoice.orderNumber || invoice.orderId != null) && (
+              <>
+                <span className="edit-discription mt-4 block">Order</span>
+                <span className="date-bill-email block">
+                  {invoice.orderId != null ? (
+                    <Link to={`/orders/${invoice.orderId}`}>
+                      {invoice.orderNumber || `#${invoice.orderId}`}
+                    </Link>
+                  ) : (
+                    invoice.orderNumber
+                  )}
+                </span>
+              </>
+            )}
           </div>
         </div>
 

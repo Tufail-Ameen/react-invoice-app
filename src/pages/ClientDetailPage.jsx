@@ -2,7 +2,7 @@ import { faAngleLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 import { useAuth } from "../auth/AuthContext";
@@ -14,7 +14,9 @@ import { getErrorMessage } from "../lib/rtkBaseQuery";
 import {
   useCreateClientPaymentMutation,
   useGetClientLedgerQuery,
+  useGetClientOrdersQuery,
   useGetClientQuery,
+  useGetClientVisitsQuery,
 } from "../services/invoiceApi";
 import { formatAmount } from "../utils/invoice";
 
@@ -39,6 +41,9 @@ export default function ClientDetailPage() {
   const navigate = useNavigate();
   const { can } = useAuth();
   const canViewLedger = can(PERMISSIONS.CUSTOMER_LEDGER_VIEW);
+  const canViewOrders =
+    can(PERMISSIONS.ORDERS_VIEW) || can(PERMISSIONS.ORDERS_VIEW_OWN);
+  const canViewVisits = can(PERMISSIONS.VISITS_VIEW);
 
   const {
     data: clientData,
@@ -52,10 +57,14 @@ export default function ClientDetailPage() {
     isError: ledgerError,
     error: ledgerErr,
   } = useGetClientLedgerQuery(id, { skip: !canViewLedger });
+  const { data: ordersData } = useGetClientOrdersQuery(id, { skip: !canViewOrders });
+  const { data: visitsData } = useGetClientVisitsQuery(id, { skip: !canViewVisits });
   const [createPayment] = useCreateClientPaymentMutation();
 
   const client = clientData?.client;
   const entries = ledgerData?.entries || [];
+  const clientOrders = ordersData?.orders || [];
+  const clientVisits = visitsData?.visits || [];
   const summary = {
     totalSales: client?.totalSales ?? ledgerData?.summary?.totalSales ?? 0,
     totalPaid: client?.totalPaid ?? ledgerData?.summary?.totalPaid ?? 0,
@@ -256,6 +265,69 @@ export default function ClientDetailPage() {
           </div>
         )}
       </Can>
+
+      {canViewOrders && (
+        <>
+          <h2 className="page-title mb-3 mt-4">Orders</h2>
+          {!clientOrders.length ? (
+            <EmptyState title="No orders" message="Orders for this customer will appear here." />
+          ) : (
+            <div className="mb-4 flex flex-col gap-2">
+              {clientOrders.map((order) => (
+                <div
+                  key={order.id}
+                  className="invoice-row datalist m-0 grid grid-cols-12 items-center px-2 py-3"
+                >
+                  <div className="table-text-size col-span-12 md:col-span-3">
+                    <Link to={`/orders/${order.id}`}>#{order.orderNumber}</Link>
+                  </div>
+                  <div className="textcklr col-span-6 text-sm md:col-span-3">
+                    {order.salesmanName || "—"}
+                  </div>
+                  <div className="price col-span-6 md:col-span-3">
+                    {formatAmount("Rs", order.grandTotal)}
+                  </div>
+                  <div className="col-span-12 mt-2 flex md:col-span-3 md:mt-0 md:justify-end">
+                    <StatusBadge status={order.status} compact />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {canViewVisits && (
+        <>
+          <h2 className="page-title mb-3 mt-4">Visits</h2>
+          {!clientVisits.length ? (
+            <EmptyState title="No visits" message="Visits for this customer will appear here." />
+          ) : (
+            <div className="mb-4 flex flex-col gap-2">
+              {clientVisits.map((visit) => (
+                <div
+                  key={visit.id}
+                  className="invoice-row datalist m-0 grid grid-cols-12 items-center px-2 py-3"
+                >
+                  <div className="table-text-size col-span-12 md:col-span-2">#{visit.id}</div>
+                  <div className="textcklr col-span-6 text-sm md:col-span-3">
+                    {visit.salesmanName || "—"}
+                  </div>
+                  <div className="textcklr col-span-6 text-sm md:col-span-3">
+                    {formatDate(visit.visitDate)}
+                  </div>
+                  <div className="textcklr col-span-6 text-sm md:col-span-2">
+                    {visit.purpose || "—"}
+                  </div>
+                  <div className="col-span-6 flex md:col-span-2 md:justify-end">
+                    <StatusBadge status={visit.status} compact />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }

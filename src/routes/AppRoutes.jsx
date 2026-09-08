@@ -15,6 +15,9 @@ import InvoiceDetailPage from "../pages/InvoiceDetailPage";
 import InvoicesPage from "../pages/InvoicesPage";
 import LandingPage from "../pages/LandingPage";
 import LoginPage from "../pages/LoginPage";
+import OrderDetailPage from "../pages/OrderDetailPage";
+import OrderFormPage from "../pages/OrderFormPage";
+import OrdersPage from "../pages/OrdersPage";
 import PurchaseDetailPage from "../pages/PurchaseDetailPage";
 import PurchaseFormPage from "../pages/PurchaseFormPage";
 import PurchaseReturnDetailPage from "../pages/PurchaseReturnDetailPage";
@@ -22,16 +25,21 @@ import PurchaseReturnFormPage from "../pages/PurchaseReturnFormPage";
 import PurchaseReturnsPage from "../pages/PurchaseReturnsPage";
 import PurchasesPage from "../pages/PurchasesPage";
 import RegisterPage from "../pages/RegisterPage";
+import SalesmanDetailPage from "../pages/SalesmanDetailPage";
+import SalesmenPage from "../pages/SalesmenPage";
 import SalesReturnDetailPage from "../pages/SalesReturnDetailPage";
 import SalesReturnFormPage from "../pages/SalesReturnFormPage";
 import SalesReturnsPage from "../pages/SalesReturnsPage";
 import StockPage from "../pages/StockPage";
 import SupplierDetailPage from "../pages/SupplierDetailPage";
 import SuppliersPage from "../pages/SuppliersPage";
+import VisitsPage from "../pages/VisitsPage";
 import PlatformBusinessesPage from "../pages/platform/PlatformBusinessesPage";
 import AuditLogPage from "../pages/team/AuditLogPage";
 import TeamRolesPage from "../pages/team/TeamRolesPage";
 import TeamUsersPage from "../pages/team/TeamUsersPage";
+
+const ORDERS_VIEW_ANY = [PERMISSIONS.ORDERS_VIEW, PERMISSIONS.ORDERS_VIEW_OWN];
 
 export default function AppRoutes() {
   return (
@@ -93,6 +101,74 @@ export default function AppRoutes() {
               </RequirePermission>
             }
           />
+
+          <Route
+            path="/orders"
+            element={
+              <RequirePermission permission={ORDERS_VIEW_ANY}>
+                <OrdersPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/orders/new"
+            element={
+              <RequirePermission permission={PERMISSIONS.ORDERS_CREATE}>
+                <OrderFormPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/orders/:id/edit"
+            element={
+              <RequirePermission permission={PERMISSIONS.ORDERS_UPDATE}>
+                <OrderFormPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/orders/:id"
+            element={
+              <RequirePermission permission={ORDERS_VIEW_ANY}>
+                <OrderDetailPage />
+              </RequirePermission>
+            }
+          />
+
+          <Route
+            path="/salesmen"
+            element={
+              <RequirePermission permission={PERMISSIONS.SALESMEN_VIEW}>
+                <SalesmenPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/salesmen/:id"
+            element={
+              <RequirePermission permission={PERMISSIONS.SALESMEN_VIEW}>
+                <SalesmanDetailPage />
+              </RequirePermission>
+            }
+          />
+
+          <Route
+            path="/visits"
+            element={
+              <RequirePermission permission={PERMISSIONS.VISITS_VIEW}>
+                <VisitsPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/visits/new"
+            element={
+              <RequirePermission permission={PERMISSIONS.VISITS_CREATE}>
+                <VisitsPage />
+              </RequirePermission>
+            }
+          />
+
           <Route
             path="/sales-returns"
             element={

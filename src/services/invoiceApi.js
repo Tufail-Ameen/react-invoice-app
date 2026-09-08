@@ -31,6 +31,9 @@ export const invoiceApi = createApi({
     "PurchaseReturn",
     "Expense",
     "ExpenseCategory",
+    "Salesman",
+    "Visit",
+    "Order",
     "Auth",
     "User",
     "Role",
@@ -78,6 +81,9 @@ export const invoiceApi = createApi({
         "PurchaseReturn",
         "Expense",
         "ExpenseCategory",
+        "Salesman",
+        "Visit",
+        "Order",
         "User",
         "Role",
         "Audit",
@@ -922,6 +928,224 @@ export const invoiceApi = createApi({
         { type: "Expense", id: "LIST" },
       ],
     }),
+
+    // ---- Salesmen (Phase 6) ----
+    getSalesmen: builder.query({
+      query: (params = {}) => ({ url: "/salesmen", params }),
+      transformResponse: (response) => ({
+        salesmen: response?.salesmen || (Array.isArray(response) ? response : []),
+        pagination: response?.pagination,
+      }),
+      providesTags: (result) =>
+        result?.salesmen
+          ? [
+              ...result.salesmen.map(({ id }) => ({ type: "Salesman", id })),
+              { type: "Salesman", id: "LIST" },
+            ]
+          : [{ type: "Salesman", id: "LIST" }],
+    }),
+    getSalesman: builder.query({
+      query: (id) => ({ url: `/salesmen/${id}` }),
+      transformResponse: (response) => ({
+        salesman: response?.salesman ?? response,
+      }),
+      providesTags: (result, error, id) => [{ type: "Salesman", id }],
+    }),
+    createSalesman: builder.mutation({
+      query: (body) => ({ url: "/salesmen", method: "POST", data: body }),
+      transformResponse: (response) => ({
+        salesman: response?.salesman ?? response,
+      }),
+      invalidatesTags: [{ type: "Salesman", id: "LIST" }],
+    }),
+    updateSalesman: builder.mutation({
+      query: ({ id, ...body }) => ({
+        url: `/salesmen/${id}`,
+        method: "PATCH",
+        data: body,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: "Salesman", id },
+        { type: "Salesman", id: "LIST" },
+      ],
+    }),
+    archiveSalesman: builder.mutation({
+      query: (id) => ({ url: `/salesmen/${id}`, method: "DELETE" }),
+      invalidatesTags: (result, error, id) => [
+        { type: "Salesman", id },
+        { type: "Salesman", id: "LIST" },
+      ],
+    }),
+    getSalesmanSummary: builder.query({
+      query: ({ id, ...params }) => ({
+        url: `/salesmen/${id}/summary`,
+        params,
+      }),
+      providesTags: (result, error, arg) => [
+        { type: "Salesman", id: arg?.id ?? arg },
+      ],
+    }),
+    getSalesmanVisits: builder.query({
+      query: (id) => ({ url: `/salesmen/${id}/visits` }),
+      transformResponse: (response) => ({
+        visits: response?.visits || [],
+      }),
+      providesTags: (result, error, id) => [
+        { type: "Visit", id: `SALESMAN-${id}` },
+        { type: "Visit", id: "LIST" },
+      ],
+    }),
+    getSalesmanOrders: builder.query({
+      query: (id) => ({ url: `/salesmen/${id}/orders` }),
+      transformResponse: (response) => ({
+        orders: response?.orders || [],
+      }),
+      providesTags: (result, error, id) => [
+        { type: "Order", id: `SALESMAN-${id}` },
+        { type: "Order", id: "LIST" },
+      ],
+    }),
+
+    // ---- Visits (Phase 6) ----
+    getVisits: builder.query({
+      query: (params = {}) => ({ url: "/visits", params }),
+      transformResponse: (response) => ({
+        visits: response?.visits || (Array.isArray(response) ? response : []),
+        pagination: response?.pagination,
+      }),
+      providesTags: (result) =>
+        result?.visits
+          ? [
+              ...result.visits.map(({ id }) => ({ type: "Visit", id })),
+              { type: "Visit", id: "LIST" },
+            ]
+          : [{ type: "Visit", id: "LIST" }],
+    }),
+    getVisit: builder.query({
+      query: (id) => ({ url: `/visits/${id}` }),
+      transformResponse: (response) => ({
+        visit: response?.visit ?? response,
+      }),
+      providesTags: (result, error, id) => [{ type: "Visit", id }],
+    }),
+    createVisit: builder.mutation({
+      query: (body) => ({ url: "/visits", method: "POST", data: body }),
+      transformResponse: (response) => ({
+        visit: response?.visit ?? response,
+      }),
+      invalidatesTags: [
+        { type: "Visit", id: "LIST" },
+        { type: "Salesman", id: "LIST" },
+      ],
+    }),
+    updateVisit: builder.mutation({
+      query: ({ id, ...body }) => ({
+        url: `/visits/${id}`,
+        method: "PATCH",
+        data: body,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: "Visit", id },
+        { type: "Visit", id: "LIST" },
+      ],
+    }),
+    deleteVisit: builder.mutation({
+      query: (id) => ({ url: `/visits/${id}`, method: "DELETE" }),
+      invalidatesTags: (result, error, id) => [
+        { type: "Visit", id },
+        { type: "Visit", id: "LIST" },
+      ],
+    }),
+
+    // ---- Orders (Phase 6) ----
+    getOrders: builder.query({
+      query: (params = {}) => ({ url: "/orders", params }),
+      transformResponse: (response) => ({
+        orders: response?.orders || (Array.isArray(response) ? response : []),
+        pagination: response?.pagination,
+      }),
+      providesTags: (result) =>
+        result?.orders
+          ? [
+              ...result.orders.map(({ id }) => ({ type: "Order", id })),
+              { type: "Order", id: "LIST" },
+            ]
+          : [{ type: "Order", id: "LIST" }],
+    }),
+    getOrder: builder.query({
+      query: (id) => ({ url: `/orders/${id}` }),
+      transformResponse: (response) => ({
+        order: response?.order ?? response,
+      }),
+      providesTags: (result, error, id) => [{ type: "Order", id }],
+    }),
+    createOrder: builder.mutation({
+      query: (body) => ({ url: "/orders", method: "POST", data: body }),
+      transformResponse: (response) => ({
+        order: response?.order ?? response,
+      }),
+      invalidatesTags: [
+        { type: "Order", id: "LIST" },
+        { type: "Visit", id: "LIST" },
+      ],
+    }),
+    updateOrder: builder.mutation({
+      query: ({ id, ...body }) => ({
+        url: `/orders/${id}`,
+        method: "PATCH",
+        data: body,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: "Order", id },
+        { type: "Order", id: "LIST" },
+      ],
+    }),
+    submitOrder: builder.mutation({
+      query: (id) => ({ url: `/orders/${id}/submit`, method: "POST" }),
+      invalidatesTags: (result, error, id) => [
+        { type: "Order", id },
+        { type: "Order", id: "LIST" },
+      ],
+    }),
+    cancelOrder: builder.mutation({
+      query: (id) => ({ url: `/orders/${id}/cancel`, method: "POST" }),
+      invalidatesTags: (result, error, id) => [
+        { type: "Order", id },
+        { type: "Order", id: "LIST" },
+      ],
+    }),
+    convertOrderToInvoice: builder.mutation({
+      query: (id) => ({
+        url: `/orders/${id}/convert-to-invoice`,
+        method: "POST",
+      }),
+      invalidatesTags: (result, error, id) => [
+        { type: "Order", id },
+        { type: "Order", id: "LIST" },
+        { type: "Invoice", id: "LIST" },
+        { type: "Salesman", id: "LIST" },
+      ],
+    }),
+    getClientOrders: builder.query({
+      query: (id) => ({ url: `/clients/${id}/orders` }),
+      transformResponse: (response) => ({
+        orders: response?.orders || [],
+      }),
+      providesTags: (result, error, id) => [
+        { type: "Order", id: `CLIENT-${id}` },
+        { type: "Order", id: "LIST" },
+      ],
+    }),
+    getClientVisits: builder.query({
+      query: (id) => ({ url: `/clients/${id}/visits` }),
+      transformResponse: (response) => ({
+        visits: response?.visits || [],
+      }),
+      providesTags: (result, error, id) => [
+        { type: "Visit", id: `CLIENT-${id}` },
+        { type: "Visit", id: "LIST" },
+      ],
+    }),
   }),
 });
 
@@ -1018,4 +1242,26 @@ export const {
   useCreateExpenseMutation,
   useUpdateExpenseMutation,
   useDeleteExpenseMutation,
+  useGetSalesmenQuery,
+  useGetSalesmanQuery,
+  useCreateSalesmanMutation,
+  useUpdateSalesmanMutation,
+  useArchiveSalesmanMutation,
+  useGetSalesmanSummaryQuery,
+  useGetSalesmanVisitsQuery,
+  useGetSalesmanOrdersQuery,
+  useGetVisitsQuery,
+  useGetVisitQuery,
+  useCreateVisitMutation,
+  useUpdateVisitMutation,
+  useDeleteVisitMutation,
+  useGetOrdersQuery,
+  useGetOrderQuery,
+  useCreateOrderMutation,
+  useUpdateOrderMutation,
+  useSubmitOrderMutation,
+  useCancelOrderMutation,
+  useConvertOrderToInvoiceMutation,
+  useGetClientOrdersQuery,
+  useGetClientVisitsQuery,
 } = invoiceApi;

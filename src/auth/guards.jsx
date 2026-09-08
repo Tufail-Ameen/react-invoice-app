@@ -33,7 +33,9 @@ export function GuestOnly() {
   return <Outlet />;
 }
 
-/** Permission-based route guard. Backend par bhi same check zaroori hai. */
+/** Permission-based route guard. Backend par bhi same check zaroori hai.
+ * `permission` may be a string or an array (any-of) — e.g. orders.view OR orders.view_own.
+ */
 export function RequirePermission({ permission, children }) {
   const { isAuthenticated, isLoading, can } = useAuth();
   const location = useLocation();
@@ -57,7 +59,9 @@ export function RequirePermission({ permission, children }) {
   return children ?? <Outlet />;
 }
 
-/** Chhote UI tukde hide karne ke liye (buttons, links). */
+/** Chhote UI tukde hide karne ke liye (buttons, links).
+ * `permission` may be a string or an array (any-of).
+ */
 export function Can({ permission, fallback = null, children }) {
   const { can } = useAuth();
   if (!can(permission)) return fallback;
