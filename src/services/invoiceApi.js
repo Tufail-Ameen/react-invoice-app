@@ -4,6 +4,10 @@ import {
   normalizeProduct,
   normalizeProductsResponse,
 } from "../lib/normalizeProduct";
+import {
+  normalizeSupplier,
+  normalizeSuppliersResponse,
+} from "../lib/normalizeSupplier";
 import { axiosBaseQuery } from "../lib/rtkBaseQuery";
 
 /**
@@ -12,12 +16,15 @@ import { axiosBaseQuery } from "../lib/rtkBaseQuery";
 export const invoiceApi = createApi({
   reducerPath: "invoiceApi",
   baseQuery: axiosBaseQuery(),
-    tagTypes: [
+  tagTypes: [
     "Client",
     "Product",
     "Category",
     "Movement",
     "Invoice",
+    "Supplier",
+    "Purchase",
+    "SupplierLedger",
     "Auth",
     "User",
     "Role",
@@ -56,6 +63,9 @@ export const invoiceApi = createApi({
         "Category",
         "Invoice",
         "Movement",
+        "Supplier",
+        "Purchase",
+        "SupplierLedger",
         "User",
         "Role",
         "Audit",
@@ -342,6 +352,146 @@ export const invoiceApi = createApi({
         { type: "Movement", id: "LIST" },
       ],
     }),
+
+    // ---- Suppliers ----
+    getSuppliers: builder.query({
+      query: (params = {}) => ({ url: "/suppliers", params }),
+      transformResponse: normalizeSuppliersResponse,
+      providesTags: (result) =>
+        result?.suppliers
+          ? [
+              ...result.suppliers.map((s) => ({
+                type: "Supplier",
+                id: s.key || s.id,
+              })),
+              { type: "Supplier", id: "LIST" },
+            ]
+          : [{ type: "Supplier", id: "LIST" }],
+    }),
+    getSupplier: builder.query({
+      query: (id) => ({ url: `/suppliers/${id}` }),
+      transformResponse: (response) => ({
+        supplier: normalizeSupplier(response?.supplier ?? response),
+      }),
+      providesTags: (result, error, id) => [{ type: "Supplier", id }],
+    }),
+    createSupplier: builder.mutation({
+      query: (body) => ({ url: "/suppliers", method: "POST", data: body }),
+      transformResponse: (response) => ({
+        supplier: normalizeSupplier(response?.supplier ?? response),
+      }),
+      invalidatesTags: [{ type: "Supplier", id: "LIST" }],
+    }),
+    updateSupplier: builder.mutation({
+      query: ({ id, _id, key, ...body }) => ({
+        url: `/suppliers/${id}`,
+        method: "PATCH",
+        data: body,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: "Supplier", id },
+        { type: "Supplier", id: "LIST" },
+      ],
+    }),
+    deleteSupplier: builder.mutation({
+      query: (id) => ({ url: `/suppliers/${id}`, method: "DELETE" }),
+      invalidatesTags: [{ type: "Supplier", id: "LIST" }],
+    }),
+    getSupplierLedger: builder.query({
+      query: (id) => ({ url: `/suppliers/${id}/ledger` }),
+      transformResponse: (response) => ({
+        supplier: normalizeSupplier(response?.supplier),
+        entries: response?.entries || [],
+        summary: response?.summary,
+      }),
+      providesTags: (result, error, id) => [
+        { type: "SupplierLedger", id },
+        { type: "Supplier", id },
+      ],
+    }),
+    getSupplierPayments: builder.query({
+      query: (id) => ({ url: `/suppliers/${id}/payments` }),
+      providesTags: (result, error, id) => [
+        { type: "SupplierLedger", id: `PAYMENTS-${id}` },
+      ],
+    }),
+    createSupplierPayment: builder.mutation({
+      query: ({ id, ...body }) => ({
+        url: `/suppliers/${id}/payments`,
+        method: "POST",
+        data: body,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: "Supplier", id },
+        { type: "Supplier", id: "LIST" },
+        { type: "SupplierLedger", id },
+        { type: "SupplierLedger", id: `PAYMENTS-${id}` },
+        { type: "Purchase", id: "LIST" },
+      ],
+    }),
+
+    // ---- Purchases ----
+    getPurchases: builder.query({
+      query: (params = {}) => ({ url: "/purchases", params }),
+      transformResponse: (response) => ({
+        purchases: response?.purchases || (Array.isArray(response) ? response : []),
+        pagination: response?.pagination,
+      }),
+      providesTags: (result) =>
+        result?.purchases
+          ? [
+              ...result.purchases.map(({ id }) => ({ type: "Purchase", id })),
+              { type: "Purchase", id: "LIST" },
+            ]
+          : [{ type: "Purchase", id: "LIST" }],
+    }),
+    getPurchase: builder.query({
+      query: (id) => ({ url: `/purchases/${id}` }),
+      transformResponse: (response) => ({
+        purchase: response?.purchase ?? response,
+      }),
+      providesTags: (result, error, id) => [{ type: "Purchase", id }],
+    }),
+    createPurchase: builder.mutation({
+      query: (body) => ({ url: "/purchases", method: "POST", data: body }),
+      transformResponse: (response) => ({
+        purchase: response?.purchase ?? response,
+      }),
+      invalidatesTags: [{ type: "Purchase", id: "LIST" }],
+    }),
+    updatePurchase: builder.mutation({
+      query: ({ id, ...body }) => ({
+        url: `/purchases/${id}`,
+        method: "PATCH",
+        data: body,
+      }),
+      invalidatesTags: (result, error, { id }) => [
+        { type: "Purchase", id },
+        { type: "Purchase", id: "LIST" },
+      ],
+    }),
+    confirmPurchase: builder.mutation({
+      query: (id) => ({ url: `/purchases/${id}/confirm`, method: "POST" }),
+      invalidatesTags: (result, error, id) => [
+        { type: "Purchase", id },
+        { type: "Purchase", id: "LIST" },
+        { type: "Product", id: "LIST" },
+        { type: "Movement", id: "LIST" },
+        "Supplier",
+        "SupplierLedger",
+      ],
+    }),
+    cancelPurchase: builder.mutation({
+      query: (id) => ({ url: `/purchases/${id}/cancel`, method: "POST" }),
+      invalidatesTags: (result, error, id) => [
+        { type: "Purchase", id },
+        { type: "Purchase", id: "LIST" },
+      ],
+    }),
+    deletePurchase: builder.mutation({
+      query: (id) => ({ url: `/purchases/${id}`, method: "DELETE" }),
+      invalidatesTags: [{ type: "Purchase", id: "LIST" }],
+    }),
   }),
 });
 
@@ -388,4 +538,19 @@ export const {
   useUpdateInvoiceMutation,
   useUpdateInvoiceStatusMutation,
   useDeleteInvoiceMutation,
+  useGetSuppliersQuery,
+  useGetSupplierQuery,
+  useCreateSupplierMutation,
+  useUpdateSupplierMutation,
+  useDeleteSupplierMutation,
+  useGetSupplierLedgerQuery,
+  useGetSupplierPaymentsQuery,
+  useCreateSupplierPaymentMutation,
+  useGetPurchasesQuery,
+  useGetPurchaseQuery,
+  useCreatePurchaseMutation,
+  useUpdatePurchaseMutation,
+  useConfirmPurchaseMutation,
+  useCancelPurchaseMutation,
+  useDeletePurchaseMutation,
 } = invoiceApi;

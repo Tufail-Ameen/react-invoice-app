@@ -31,6 +31,21 @@ export const PERMISSIONS = {
   INVOICES_CHANGE_STATUS: "invoices.change_status",
   INVOICES_PRINT: "invoices.print",
 
+  SUPPLIERS_VIEW: "suppliers.view",
+  SUPPLIERS_CREATE: "suppliers.create",
+  SUPPLIERS_UPDATE: "suppliers.update",
+  SUPPLIERS_DELETE: "suppliers.delete",
+
+  PURCHASES_VIEW: "purchases.view",
+  PURCHASES_CREATE: "purchases.create",
+  PURCHASES_UPDATE: "purchases.update",
+  PURCHASES_DELETE: "purchases.delete",
+  PURCHASES_CONFIRM: "purchases.confirm",
+
+  SUPPLIER_PAYMENTS_VIEW: "supplier_payments.view",
+  SUPPLIER_PAYMENTS_CREATE: "supplier_payments.create",
+  SUPPLIER_LEDGER_VIEW: "supplier_ledger.view",
+
   USERS_VIEW: "users.view",
   USERS_INVITE: "users.invite",
   USERS_UPDATE: "users.update",
@@ -111,6 +126,25 @@ export const PERMISSION_GROUPS = [
       { key: PERMISSIONS.ORDERS_CREATE, label: "Create orders" },
       { key: PERMISSIONS.ORDERS_UPDATE, label: "Update orders" },
       { key: PERMISSIONS.ORDERS_CONVERT, label: "Convert orders" },
+    ],
+  },
+  {
+    key: "purchasing",
+    label: "Purchasing",
+    description: "Suppliers, purchases, payments, and ledger",
+    permissions: [
+      { key: PERMISSIONS.SUPPLIERS_VIEW, label: "View suppliers" },
+      { key: PERMISSIONS.SUPPLIERS_CREATE, label: "Create suppliers" },
+      { key: PERMISSIONS.SUPPLIERS_UPDATE, label: "Update suppliers" },
+      { key: PERMISSIONS.SUPPLIERS_DELETE, label: "Delete suppliers" },
+      { key: PERMISSIONS.PURCHASES_VIEW, label: "View purchases" },
+      { key: PERMISSIONS.PURCHASES_CREATE, label: "Create purchases" },
+      { key: PERMISSIONS.PURCHASES_UPDATE, label: "Update purchases" },
+      { key: PERMISSIONS.PURCHASES_DELETE, label: "Delete purchases" },
+      { key: PERMISSIONS.PURCHASES_CONFIRM, label: "Confirm purchases" },
+      { key: PERMISSIONS.SUPPLIER_PAYMENTS_VIEW, label: "View supplier payments" },
+      { key: PERMISSIONS.SUPPLIER_PAYMENTS_CREATE, label: "Record supplier payments" },
+      { key: PERMISSIONS.SUPPLIER_LEDGER_VIEW, label: "View supplier ledger" },
     ],
   },
   {

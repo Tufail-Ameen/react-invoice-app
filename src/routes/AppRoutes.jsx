@@ -8,8 +8,13 @@ import InvoiceDetailPage from "../pages/InvoiceDetailPage";
 import InvoicesPage from "../pages/InvoicesPage";
 import LandingPage from "../pages/LandingPage";
 import LoginPage from "../pages/LoginPage";
+import PurchaseDetailPage from "../pages/PurchaseDetailPage";
+import PurchaseFormPage from "../pages/PurchaseFormPage";
+import PurchasesPage from "../pages/PurchasesPage";
 import RegisterPage from "../pages/RegisterPage";
 import StockPage from "../pages/StockPage";
+import SupplierDetailPage from "../pages/SupplierDetailPage";
+import SuppliersPage from "../pages/SuppliersPage";
 import PlatformBusinessesPage from "../pages/platform/PlatformBusinessesPage";
 import AuditLogPage from "../pages/team/AuditLogPage";
 import TeamRolesPage from "../pages/team/TeamRolesPage";
@@ -56,6 +61,55 @@ export default function AppRoutes() {
             element={
               <RequirePermission permission={PERMISSIONS.PRODUCTS_VIEW}>
                 <StockPage />
+              </RequirePermission>
+            }
+          />
+
+          <Route
+            path="/suppliers"
+            element={
+              <RequirePermission permission={PERMISSIONS.SUPPLIERS_VIEW}>
+                <SuppliersPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/suppliers/:id"
+            element={
+              <RequirePermission permission={PERMISSIONS.SUPPLIERS_VIEW}>
+                <SupplierDetailPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/purchases"
+            element={
+              <RequirePermission permission={PERMISSIONS.PURCHASES_VIEW}>
+                <PurchasesPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/purchases/new"
+            element={
+              <RequirePermission permission={PERMISSIONS.PURCHASES_CREATE}>
+                <PurchaseFormPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/purchases/:id/edit"
+            element={
+              <RequirePermission permission={PERMISSIONS.PURCHASES_UPDATE}>
+                <PurchaseFormPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/purchases/:id"
+            element={
+              <RequirePermission permission={PERMISSIONS.PURCHASES_VIEW}>
+                <PurchaseDetailPage />
               </RequirePermission>
             }
           />

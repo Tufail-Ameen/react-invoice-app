@@ -1,9 +1,11 @@
 import {
   faBoxesStacked,
   faBuilding,
+  faCartShopping,
   faClipboardList,
   faFileInvoice,
   faShieldHalved,
+  faTruck,
   faUserGroup,
   faUsers,
 } from "@fortawesome/free-solid-svg-icons";
@@ -29,6 +31,18 @@ export const mainNavLinks = [
     label: "Products & Stock",
     icon: faBoxesStacked,
     permission: PERMISSIONS.PRODUCTS_VIEW,
+  },
+  {
+    to: "/suppliers",
+    label: "Suppliers",
+    icon: faTruck,
+    permission: PERMISSIONS.SUPPLIERS_VIEW,
+  },
+  {
+    to: "/purchases",
+    label: "Purchases",
+    icon: faCartShopping,
+    permission: PERMISSIONS.PURCHASES_VIEW,
   },
 ];
 
@@ -69,6 +83,14 @@ export const navLinks = mainNavLinks;
 
 export function getNavPageTitle(pathname) {
   if (pathname.startsWith("/invoices/")) return "Invoice Details";
+  if (pathname.startsWith("/suppliers/") && pathname !== "/suppliers") {
+    return "Supplier Details";
+  }
+  if (pathname === "/purchases/new") return "New Purchase";
+  if (/^\/purchases\/[^/]+\/edit$/.test(pathname)) return "Edit Purchase";
+  if (pathname.startsWith("/purchases/") && pathname !== "/purchases") {
+    return "Purchase Details";
+  }
   const all = [...mainNavLinks, ...teamNavLinks, ...platformNavLinks];
   const match = all.find((link) =>
     link.end ? pathname === link.to : pathname.startsWith(link.to)
