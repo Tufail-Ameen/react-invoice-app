@@ -52,9 +52,9 @@ export default function ClientsPage() {
   };
 
   return (
-    <div className="mx-auto w-full max-w-6xl">
-      <section>
-        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+    <div className="clients-page mx-auto w-full max-w-6xl">
+      <section className="clients-page-section">
+        <div className="mb-4 flex shrink-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h1 className="product-list-heading mb-1 !text-[1.35rem] !font-extrabold">
               Clients

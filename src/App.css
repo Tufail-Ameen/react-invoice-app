@@ -1956,6 +1956,10 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     padding: 1.75rem 2rem 2.5rem;
   }
 
+  .clients-page {
+    height: calc(100dvh - 72px - 1.75rem - 2.5rem);
+  }
+
   .invoice-field-grid {
     grid-template-columns: 1.2fr 1.2fr 0.8fr;
   }
@@ -2836,9 +2840,68 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   margin-bottom: 0.85rem;
 }
 
+.rate-list-catalog-scroll,
+.client-table-scroll {
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #c8c4bc #f3f1ec;
+}
+
+.rate-list-catalog-scroll::-webkit-scrollbar,
+.client-table-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.rate-list-catalog-scroll::-webkit-scrollbar-track,
+.client-table-scroll::-webkit-scrollbar-track {
+  background: #f3f1ec;
+}
+
+.rate-list-catalog-scroll::-webkit-scrollbar-thumb,
+.client-table-scroll::-webkit-scrollbar-thumb {
+  background: #c8c4bc;
+  border-radius: 99px;
+}
+
+.rate-list-catalog-scroll .product-table thead th,
+.client-table-scroll .product-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
 .rate-list-catalog-scroll {
   max-height: 360px;
-  overflow: auto;
+}
+
+.clients-page {
+  display: flex;
+  flex-direction: column;
+  height: calc(100dvh - 64px - 1rem - 5.75rem);
+  min-height: 16rem;
+}
+
+.clients-page-section {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.clients-page .client-list-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.client-list-toolbar {
+  flex-shrink: 0;
+}
+
+.client-table-scroll {
+  flex: 1;
+  min-height: 0;
 }
 
 .rate-delta-up {

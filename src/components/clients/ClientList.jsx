@@ -84,59 +84,57 @@ export default function ClientList({
     );
   } else {
     body = (
-      <div className="product-table-scroll">
-        <table className="product-table w-full min-w-[40rem] md:min-w-full">
-          <thead>
-            <tr>
-              <th className="text-left">Shop name</th>
-              <th className="text-left">Phone</th>
-              <th className="text-left">Address</th>
-              <th className="text-left">City</th>
-              <th className="text-left">Country</th>
-              <th className="w-[1%] whitespace-nowrap text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {visibleClients.map((client) => (
-              <tr key={client.key || client._id || client.id}>
-                <td className="table-text-size text-left">
-                  {client.id != null ? (
-                    <Link to={`/clients/${client.id}`} className="rate-list-client-link">
-                      {formatCell(client.name)}
-                    </Link>
+      <table className="product-table w-full min-w-[40rem] md:min-w-full">
+        <thead>
+          <tr>
+            <th className="text-left">Shop name</th>
+            <th className="text-left">Phone</th>
+            <th className="text-left">Address</th>
+            <th className="text-left">City</th>
+            <th className="text-left">Country</th>
+            <th className="w-[1%] whitespace-nowrap text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {visibleClients.map((client) => (
+            <tr key={client.key || client._id || client.id}>
+              <td className="table-text-size text-left">
+                {client.id != null ? (
+                  <Link to={`/clients/${client.id}`} className="rate-list-client-link">
+                    {formatCell(client.name)}
+                  </Link>
+                ) : (
+                  formatCell(client.name)
+                )}
+              </td>
+              <td className="cell-muted text-left">{formatCell(client.phone)}</td>
+              <td className="cell-muted text-left">{formatCell(client.address)}</td>
+              <td className="cell-muted text-left">{formatCell(client.city)}</td>
+              <td className="cell-muted text-left">{formatCell(client.country)}</td>
+              <td className="w-[1%] whitespace-nowrap pl-2 text-right">
+                <div className="table-actions inline-flex justify-end">
+                  {canEditPermission ? (
+                    <Can permission={canEditPermission}>{editButton(client)}</Can>
                   ) : (
-                    formatCell(client.name)
+                    editButton(client)
                   )}
-                </td>
-                <td className="cell-muted text-left">{formatCell(client.phone)}</td>
-                <td className="cell-muted text-left">{formatCell(client.address)}</td>
-                <td className="cell-muted text-left">{formatCell(client.city)}</td>
-                <td className="cell-muted text-left">{formatCell(client.country)}</td>
-                <td className="w-[1%] whitespace-nowrap pl-2 text-right">
-                  <div className="table-actions inline-flex justify-end">
-                    {canEditPermission ? (
-                      <Can permission={canEditPermission}>{editButton(client)}</Can>
-                    ) : (
-                      editButton(client)
-                    )}
-                    {canDeletePermission ? (
-                      <Can permission={canDeletePermission}>{deleteButton(client)}</Can>
-                    ) : (
-                      deleteButton(client)
-                    )}
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                  {canDeletePermission ? (
+                    <Can permission={canDeletePermission}>{deleteButton(client)}</Can>
+                  ) : (
+                    deleteButton(client)
+                  )}
+                </div>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     );
   }
 
   return (
-    <div className="form-card product-list-card">
-      <div className="flex items-center border-b border-[var(--color-border)] px-3 py-3">
+    <div className="form-card product-list-card client-list-card">
+      <div className="client-list-toolbar flex items-center border-b border-[var(--color-border)] px-3 py-3">
         <input
           type="search"
           className="form-control input-settings h-10 w-full rounded-[10px] md:max-w-[420px]"
@@ -146,7 +144,7 @@ export default function ClientList({
           aria-label="Search clients"
         />
       </div>
-      {body}
+      <div className="product-table-scroll client-table-scroll">{body}</div>
     </div>
   );
 }
