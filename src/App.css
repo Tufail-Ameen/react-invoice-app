@@ -1079,6 +1079,7 @@ textarea {
   color: var(--color-text-muted);
   font-weight: 700;
   white-space: nowrap;
+  text-align: left;
 }
 
 .product-table tbody tr {

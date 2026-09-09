@@ -39,7 +39,7 @@ export default function Navbar() {
     <header className="app-navbar">
       <div className="navbar-start">
         <p className="navbar-eyebrow">{activeBusiness?.name || "Workspace"}</p>
-        <h1 className="navbar-title">{pageTitle}</h1>
+        {pageTitle ? <h1 className="navbar-title">{pageTitle}</h1> : null}
       </div>
 
       <div className="navbar-end">

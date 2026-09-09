@@ -50,7 +50,7 @@ export default function ClientDetailPage() {
       <div className="invoices-header mb-3">
         <div>
           <p className="count-invoices-tect mb-1">{client.name}</p>
-          <p className="textcklr small mb-0">{formatCell(client.email)}</p>
+          <p className="textcklr small mb-0">{formatCell(client.phone)}</p>
         </div>
       </div>
 
@@ -77,26 +77,22 @@ export default function ClientDetailPage() {
         <div className="detail-card">
           <div className="grid grid-cols-12 gap-3">
             <div className="col-span-12 md:col-span-6">
-              <span className="edit-discription block">Name</span>
+              <span className="edit-discription block">Shop name</span>
               <span className="date-bill-email block">{formatCell(client.name)}</span>
             </div>
             <div className="col-span-12 md:col-span-6">
-              <span className="edit-discription block">Email</span>
-              <span className="date-bill-email block">{formatCell(client.email)}</span>
+              <span className="edit-discription block">Phone</span>
+              <span className="date-bill-email block">{formatCell(client.phone)}</span>
             </div>
             <div className="col-span-12 md:col-span-6">
               <span className="edit-discription block">Address</span>
               <span className="date-bill-email block">{formatCell(client.address)}</span>
             </div>
-            <div className="col-span-6 md:col-span-3">
+            <div className="col-span-12 md:col-span-3">
               <span className="edit-discription block">City</span>
               <span className="date-bill-email block">{formatCell(client.city)}</span>
             </div>
-            <div className="col-span-6 md:col-span-3">
-              <span className="edit-discription block">Post code</span>
-              <span className="date-bill-email block">{formatCell(client.code)}</span>
-            </div>
-            <div className="col-span-12 md:col-span-6">
+            <div className="col-span-12 md:col-span-3">
               <span className="edit-discription block">Country</span>
               <span className="date-bill-email block">{formatCell(client.country)}</span>
             </div>

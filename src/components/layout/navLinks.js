@@ -89,6 +89,7 @@ export const platformNavLinks = [
 export const navLinks = mainNavLinks;
 
 export function getNavPageTitle(pathname) {
+  if (pathname === "/clients") return "";
   if (pathname.startsWith("/invoices/")) return "Invoice Details";
   if (pathname === "/rate-lists/new") return "New rate list";
   if (pathname.startsWith("/rate-lists/") && pathname !== "/rate-lists") {

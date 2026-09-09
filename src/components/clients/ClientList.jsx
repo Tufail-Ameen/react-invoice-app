@@ -1,5 +1,6 @@
 import { faPen, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { Can } from "../../auth/guards";
 import { useClients } from "../../hooks/useClients";
@@ -10,10 +11,22 @@ function formatCell(value) {
   return value;
 }
 
+function matchesQuery(client, query) {
+  const needle = query.trim().toLowerCase();
+  if (!needle) return true;
+  return [client.name, client.phone, client.address, client.city, client.country]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase()
+    .includes(needle);
+}
+
 /**
  * Clients list — data GET /clients se aati hai (useClients hook).
  */
 export default function ClientList({
+  query = "",
+  onQueryChange,
   onEdit,
   onDelete,
   canEditPermission,
@@ -21,13 +34,10 @@ export default function ClientList({
 }) {
   const { clients, isLoading } = useClients();
 
-  if (isLoading) {
-    return <p className="textcklr">Loading…</p>;
-  }
-
-  if (!clients.length) {
-    return <EmptyState title="No clients yet" message="Add a client to bill invoices." />;
-  }
+  const visibleClients = useMemo(
+    () => clients.filter((client) => matchesQuery(client, query)),
+    [clients, query]
+  );
 
   const editButton = (client) => (
     <button
@@ -53,25 +63,43 @@ export default function ClientList({
     </button>
   );
 
-  return (
-    <div className="form-card product-list-card">
+  let body = null;
+  if (isLoading) {
+    body = <p className="textcklr m-0 px-4 py-5">Loading…</p>;
+  } else if (!clients.length) {
+    body = (
+      <EmptyState
+        className="!border-0 !bg-transparent !shadow-none"
+        title="No clients yet"
+        message="Add a client to bill invoices."
+      />
+    );
+  } else if (!visibleClients.length) {
+    body = (
+      <EmptyState
+        className="!border-0 !bg-transparent !shadow-none"
+        title="No matching clients"
+        message="Try a different shop name, phone, or city."
+      />
+    );
+  } else {
+    body = (
       <div className="product-table-scroll">
-        <table className="product-table">
+        <table className="product-table w-full min-w-[40rem] md:min-w-full">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Address</th>
-              <th>City</th>
-              <th>Post code</th>
-              <th>Country</th>
-              <th className="text-end col-actions">Actions</th>
+              <th className="text-left">Shop name</th>
+              <th className="text-left">Phone</th>
+              <th className="text-left">Address</th>
+              <th className="text-left">City</th>
+              <th className="text-left">Country</th>
+              <th className="w-[1%] whitespace-nowrap text-right">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {clients.map((client) => (
+            {visibleClients.map((client) => (
               <tr key={client.key || client._id || client.id}>
-                <td className="table-text-size">
+                <td className="table-text-size text-left">
                   {client.id != null ? (
                     <Link to={`/clients/${client.id}`} className="rate-list-client-link">
                       {formatCell(client.name)}
@@ -80,19 +108,12 @@ export default function ClientList({
                     formatCell(client.name)
                   )}
                 </td>
-                <td className="cell-muted">{formatCell(client.email)}</td>
-                <td>{formatCell(client.address)}</td>
-                <td>
-                  {client.city ? (
-                    <span className="category-badge">{client.city}</span>
-                  ) : (
-                    <span className="cell-muted">—</span>
-                  )}
-                </td>
-                <td>{formatCell(client.code)}</td>
-                <td className="cell-muted">{formatCell(client.country)}</td>
-                <td className="col-actions">
-                  <div className="table-actions">
+                <td className="cell-muted text-left">{formatCell(client.phone)}</td>
+                <td className="cell-muted text-left">{formatCell(client.address)}</td>
+                <td className="cell-muted text-left">{formatCell(client.city)}</td>
+                <td className="cell-muted text-left">{formatCell(client.country)}</td>
+                <td className="w-[1%] whitespace-nowrap pl-2 text-right">
+                  <div className="table-actions inline-flex justify-end">
                     {canEditPermission ? (
                       <Can permission={canEditPermission}>{editButton(client)}</Can>
                     ) : (
@@ -110,6 +131,22 @@ export default function ClientList({
           </tbody>
         </table>
       </div>
+    );
+  }
+
+  return (
+    <div className="form-card product-list-card">
+      <div className="flex items-center border-b border-[var(--color-border)] px-3 py-3">
+        <input
+          type="search"
+          className="form-control input-settings h-10 w-full rounded-[10px] md:max-w-[420px]"
+          placeholder="Search shop name, phone, or city…"
+          value={query}
+          onChange={(event) => onQueryChange?.(event.target.value)}
+          aria-label="Search clients"
+        />
+      </div>
+      {body}
     </div>
   );
 }

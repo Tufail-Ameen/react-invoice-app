@@ -22,7 +22,7 @@ export default function MobileHeader() {
         </span>
         <span className="mobile-brand-copy">
           <span className="mobile-brand-name">Invoice App</span>
-          <span className="mobile-brand-page">{pageTitle}</span>
+          {pageTitle ? <span className="mobile-brand-page">{pageTitle}</span> : null}
         </span>
       </Link>
       <div className="mobile-header-end">

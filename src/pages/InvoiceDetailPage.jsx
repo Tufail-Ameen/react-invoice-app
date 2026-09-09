@@ -166,7 +166,9 @@ export default function InvoiceDetailPage() {
           </div>
           <div className="col-span-12 md:col-span-5">
             <span className="edit-discription block">Sent to</span>
-            <span className="date-bill-email block">{snap.email || invoice.clientEmail}</span>
+            <span className="date-bill-email block">
+              {snap.phone || snap.email || invoice.clientPhone || invoice.clientEmail || "—"}
+            </span>
           </div>
         </div>
 

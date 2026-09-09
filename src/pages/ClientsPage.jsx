@@ -1,56 +1,41 @@
-import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import * as Yup from "yup";
+import { Can } from "../auth/guards";
 import { useAuth } from "../auth/AuthContext";
+import ClientFormModal, { toClientPayload } from "../components/clients/ClientFormModal";
 import ClientList from "../components/clients/ClientList";
-import CountryDatalist from "../components/ui/CountryDatalist";
-import { useClientMutations, useClients } from "../hooks/useClients";
+import { useClientMutations } from "../hooks/useClients";
 import { PERMISSIONS } from "../lib/permissions";
 import { getErrorMessage } from "../lib/rtkBaseQuery";
 
-const emptyForm = {
-  name: "",
-  email: "",
-  address: "",
-  city: "",
-  code: "",
-  country: "",
-};
-
-const validationSchema = Yup.object({
-  name: Yup.string()
-    .matches(/^[A-Za-z]+(?: [A-Za-z]+)*$/, "Only letters and spaces")
-    .min(3)
-    .max(50)
-    .required("Name required"),
-  email: Yup.string().email().required("Email required"),
-  city: Yup.string().required("City required"),
-  country: Yup.string().required("Country required"),
-  code: Yup.string().matches(/^\d{5}$/, "5 digit postcode").required("Postcode required"),
-  address: Yup.string().required("Address required"),
-});
-
 export default function ClientsPage() {
   const [editing, setEditing] = useState(null);
+  const [formOpen, setFormOpen] = useState(false);
+  const [query, setQuery] = useState("");
   const { can } = useAuth();
-  const { clients, isLoading } = useClients();
-  const { createClient, updateClient, deleteClient } = useClientMutations();
-  const canShowForm = editing
+  const { createClient, updateClient, deleteClient, isSaving } = useClientMutations();
+
+  const closeForm = () => {
+    setFormOpen(false);
+    setEditing(null);
+  };
+
+  const canOpenForm = editing
     ? can(PERMISSIONS.CLIENTS_UPDATE)
     : can(PERMISSIONS.CLIENTS_CREATE);
 
   const onSubmit = async (values, { resetForm }) => {
     try {
+      const payload = toClientPayload(values);
       if (editing) {
-        await updateClient({ id: editing.id, ...values }).unwrap();
+        await updateClient({ id: editing.id, ...payload }).unwrap();
         toast.success("Client updated");
-        setEditing(null);
       } else {
-        await createClient(values).unwrap();
+        await createClient(payload).unwrap();
         toast.success("Client added");
       }
       resetForm();
+      closeForm();
     } catch (err) {
       toast.error(getErrorMessage(err, "Save failed"));
     }
@@ -67,102 +52,53 @@ export default function ClientsPage() {
   };
 
   return (
-    <div className="page-wrap">
-      <div className="invoices-header mb-2">
-        <p className="count-invoices-tect mb-0">
-          Add and manage billing clients
-        </p>
-      </div>
+    <div className="mx-auto w-full max-w-6xl">
+      <section>
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h1 className="product-list-heading mb-1 !text-[1.35rem] !font-extrabold">
+              Clients
+            </h1>
+            <p className="textcklr small mb-0">
+              Add and manage billing clients for invoices and rate lists.
+            </p>
+          </div>
+          <Can permission={PERMISSIONS.CLIENTS_CREATE}>
+            <button
+              type="button"
+              className="btn save-changes w-full py-2 px-3 sm:w-auto"
+              onClick={() => {
+                setEditing(null);
+                setFormOpen(true);
+              }}
+            >
+              New client
+            </button>
+          </Can>
+        </div>
 
-      {canShowForm && (
-        <Formik
-          initialValues={editing || emptyForm}
-          enableReinitialize
-          validationSchema={validationSchema}
+        <ClientList
+          query={query}
+          onQueryChange={setQuery}
+          onEdit={(client) => {
+            if (!can(PERMISSIONS.CLIENTS_UPDATE)) return;
+            setEditing(client);
+            setFormOpen(true);
+          }}
+          onDelete={onDelete}
+          canEditPermission={PERMISSIONS.CLIENTS_UPDATE}
+          canDeletePermission={PERMISSIONS.CLIENTS_DELETE}
+        />
+      </section>
+
+      {formOpen && canOpenForm && (
+        <ClientFormModal
+          client={editing}
+          isSaving={isSaving}
+          onClose={closeForm}
           onSubmit={onSubmit}
-        >
-          {({ resetForm }) => (
-            <Form className="form-card form-card-compact mb-3">
-              <div className="product-form">
-                <div className="product-form-head">
-                  <h2 className="bill-form mb-0">{editing ? "Edit client" : "Add client"}</h2>
-                  <div className="product-form-head-actions">
-                    <button type="submit" className="btn save-changes btn-compact">
-                      {editing ? "Update" : "Add client"}
-                    </button>
-                    {editing && (
-                      <button
-                        type="button"
-                        className="btn cancel btn-compact"
-                        onClick={() => {
-                          setEditing(null);
-                          resetForm();
-                        }}
-                      >
-                        Cancel
-                      </button>
-                    )}
-                  </div>
-                </div>
-                <div className="product-form-grid client-form-grid">
-                  <div className="pf-field">
-                    <label className="form-label input-clr" htmlFor="name">Name</label>
-                    <Field name="name" id="name" className="form-control input-settings input-compact" placeholder="Name" />
-                    <ErrorMessage name="name" component="div" className="text-red-600 small mb-0" />
-                  </div>
-                  <div className="pf-field">
-                    <label className="form-label input-clr" htmlFor="email">Email</label>
-                    <Field name="email" id="email" type="email" className="form-control input-settings input-compact" placeholder="Email" />
-                    <ErrorMessage name="email" component="div" className="text-red-600 small mb-0" />
-                  </div>
-                  <div className="pf-field">
-                    <label className="form-label input-clr" htmlFor="address">Street address</label>
-                    <Field name="address" id="address" className="form-control input-settings input-compact" placeholder="Street" />
-                    <ErrorMessage name="address" component="div" className="text-red-600 small mb-0" />
-                  </div>
-                  <div className="pf-field">
-                    <label className="form-label input-clr" htmlFor="city">City</label>
-                    <Field name="city" id="city" className="form-control input-settings input-compact" placeholder="City" />
-                    <ErrorMessage name="city" component="div" className="text-red-600 small mb-0" />
-                  </div>
-                  <div className="pf-field">
-                    <label className="form-label input-clr" htmlFor="code">Post code</label>
-                    <Field name="code" id="code" className="form-control input-settings input-compact" placeholder="12345" />
-                    <ErrorMessage name="code" component="div" className="text-red-600 small mb-0" />
-                  </div>
-                  <div className="pf-field">
-                    <label className="form-label input-clr" htmlFor="country">Country</label>
-                    <Field
-                      name="country"
-                      id="country"
-                      list="client-countries"
-                      className="form-control input-settings input-compact"
-                      placeholder="Country"
-                    />
-                    <CountryDatalist id="client-countries" />
-                    <ErrorMessage name="country" component="div" className="text-red-600 small mb-0" />
-                  </div>
-                </div>
-              </div>
-            </Form>
-          )}
-        </Formik>
+        />
       )}
-
-      <div className="flex items-center justify-between mb-2">
-        <h2 className="product-list-heading">Clients</h2>
-        {!isLoading && clients.length > 0 && (
-          <span className="textcklr small">{clients.length}</span>
-        )}
-      </div>
-      <ClientList
-        onEdit={(client) => {
-          if (can(PERMISSIONS.CLIENTS_UPDATE)) setEditing(client);
-        }}
-        onDelete={onDelete}
-        canEditPermission={PERMISSIONS.CLIENTS_UPDATE}
-        canDeletePermission={PERMISSIONS.CLIENTS_DELETE}
-      />
     </div>
   );
 }
