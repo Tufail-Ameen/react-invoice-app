@@ -85,6 +85,10 @@ export default function ClientDetailPage() {
               <span className="date-bill-email block">{formatCell(client.phone)}</span>
             </div>
             <div className="col-span-12 md:col-span-6">
+              <span className="edit-discription block">Area</span>
+              <span className="date-bill-email block">{formatCell(client.area)}</span>
+            </div>
+            <div className="col-span-12 md:col-span-6">
               <span className="edit-discription block">Address</span>
               <span className="date-bill-email block">{formatCell(client.address)}</span>
             </div>

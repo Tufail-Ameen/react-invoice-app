@@ -14,7 +14,7 @@ function formatCell(value) {
 function matchesQuery(client, query) {
   const needle = query.trim().toLowerCase();
   if (!needle) return true;
-  return [client.name, client.phone, client.address, client.city, client.country]
+  return [client.name, client.phone, client.area, client.address, client.city, client.country]
     .filter(Boolean)
     .join(" ")
     .toLowerCase()
@@ -79,16 +79,17 @@ export default function ClientList({
       <EmptyState
         className="!border-0 !bg-transparent !shadow-none"
         title="No matching clients"
-        message="Try a different shop name, phone, or city."
+        message="Try a different shop name, phone, area, or city."
       />
     );
   } else {
     body = (
-      <table className="product-table w-full min-w-[40rem] md:min-w-full">
+      <table className="product-table w-full min-w-[48rem] md:min-w-full">
         <thead>
           <tr>
             <th className="text-left">Shop name</th>
             <th className="text-left">Phone</th>
+            <th className="text-left">Area</th>
             <th className="text-left">Address</th>
             <th className="text-left">City</th>
             <th className="text-left">Country</th>
@@ -108,6 +109,7 @@ export default function ClientList({
                 )}
               </td>
               <td className="cell-muted text-left">{formatCell(client.phone)}</td>
+              <td className="cell-muted text-left">{formatCell(client.area)}</td>
               <td className="cell-muted text-left">{formatCell(client.address)}</td>
               <td className="cell-muted text-left">{formatCell(client.city)}</td>
               <td className="cell-muted text-left">{formatCell(client.country)}</td>
@@ -138,7 +140,7 @@ export default function ClientList({
         <input
           type="search"
           className="form-control input-settings h-10 w-full rounded-[10px] md:max-w-[420px]"
-          placeholder="Search shop name, phone, or city…"
+          placeholder="Search shop name, phone, area, or city…"
           value={query}
           onChange={(event) => onQueryChange?.(event.target.value)}
           aria-label="Search clients"
