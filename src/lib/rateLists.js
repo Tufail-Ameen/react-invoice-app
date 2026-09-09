@@ -16,10 +16,51 @@ export function unwrapRateLists(response) {
   };
 }
 
-export function productDefaultPrice(product) {
-  const value = product?.salePrice ?? product?.printRate ?? product?.price ?? 0;
+export function toMoneyNumber(value) {
+  if (value == null || value === "") return null;
+  if (typeof value === "object") {
+    return toMoneyNumber(value.amount ?? value.value ?? value.sale ?? null);
+  }
+  if (typeof value === "string") {
+    const cleaned = value.replace(/,/g, "").replace(/[^\d.-]/g, "");
+    if (!cleaned) return null;
+    const n = Number(cleaned);
+    return Number.isFinite(n) ? n : null;
+  }
   const n = Number(value);
-  return Number.isFinite(n) ? n : 0;
+  return Number.isFinite(n) ? n : null;
+}
+
+export function productDefaultPrice(product) {
+  if (!product) return 0;
+  const candidates = [
+    product.salePrice,
+    product.sale_price,
+    product.wholesalePrice,
+    product.wholesale_price,
+    product.printRate,
+    product.print_rate,
+    product.netRate,
+    product.net_rate,
+    product.price,
+  ];
+  for (const candidate of candidates) {
+    const n = toMoneyNumber(candidate);
+    if (n != null && n > 0) return n;
+  }
+  for (const candidate of candidates) {
+    const n = toMoneyNumber(candidate);
+    if (n != null) return n;
+  }
+  return 0;
+}
+
+export function catalogSelection(products) {
+  const next = {};
+  for (const product of products || []) {
+    next[String(product.id)] = itemFromProduct(product);
+  }
+  return next;
 }
 
 export function rateListStatus(list) {
@@ -73,13 +114,17 @@ export function itemsFromRateList(list) {
   const next = {};
   for (const item of list?.items || []) {
     const id = String(item.productId);
+    const defaultPrice = productDefaultPrice({
+      ...item,
+      salePrice: item.defaultPrice ?? item.salePrice,
+    });
     next[id] = {
       productId: item.productId,
       productName: item.productName,
       sku: item.sku,
       unit: item.unit,
-      defaultPrice: item.defaultPrice,
-      customPrice: item.customPrice ?? item.defaultPrice,
+      defaultPrice,
+      customPrice: toMoneyNumber(item.customPrice ?? item.price) ?? defaultPrice,
     };
   }
   return next;

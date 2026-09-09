@@ -4,13 +4,15 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Can } from "../auth/guards";
+import { useAuth } from "../auth/AuthContext";
+import CatalogRatesCard from "../components/rateLists/CatalogRatesCard";
 import RateListStatusBadge from "../components/rateLists/RateListStatusBadge";
 import EmptyState from "../components/ui/EmptyState";
 import FilterMenu from "../components/ui/FilterMenu";
 import { useClients } from "../hooks/useClients";
 import { PERMISSIONS } from "../lib/permissions";
 import { getErrorMessage } from "../lib/rtkBaseQuery";
-import { useGetRateListsQuery } from "../services/invoiceApi";
+import { useGetProductsQuery, useGetRateListsQuery } from "../services/invoiceApi";
 
 const STATUS_OPTIONS = [
   { label: "All statuses", value: "" },
@@ -21,6 +23,7 @@ const STATUS_OPTIONS = [
 
 export default function RateListsPage() {
   const navigate = useNavigate();
+  const { can } = useAuth();
   const { clients } = useClients();
   const [statusFilter, setStatusFilter] = useState("");
   const [clientId, setClientId] = useState("");
@@ -36,8 +39,13 @@ export default function RateListsPage() {
   }, [statusFilter, clientId, q, page]);
 
   const { data, isLoading, isError, error } = useGetRateListsQuery(params);
+  const { data: productsData, isLoading: catalogLoading } = useGetProductsQuery(
+    { status: "active" },
+    { skip: !can(PERMISSIONS.PRODUCTS_VIEW) }
+  );
   const rateLists = data?.rateLists || [];
   const pagination = data?.pagination;
+  const catalogProducts = productsData?.products || [];
 
   useEffect(() => {
     setPage(1);
@@ -91,12 +99,16 @@ export default function RateListsPage() {
         </div>
       </div>
 
+      <CatalogRatesCard products={catalogProducts} isLoading={catalogLoading} />
+
+      <h2 className="product-list-heading mb-2">Client rate lists</h2>
+
       {isLoading ? (
         <p className="textcklr mt-4">Loading…</p>
       ) : !rateLists.length ? (
         <EmptyState
-          title="No rate lists yet"
-          message="Pick products, set custom rates, and send a share link to a client."
+          title="No client lists yet"
+          message="Use the default catalog above, then save a list for a client."
         />
       ) : (
         <div className="form-card product-list-card">

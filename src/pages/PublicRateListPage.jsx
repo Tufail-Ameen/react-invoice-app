@@ -1,9 +1,12 @@
 import { faPrint } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Fragment } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getErrorCode } from "../lib/rtkBaseQuery";
 import { formatPrice } from "../lib/rateLists";
 import { useGetPublicRateListQuery } from "../services/invoiceApi";
+
+const COLUMNS = 3;
 
 function PublicState({ title, message }) {
   return (
@@ -16,6 +19,48 @@ function PublicState({ title, message }) {
         </Link>
       </div>
     </div>
+  );
+}
+
+function chunkItems(items, size) {
+  const rows = [];
+  for (let i = 0; i < items.length; i += size) {
+    const row = items.slice(i, i + size);
+    while (row.length < size) row.push(null);
+    rows.push(row);
+  }
+  return rows;
+}
+
+function ColumnHead() {
+  return (
+    <>
+      <th>Product</th>
+      <th className="public-rate-list-unit">Unit</th>
+      <th className="public-rate-list-rate">Rate</th>
+    </>
+  );
+}
+
+function EmptyCells() {
+  return (
+    <>
+      <td />
+      <td className="public-rate-list-unit" />
+      <td className="public-rate-list-rate" />
+    </>
+  );
+}
+
+function RateCells({ item }) {
+  return (
+    <>
+      <td>{item.productName}</td>
+      <td className="public-rate-list-unit">{item.unit || "pcs"}</td>
+      <td className="public-rate-list-rate">
+        {formatPrice(item.price ?? item.customPrice ?? item.defaultPrice)}
+      </td>
+    </>
   );
 }
 
@@ -53,9 +98,12 @@ export default function PublicRateListPage() {
   }
 
   const items = list.items || [];
+  const rows = chunkItems(items, COLUMNS);
+  const colIndexes = Array.from({ length: COLUMNS }, (_, i) => i);
 
   return (
     <div className="public-rate-list-page">
+      <style>{`@page { size: A4 landscape; margin: 10mm; }`}</style>
       <article className="public-rate-list">
         <header className="public-rate-list-head">
           <div>
@@ -78,20 +126,26 @@ export default function PublicRateListPage() {
           </button>
         </header>
 
-        <table className="public-rate-list-table">
+        <table className="public-rate-list-table public-rate-list-table-split">
           <thead>
             <tr>
-              <th>Product</th>
-              <th>Unit</th>
-              <th>Rate</th>
+              {colIndexes.map((col) => (
+                <Fragment key={`head-${col}`}>
+                  {col > 0 ? <th className="public-rate-list-split-gap" aria-hidden="true" /> : null}
+                  <ColumnHead />
+                </Fragment>
+              ))}
             </tr>
           </thead>
           <tbody>
-            {items.map((item, index) => (
-              <tr key={`${item.productName}-${index}`}>
-                <td>{item.productName}</td>
-                <td>{item.unit || "pcs"}</td>
-                <td>{formatPrice(item.price ?? item.customPrice)}</td>
+            {rows.map((cols, index) => (
+              <tr key={index}>
+                {cols.map((item, col) => (
+                  <Fragment key={`${index}-${col}`}>
+                    {col > 0 ? <td className="public-rate-list-split-gap" aria-hidden="true" /> : null}
+                    {item ? <RateCells item={item} /> : <EmptyCells />}
+                  </Fragment>
+                ))}
               </tr>
             ))}
           </tbody>

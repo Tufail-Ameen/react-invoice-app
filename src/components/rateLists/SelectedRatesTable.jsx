@@ -11,13 +11,13 @@ export default function SelectedRatesTable({
 }) {
   if (!items.length) {
     return (
-      <p className="textcklr small mb-0">Select products to set custom rates.</p>
+      <p className="textcklr small mb-0">Included products for this client.</p>
     );
   }
 
   return (
     <div className="product-table-scroll">
-      <table className="product-table rate-list-selected-table">
+      <table className="product-table">
         <thead>
           <tr>
             <th>Product</th>

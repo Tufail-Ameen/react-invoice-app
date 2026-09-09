@@ -12,9 +12,14 @@ export function normalizeProduct(product) {
   if (!product) return product;
 
   const salePrice =
-    product.salePrice ?? product.printRate ?? product.price ?? null;
+    product.salePrice ??
+    product.sale_price ??
+    product.printRate ??
+    product.print_rate ??
+    product.price ??
+    null;
   const purchasePrice =
-    product.purchasePrice ?? product.tpRate ?? null;
+    product.purchasePrice ?? product.purchase_price ?? product.tpRate ?? null;
   const currentStock =
     product.currentStock ?? product.stock ?? 0;
   const minimumStockLevel =
@@ -45,7 +50,7 @@ export function normalizeProduct(product) {
     description: product.description ?? "",
     purchasePrice,
     salePrice,
-    wholesalePrice: product.wholesalePrice ?? null,
+    wholesalePrice: product.wholesalePrice ?? product.wholesale_price ?? null,
     currentStock: Number(currentStock) || 0,
     stock: Number(currentStock) || 0,
     minimumStockLevel: Number(minimumStockLevel) || 0,
