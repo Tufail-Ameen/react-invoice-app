@@ -1956,7 +1956,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     padding: 1.75rem 2rem 2.5rem;
   }
 
-  .clients-page {
+  .clients-page,
+  .stock-page.is-list-tab {
     height: calc(100dvh - 72px - 1.75rem - 2.5rem);
   }
 
@@ -2874,21 +2875,29 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   max-height: 360px;
 }
 
-.clients-page {
+.clients-page,
+.stock-page.is-list-tab {
   display: flex;
   flex-direction: column;
   height: calc(100dvh - 64px - 1rem - 5.75rem);
   min-height: 16rem;
 }
 
-.clients-page-section {
+.stock-page {
+  display: flex;
+  flex-direction: column;
+}
+
+.clients-page-section,
+.stock-page-section {
   display: flex;
   flex-direction: column;
   flex: 1;
   min-height: 0;
 }
 
-.clients-page .client-list-card {
+.clients-page .client-list-card,
+.stock-page .client-list-card {
   flex: 1;
   display: flex;
   flex-direction: column;

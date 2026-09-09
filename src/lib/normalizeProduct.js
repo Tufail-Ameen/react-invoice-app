@@ -11,11 +11,16 @@ function calcNetRate(tpRate, discountPercent) {
 export function normalizeProduct(product) {
   if (!product) return product;
 
+  const printRate =
+    product.printRate ??
+    product.print_rate ??
+    product.printedPrice ??
+    product.wholesalePrice ??
+    product.wholesale_price ??
+    null;
   const salePrice =
     product.salePrice ??
     product.sale_price ??
-    product.printRate ??
-    product.print_rate ??
     product.price ??
     null;
   const purchasePrice =
@@ -50,7 +55,8 @@ export function normalizeProduct(product) {
     description: product.description ?? "",
     purchasePrice,
     salePrice,
-    wholesalePrice: product.wholesalePrice ?? product.wholesale_price ?? null,
+    printRate,
+    wholesalePrice: product.wholesalePrice ?? product.wholesale_price ?? printRate,
     currentStock: Number(currentStock) || 0,
     stock: Number(currentStock) || 0,
     minimumStockLevel: Number(minimumStockLevel) || 0,
@@ -63,7 +69,6 @@ export function normalizeProduct(product) {
     tpRate,
     discountPercent,
     netRate,
-    printRate: product.printRate ?? salePrice,
     price: salePrice,
   };
 }

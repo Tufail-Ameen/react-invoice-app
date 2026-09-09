@@ -1,11 +1,14 @@
 import { faPen, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { ErrorMessage, Field, Form, Formik, useFormikContext } from "formik";
+import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import * as Yup from "yup";
 import { Can } from "../auth/guards";
 import { useAuth } from "../auth/AuthContext";
+import CategoryFormModal from "../components/products/CategoryFormModal";
+import ProductFormModal, { toProductPayload } from "../components/products/ProductFormModal";
+import ProductList from "../components/products/ProductList";
 import EmptyState from "../components/ui/EmptyState";
 import { useProducts } from "../hooks/useProducts";
 import { PERMISSIONS } from "../lib/permissions";
@@ -21,33 +24,6 @@ import {
   useUpdateCategoryMutation,
   useUpdateProductMutation,
 } from "../services/invoiceApi";
-import { formatAmount } from "../utils/invoice";
-
-const UNIT_OPTIONS = ["pcs", "kg", "box", "pack", "liter", "meter", "dozen"];
-
-const productSchema = Yup.object({
-  name: Yup.string().required("Name required"),
-  sku: Yup.string().trim(),
-  barcode: Yup.string().trim(),
-  brand: Yup.string().trim(),
-  categoryId: Yup.string(),
-  unit: Yup.string().default("pcs"),
-  purchasePrice: Yup.number().min(0).nullable(),
-  salePrice: Yup.number().min(0).nullable(),
-  wholesalePrice: Yup.number().min(0).nullable(),
-  minimumStockLevel: Yup.number().integer().min(0).required("Min stock required"),
-  openingStock: Yup.number().integer().min(0),
-  description: Yup.string(),
-  status: Yup.string().oneOf(["active", "inactive"]),
-});
-
-const productEditSchema = productSchema.omit(["openingStock"]);
-
-const categorySchema = Yup.object({
-  name: Yup.string().trim().required("Name required"),
-  description: Yup.string(),
-  status: Yup.string().oneOf(["active", "inactive"]),
-});
 
 const adjustSchema = Yup.object({
   productId: Yup.string().required("Product required"),
@@ -58,75 +34,9 @@ const adjustSchema = Yup.object({
   reason: Yup.string().required("Reason required"),
 });
 
-const emptyProductForm = {
-  name: "",
-  sku: "",
-  barcode: "",
-  brand: "",
-  categoryId: "",
-  unit: "pcs",
-  purchasePrice: "",
-  salePrice: "",
-  wholesalePrice: "",
-  minimumStockLevel: 0,
-  openingStock: 0,
-  description: "",
-  status: "active",
-};
-
-function productToFormValues(product) {
-  return {
-    name: product.name ?? "",
-    sku: product.sku ?? "",
-    barcode: product.barcode ?? "",
-    brand: product.brand ?? "",
-    categoryId: product.categoryId != null ? String(product.categoryId) : "",
-    unit: product.unit || "pcs",
-    purchasePrice: product.purchasePrice ?? "",
-    salePrice: product.salePrice ?? product.printRate ?? product.price ?? "",
-    wholesalePrice: product.wholesalePrice ?? "",
-    minimumStockLevel: product.minimumStockLevel ?? product.minStock ?? 0,
-    openingStock: 0,
-    description: product.description ?? "",
-    status: product.status || "active",
-  };
-}
-
-function buildProductPayload(values) {
-  const payload = {
-    name: values.name.trim(),
-    sku: values.sku?.trim() || null,
-    barcode: values.barcode?.trim() || null,
-    brand: values.brand?.trim() || null,
-    categoryId: values.categoryId ? Number(values.categoryId) : null,
-    unit: values.unit || "pcs",
-    purchasePrice:
-      values.purchasePrice === "" || values.purchasePrice == null
-        ? null
-        : Number(values.purchasePrice),
-    salePrice:
-      values.salePrice === "" || values.salePrice == null
-        ? null
-        : Number(values.salePrice),
-    wholesalePrice:
-      values.wholesalePrice === "" || values.wholesalePrice == null
-        ? null
-        : Number(values.wholesalePrice),
-    minimumStockLevel: Number(values.minimumStockLevel) || 0,
-    description: values.description?.trim() || null,
-    status: values.status || "active",
-  };
-  return payload;
-}
-
 function formatCell(value) {
   if (value === null || value === undefined || value === "") return "—";
   return value;
-}
-
-function formatMoney(value) {
-  if (value === null || value === undefined || value === "") return "—";
-  return formatAmount("Rs", value);
 }
 
 function formatMovementType(type) {
@@ -137,129 +47,44 @@ function formatMovementType(type) {
     .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-function ProductFormFields({ editing, categories, onCancel }) {
-  const { values } = useFormikContext();
-  const unitOptions = useMemo(() => {
-    const options = [...UNIT_OPTIONS];
-    if (values.unit && !options.includes(values.unit)) options.unshift(values.unit);
-    return options;
-  }, [values.unit]);
-
-  return (
-    <div className="grid grid-cols-12 gap-3">
-      <div className="col-span-12 md:col-span-4">
-        <label className="form-label input-clr mb-1" htmlFor="name">Name</label>
-        <Field id="name" name="name" className="form-control input-settings input-compact" />
-        <ErrorMessage name="name" component="div" className="text-red-600 small" />
-      </div>
-      <div className="col-span-6 md:col-span-2">
-        <label className="form-label input-clr mb-1" htmlFor="sku">SKU</label>
-        <Field id="sku" name="sku" className="form-control input-settings input-compact" />
-      </div>
-      <div className="col-span-6 md:col-span-2">
-        <label className="form-label input-clr mb-1" htmlFor="barcode">Barcode</label>
-        <Field id="barcode" name="barcode" className="form-control input-settings input-compact" />
-      </div>
-      <div className="col-span-6 md:col-span-2">
-        <label className="form-label input-clr mb-1" htmlFor="brand">Brand</label>
-        <Field id="brand" name="brand" className="form-control input-settings input-compact" />
-      </div>
-      <div className="col-span-6 md:col-span-2">
-        <label className="form-label input-clr mb-1" htmlFor="unit">Unit</label>
-        <Field as="select" id="unit" name="unit" className="form-select input-settings input-compact">
-          {unitOptions.map((unit) => (
-            <option key={unit} value={unit}>{unit}</option>
-          ))}
-        </Field>
-      </div>
-
-      <div className="col-span-6 md:col-span-3">
-        <label className="form-label input-clr mb-1" htmlFor="categoryId">Category</label>
-        <Field as="select" id="categoryId" name="categoryId" className="form-select input-settings input-compact">
-          <option value="">None</option>
-          {categories
-            .filter((c) => c.status !== "inactive")
-            .map((c) => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
-        </Field>
-      </div>
-      <div className="col-span-6 md:col-span-3">
-        <label className="form-label input-clr mb-1" htmlFor="purchasePrice">Purchase price</label>
-        <Field id="purchasePrice" name="purchasePrice" type="number" min="0" className="form-control input-settings input-compact" />
-      </div>
-      <div className="col-span-6 md:col-span-3">
-        <label className="form-label input-clr mb-1" htmlFor="salePrice">Sale price</label>
-        <Field id="salePrice" name="salePrice" type="number" min="0" className="form-control input-settings input-compact" />
-      </div>
-      <div className="col-span-6 md:col-span-3">
-        <label className="form-label input-clr mb-1" htmlFor="wholesalePrice">Wholesale price</label>
-        <Field id="wholesalePrice" name="wholesalePrice" type="number" min="0" className="form-control input-settings input-compact" />
-      </div>
-
-      <div className="col-span-6 md:col-span-2">
-        <label className="form-label input-clr mb-1" htmlFor="minimumStockLevel">Min stock</label>
-        <Field id="minimumStockLevel" name="minimumStockLevel" type="number" min="0" className="form-control input-settings input-compact" />
-        <ErrorMessage name="minimumStockLevel" component="div" className="text-red-600 small" />
-      </div>
-      {!editing && (
-        <div className="col-span-6 md:col-span-2">
-          <label className="form-label input-clr mb-1" htmlFor="openingStock">Opening stock</label>
-          <Field id="openingStock" name="openingStock" type="number" min="0" className="form-control input-settings input-compact" />
-        </div>
-      )}
-      <div className="col-span-6 md:col-span-2">
-        <label className="form-label input-clr mb-1" htmlFor="status">Status</label>
-        <Field as="select" id="status" name="status" className="form-select input-settings input-compact">
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
-        </Field>
-      </div>
-      <div className="col-span-12 md:col-span-6">
-        <label className="form-label input-clr mb-1" htmlFor="description">Description</label>
-        <Field id="description" name="description" className="form-control input-settings input-compact" />
-      </div>
-
-      <div className="col-span-12 flex flex-wrap gap-2 pt-1">
-        <button type="submit" className="btn save-changes py-2 px-4">
-          {editing ? "Update" : "Add product"}
-        </button>
-        {editing && (
-          <button type="button" className="btn cancel py-2 px-3" onClick={onCancel}>
-            Cancel
-          </button>
-        )}
-      </div>
-    </div>
-  );
-}
-
 export default function StockPage() {
   const [editing, setEditing] = useState(null);
+  const [formOpen, setFormOpen] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState("");
   const [tab, setTab] = useState("products");
   const [search, setSearch] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("active");
-  const [lowStockOnly, setLowStockOnly] = useState(false);
+  const [categorySearch, setCategorySearch] = useState("");
 
   const { can } = useAuth();
-  const canShowProductForm = editing
+  const canOpenForm = editing
     ? can(PERMISSIONS.PRODUCTS_UPDATE)
     : can(PERMISSIONS.PRODUCTS_CREATE);
+
+  const closeForm = () => {
+    setFormOpen(false);
+    setEditing(null);
+  };
 
   const productQueryParams = useMemo(() => {
     const params = {};
     if (search.trim()) params.q = search.trim();
-    if (categoryFilter) params.categoryId = categoryFilter;
-    if (statusFilter) params.status = statusFilter;
-    if (lowStockOnly) params.lowStock = "true";
     return params;
-  }, [search, categoryFilter, statusFilter, lowStockOnly]);
+  }, [search]);
 
   const { products, isLoading } = useProducts(productQueryParams);
   const { data: categoriesData } = useGetCategoriesQuery();
   const categories = categoriesData?.categories || [];
+  const visibleCategories = useMemo(() => {
+    const needle = categorySearch.trim().toLowerCase();
+    if (!needle) return categories;
+    return categories.filter((category) =>
+      [category.name, category.status]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase()
+        .includes(needle)
+    );
+  }, [categories, categorySearch]);
 
   const { data: movementsData } = useGetMovementsQuery(
     selectedProductId ? { productId: selectedProductId } : {},
@@ -267,14 +92,26 @@ export default function StockPage() {
   );
   const movements = movementsData?.movements || [];
 
-  const [createProduct] = useCreateProductMutation();
-  const [updateProduct] = useUpdateProductMutation();
+  const [createProduct, createState] = useCreateProductMutation();
+  const [updateProduct, updateState] = useUpdateProductMutation();
   const [deleteProduct] = useDeleteProductMutation();
+  const isSaving = createState.isLoading || updateState.isLoading;
   const [adjustInventory] = useAdjustInventoryMutation();
-  const [createCategory] = useCreateCategoryMutation();
-  const [updateCategory] = useUpdateCategoryMutation();
+  const [createCategory, createCategoryState] = useCreateCategoryMutation();
+  const [updateCategory, updateCategoryState] = useUpdateCategoryMutation();
   const [deleteCategory] = useDeleteCategoryMutation();
   const [editingCategory, setEditingCategory] = useState(null);
+  const [categoryFormOpen, setCategoryFormOpen] = useState(false);
+  const isSavingCategory = createCategoryState.isLoading || updateCategoryState.isLoading;
+
+  const canOpenCategoryForm = editingCategory
+    ? can(PERMISSIONS.CATEGORIES_UPDATE)
+    : can(PERMISSIONS.CATEGORIES_CREATE);
+
+  const closeCategoryForm = () => {
+    setCategoryFormOpen(false);
+    setEditingCategory(null);
+  };
 
   const selectedProduct = useMemo(
     () => products.find((p) => String(p.id) === String(selectedProductId)),
@@ -282,23 +119,21 @@ export default function StockPage() {
   );
 
   const saveProduct = async (values, { resetForm }) => {
-    const payload = buildProductPayload(values);
+    const payload = toProductPayload(values);
     try {
       if (editing) {
         await updateProduct({ id: editing.id, ...payload }).unwrap();
         toast.success("Product updated");
-        setEditing(null);
       } else {
         await createProduct({
           ...payload,
           openingStock: Number(values.openingStock) || 0,
-          sku:
-            payload.sku ||
-            `PRD-${Date.now().toString(36).toUpperCase()}`,
+          sku: payload.sku || `PRD-${Date.now().toString(36).toUpperCase()}`,
         }).unwrap();
         toast.success("Product added");
       }
       resetForm();
+      closeForm();
     } catch (err) {
       toast.error(getErrorMessage(err, "Save failed"));
     }
@@ -341,7 +176,6 @@ export default function StockPage() {
           status: values.status,
         }).unwrap();
         toast.success("Category updated");
-        setEditingCategory(null);
       } else {
         await createCategory({
           name: values.name.trim(),
@@ -351,6 +185,7 @@ export default function StockPage() {
         toast.success("Category created");
       }
       resetForm();
+      closeCategoryForm();
     } catch (err) {
       toast.error(getErrorMessage(err, "Category save failed"));
     }
@@ -386,14 +221,8 @@ export default function StockPage() {
   ];
 
   return (
-    <div className="page-wrap">
-      <div className="invoices-header mb-3">
-        <p className="count-invoices-tect mb-0">
-          Catalog, categories, and stock ledger
-        </p>
-      </div>
-
-      <nav className="stock-tab-nav mb-4" aria-label="Stock sections">
+    <div className={`stock-page mx-auto w-full max-w-6xl${tab === "products" || tab === "categories" ? " is-list-tab" : ""}`}>
+      <nav className="stock-tab-nav mb-4 shrink-0" aria-label="Stock sections">
         {tabs.map(({ key, label, permission }) =>
           permission ? (
             <Can key={key} permission={permission}>
@@ -419,173 +248,140 @@ export default function StockPage() {
       </nav>
 
       {tab === "products" && (
-        <>
-          {canShowProductForm && (
-            <Formik
-              initialValues={editing ? productToFormValues(editing) : emptyProductForm}
-              enableReinitialize
-              validationSchema={editing ? productEditSchema : productSchema}
-              onSubmit={saveProduct}
-            >
-              {({ resetForm }) => (
-                <Form className="form-card form-card-compact mb-3">
-                  <h2 className="bill-form mb-3">{editing ? "Edit product" : "Add product"}</h2>
-                  <ProductFormFields
-                    editing={editing}
-                    categories={categories}
-                    onCancel={() => {
-                      setEditing(null);
-                      resetForm();
-                    }}
-                  />
-                </Form>
-              )}
-            </Formik>
-          )}
-
-          <div className="form-card form-card-compact mb-3">
-            <div className="grid grid-cols-12 items-end gap-2">
-              <div className="col-span-12 md:col-span-4">
-                <label className="form-label input-clr mb-1">Search</label>
-                <input
-                  className="form-control input-settings input-compact"
-                  placeholder="Name, SKU, barcode…"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
-              </div>
-              <div className="col-span-6 md:col-span-3">
-                <label className="form-label input-clr mb-1">Category</label>
-                <select
-                  className="form-select input-settings input-compact"
-                  value={categoryFilter}
-                  onChange={(e) => setCategoryFilter(e.target.value)}
-                >
-                  <option value="">All</option>
-                  {categories.map((c) => (
-                    <option key={c.id} value={c.id}>{c.name}</option>
-                  ))}
-                </select>
-              </div>
-              <div className="col-span-6 md:col-span-2">
-                <label className="form-label input-clr mb-1">Status</label>
-                <select
-                  className="form-select input-settings input-compact"
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                >
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                  <option value="">All</option>
-                </select>
-              </div>
-              <div className="col-span-12 md:col-span-3">
-                <label className="mt-3 mb-0 flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    className="size-4 accent-[var(--color-primary)]"
-                    checked={lowStockOnly}
-                    onChange={(e) => setLowStockOnly(e.target.checked)}
-                  />
-                  <span className="input-clr">Low stock only</span>
-                </label>
-              </div>
+        <section className="stock-page-section">
+          <div className="mb-4 flex shrink-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h1 className="product-list-heading mb-1 !text-[1.35rem] !font-extrabold">
+                Products
+              </h1>
+              <p className="textcklr small mb-0">
+                Add and manage catalog products for invoices and stock.
+              </p>
             </div>
+            <Can permission={PERMISSIONS.PRODUCTS_CREATE}>
+              <button
+                type="button"
+                className="btn save-changes w-full py-2 px-3 sm:w-auto"
+                onClick={() => {
+                  setEditing(null);
+                  setFormOpen(true);
+                }}
+              >
+                New product
+              </button>
+            </Can>
           </div>
 
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="page-title mb-0">Products</h2>
-            {!isLoading && products.length > 0 && (
-              <span className="textcklr small">{products.length}</span>
-            )}
+          <ProductList
+            products={products}
+            isLoading={isLoading}
+            search={search}
+            onSearchChange={setSearch}
+            onEdit={(product) => {
+              if (!can(PERMISSIONS.PRODUCTS_UPDATE)) return;
+              setEditing(product);
+              setFormOpen(true);
+            }}
+            onDelete={removeProduct}
+            onSelectProduct={(product) => {
+              setSelectedProductId(String(product.id));
+              setTab("movements");
+            }}
+          />
+        </section>
+      )}
+
+      {tab === "categories" && (
+        <section className="stock-page-section">
+          <div className="mb-4 flex shrink-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <h1 className="product-list-heading mb-1 !text-[1.35rem] !font-extrabold">
+                Categories
+              </h1>
+              <p className="textcklr small mb-0">
+                Organize products with categories for invoices and stock.
+              </p>
+            </div>
+            <Can permission={PERMISSIONS.CATEGORIES_CREATE}>
+              <button
+                type="button"
+                className="btn save-changes w-full py-2 px-3 sm:w-auto"
+                onClick={() => {
+                  setEditingCategory(null);
+                  setCategoryFormOpen(true);
+                }}
+              >
+                New category
+              </button>
+            </Can>
           </div>
 
-          {isLoading ? (
-            <p className="textcklr">Loading…</p>
-          ) : !products.length ? (
-            <EmptyState title="No products" message="Add products to manage stock." />
-          ) : (
-            <div className="form-card product-list-card">
-              <div className="product-table-scroll">
-                <table className="product-table">
+          <div className="form-card product-list-card client-list-card">
+            <div className="client-list-toolbar flex items-center border-b border-[var(--color-border)] px-3 py-3">
+              <input
+                type="search"
+                className="form-control input-settings h-10 w-full rounded-[10px] md:max-w-[420px]"
+                placeholder="Search name or status…"
+                value={categorySearch}
+                onChange={(event) => setCategorySearch(event.target.value)}
+                aria-label="Search categories"
+              />
+            </div>
+            <div className="product-table-scroll client-table-scroll">
+              {!categories.length ? (
+                <EmptyState
+                  className="!border-0 !bg-transparent !shadow-none"
+                  title="No categories"
+                  message="Create categories to organize products."
+                />
+              ) : !visibleCategories.length ? (
+                <EmptyState
+                  className="!border-0 !bg-transparent !shadow-none"
+                  title="No matching categories"
+                  message="Try a different name or status."
+                />
+              ) : (
+                <table className="product-table w-full min-w-[48rem] md:min-w-full">
                   <thead>
                     <tr>
-                      <th>Name</th>
-                      <th>SKU</th>
-                      <th>Category</th>
-                      <th>Sale</th>
-                      <th>Stock</th>
-                      <th>Min</th>
-                      <th>Status</th>
-                      <th className="text-end col-actions">Actions</th>
+                      <th className="text-left">Name</th>
+                      <th className="text-left">Status</th>
+                      <th className="w-[1%] whitespace-nowrap text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {products.map((p) => (
-                      <tr key={p.key || p.id}>
-                        <td className="table-text-size">
-                          <button
-                            type="button"
-                            className="btn bg-transparent p-0 no-underline"
-                            onClick={() => {
-                              setSelectedProductId(String(p.id));
-                              setTab("movements");
-                            }}
-                          >
-                            {p.name}
-                          </button>
-                          {p.brand ? (
-                            <div className="cell-muted small">{p.brand}</div>
-                          ) : null}
-                        </td>
-                        <td className="cell-muted">{formatCell(p.sku)}</td>
-                        <td>
-                          {p.category ? (
-                            <span className="category-badge">{p.category}</span>
-                          ) : (
-                            <span className="cell-muted">—</span>
-                          )}
-                        </td>
-                        <td className="price">{formatMoney(p.salePrice)}</td>
-                        <td><strong>{formatCell(p.currentStock)}</strong></td>
-                        <td className="cell-muted">{formatCell(p.minimumStockLevel)}</td>
-                        <td>
-                          <span
-                            className={`status-badge ${
-                              p.stockStatus === "LOW_STOCK"
-                                ? "inactive"
-                                : p.status === "active"
-                                  ? "active"
-                                  : "inactive"
-                            }`}
-                          >
-                            {p.stockStatus === "LOW_STOCK"
-                              ? "Low stock"
-                              : formatCell(p.status)}
+                    {visibleCategories.map((c) => (
+                      <tr key={c.id}>
+                        <td className="table-text-size text-left">{c.name}</td>
+                        <td className="text-left">
+                          <span className={`status-badge ${c.status === "active" ? "active" : "inactive"}`}>
+                            {c.status}
                           </span>
                         </td>
-                        <td className="col-actions">
-                          <div className="table-actions">
-                            <Can permission={PERMISSIONS.PRODUCTS_UPDATE}>
+                        <td className="w-[1%] whitespace-nowrap pl-2 text-right">
+                          <div className="table-actions inline-flex justify-end">
+                            <Can permission={PERMISSIONS.CATEGORIES_UPDATE}>
                               <button
                                 type="button"
                                 className="btn btn-table-edit"
-                                onClick={() => setEditing(p)}
-                                title="Edit product"
+                                onClick={() => {
+                                  if (!can(PERMISSIONS.CATEGORIES_UPDATE)) return;
+                                  setEditingCategory(c);
+                                  setCategoryFormOpen(true);
+                                }}
                               >
                                 <FontAwesomeIcon icon={faPen} />
                                 Edit
                               </button>
                             </Can>
-                            <Can permission={PERMISSIONS.PRODUCTS_DELETE}>
+                            <Can permission={PERMISSIONS.CATEGORIES_DELETE}>
                               <button
                                 type="button"
                                 className="btn btn-table-remove"
-                                onClick={() => removeProduct(p)}
-                                title="Archive product"
+                                onClick={() => removeCategory(c)}
                               >
                                 <FontAwesomeIcon icon={faTrash} />
-                                Archive
+                                Remove
                               </button>
                             </Can>
                           </div>
@@ -594,128 +390,10 @@ export default function StockPage() {
                     ))}
                   </tbody>
                 </table>
-              </div>
-            </div>
-          )}
-        </>
-      )}
-
-      {tab === "categories" && (
-        <>
-          <Can permission={PERMISSIONS.CATEGORIES_CREATE}>
-            <Formik
-              initialValues={
-                editingCategory
-                  ? {
-                      name: editingCategory.name || "",
-                      description: editingCategory.description || "",
-                      status: editingCategory.status || "active",
-                    }
-                  : { name: "", description: "", status: "active" }
-              }
-              enableReinitialize
-              validationSchema={categorySchema}
-              onSubmit={saveCategory}
-            >
-              {({ resetForm }) => (
-                <Form className="form-card form-card-compact mb-3">
-                  <h2 className="bill-form mb-3">
-                    {editingCategory ? "Edit category" : "Add category"}
-                  </h2>
-                  <div className="grid grid-cols-12 gap-3">
-                    <div className="md:col-span-4">
-                      <label className="form-label input-clr mb-1">Name</label>
-                      <Field name="name" className="form-control input-settings input-compact" />
-                      <ErrorMessage name="name" component="div" className="text-red-600 small" />
-                    </div>
-                    <div className="md:col-span-5">
-                      <label className="form-label input-clr mb-1">Description</label>
-                      <Field name="description" className="form-control input-settings input-compact" />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="form-label input-clr mb-1">Status</label>
-                      <Field as="select" name="status" className="form-select input-settings input-compact">
-                        <option value="active">Active</option>
-                        <option value="inactive">Inactive</option>
-                      </Field>
-                    </div>
-                    <div className="col-span-12 flex gap-2">
-                      <button type="submit" className="btn save-changes py-2 px-4">
-                        {editingCategory ? "Update" : "Add category"}
-                      </button>
-                      {editingCategory && (
-                        <button
-                          type="button"
-                          className="btn cancel py-2 px-3"
-                          onClick={() => {
-                            setEditingCategory(null);
-                            resetForm();
-                          }}
-                        >
-                          Cancel
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </Form>
               )}
-            </Formik>
-          </Can>
-
-          {!categories.length ? (
-            <EmptyState title="No categories" message="Create categories to organize products." />
-          ) : (
-            <div className="form-card product-list-card">
-              <table className="product-table">
-                <thead>
-                  <tr>
-                    <th>Name</th>
-                    <th>Description</th>
-                    <th>Status</th>
-                    <th className="text-end col-actions">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {categories.map((c) => (
-                    <tr key={c.id}>
-                      <td className="table-text-size">{c.name}</td>
-                      <td className="cell-muted">{formatCell(c.description)}</td>
-                      <td>
-                        <span className={`status-badge ${c.status === "active" ? "active" : "inactive"}`}>
-                          {c.status}
-                        </span>
-                      </td>
-                      <td className="col-actions">
-                        <div className="table-actions">
-                          <Can permission={PERMISSIONS.CATEGORIES_UPDATE}>
-                            <button
-                              type="button"
-                              className="btn btn-table-edit"
-                              onClick={() => setEditingCategory(c)}
-                            >
-                              <FontAwesomeIcon icon={faPen} />
-                              Edit
-                            </button>
-                          </Can>
-                          <Can permission={PERMISSIONS.CATEGORIES_DELETE}>
-                            <button
-                              type="button"
-                              className="btn btn-table-remove"
-                              onClick={() => removeCategory(c)}
-                            >
-                              <FontAwesomeIcon icon={faTrash} />
-                              Remove
-                            </button>
-                          </Can>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
             </div>
-          )}
-        </>
+          </div>
+        </section>
       )}
 
       {tab === "adjust" && (
@@ -810,7 +488,7 @@ export default function StockPage() {
           ) : (
             <div className="form-card product-list-card">
               <div className="product-table-scroll">
-                <table className="product-table">
+                <table className="product-table w-full min-w-[48rem] md:min-w-full">
                   <thead>
                     <tr>
                       <th>Date</th>
@@ -852,6 +530,25 @@ export default function StockPage() {
             </div>
           )}
         </>
+      )}
+
+      {formOpen && canOpenForm && (
+        <ProductFormModal
+          product={editing}
+          categories={categories}
+          isSaving={isSaving}
+          onClose={closeForm}
+          onSubmit={saveProduct}
+        />
+      )}
+
+      {categoryFormOpen && canOpenCategoryForm && (
+        <CategoryFormModal
+          category={editingCategory}
+          isSaving={isSavingCategory}
+          onClose={closeCategoryForm}
+          onSubmit={saveCategory}
+        />
       )}
     </div>
   );

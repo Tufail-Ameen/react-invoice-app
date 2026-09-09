@@ -88,8 +88,13 @@ export const platformNavLinks = [
 /** @deprecated use mainNavLinks — BottomNav compatibility */
 export const navLinks = mainNavLinks;
 
+export function getNavSectionLabel(pathname) {
+  if (pathname.startsWith("/team")) return "Team";
+  if (pathname.startsWith("/platform")) return "Platform";
+  return "Workspace";
+}
+
 export function getNavPageTitle(pathname) {
-  if (pathname === "/clients") return "";
   if (pathname.startsWith("/invoices/")) return "Invoice Details";
   if (pathname === "/rate-lists/new") return "New rate list";
   if (pathname.startsWith("/rate-lists/") && pathname !== "/rate-lists") {

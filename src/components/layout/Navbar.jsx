@@ -4,12 +4,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useLocation } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
 import BusinessSwitcher from "./BusinessSwitcher";
-import { getNavPageTitle } from "./navLinks";
+import { getNavPageTitle, getNavSectionLabel } from "./navLinks";
 
 export default function Navbar() {
   const { pathname } = useLocation();
-  const { user, logout, activeBusiness } = useAuth();
+  const { user, logout } = useAuth();
   const pageTitle = getNavPageTitle(pathname);
+  const sectionLabel = getNavSectionLabel(pathname);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -38,8 +39,8 @@ export default function Navbar() {
   return (
     <header className="app-navbar">
       <div className="navbar-start">
-        <p className="navbar-eyebrow">{activeBusiness?.name || "Workspace"}</p>
-        {pageTitle ? <h1 className="navbar-title">{pageTitle}</h1> : null}
+        <p className="navbar-eyebrow">{sectionLabel}</p>
+        <h1 className="navbar-title">{pageTitle}</h1>
       </div>
 
       <div className="navbar-end">
