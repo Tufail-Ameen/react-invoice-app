@@ -31,7 +31,7 @@ const adjustSchema = Yup.object({
     .integer()
     .required("Qty required")
     .test("nonzero", "Cannot be zero", (v) => v !== 0 && v != null),
-  reason: Yup.string().required("Reason required"),
+  reason: Yup.string().trim(),
 });
 
 function formatCell(value) {
@@ -155,7 +155,7 @@ export default function StockPage() {
       await adjustInventory({
         productId: Number(values.productId),
         quantity: Number(values.quantity),
-        reason: values.reason,
+        reason: values.reason?.trim() || null,
       }).unwrap();
       toast.success("Stock adjusted");
       resetForm();
@@ -221,7 +221,7 @@ export default function StockPage() {
   ];
 
   return (
-    <div className={`stock-page mx-auto w-full max-w-6xl${tab === "products" || tab === "categories" ? " is-list-tab" : ""}`}>
+    <div className={`stock-page mx-auto w-full max-w-6xl${tab === "products" || tab === "categories" || tab === "movements" ? " is-list-tab" : ""}`}>
       <nav className="stock-tab-nav mb-4 shrink-0" aria-label="Stock sections">
         {tabs.map(({ key, label, permission }) =>
           permission ? (
@@ -406,7 +406,7 @@ export default function StockPage() {
           <Form className="form-card">
             <h2 className="bill-form mb-3">Adjust stock</h2>
             <p className="textcklr small">
-              Positive qty increases stock, negative decreases. Reason is required.
+              Positive qty increases stock, negative decreases. Reason is optional.
               Changes are written to the stock ledger (not via product edit).
             </p>
             <div className="grid grid-cols-12 gap-3">
@@ -432,9 +432,8 @@ export default function StockPage() {
                 <Field
                   name="reason"
                   className="form-control input-settings"
-                  placeholder="e.g. Damaged goods"
+                  placeholder="Optional"
                 />
-                <ErrorMessage name="reason" component="div" className="text-red-600" />
               </div>
               <div className="col-span-12">
                 <button type="submit" className="btn save-changes py-2 px-4">
@@ -447,8 +446,8 @@ export default function StockPage() {
       )}
 
       {tab === "movements" && (
-        <>
-          <div className="form-card form-card-compact mb-3">
+        <section className="stock-page-section">
+          <div className="form-card form-card-compact mb-3 shrink-0">
             <div className="grid grid-cols-12 items-end gap-2">
               <div className="md:col-span-6">
                 <label className="form-label input-clr mb-1">Product</label>
@@ -479,15 +478,16 @@ export default function StockPage() {
             </div>
           </div>
 
-          <h2 className="bill-form mb-3">Stock history</h2>
-          {!movements.length ? (
-            <EmptyState
-              title="No movements"
-              message="Opening stock and adjustments appear here."
-            />
-          ) : (
-            <div className="form-card product-list-card">
-              <div className="product-table-scroll">
+          <h2 className="bill-form mb-3 shrink-0">Stock history</h2>
+          <div className="form-card product-list-card client-list-card">
+            <div className="product-table-scroll client-table-scroll">
+              {!movements.length ? (
+                <EmptyState
+                  className="!border-0 !bg-transparent !shadow-none"
+                  title="No movements"
+                  message="Opening stock and adjustments appear here."
+                />
+              ) : (
                 <table className="product-table w-full min-w-[48rem] md:min-w-full">
                   <thead>
                     <tr>
@@ -526,10 +526,10 @@ export default function StockPage() {
                     ))}
                   </tbody>
                 </table>
-              </div>
+              )}
             </div>
-          )}
-        </>
+          </div>
+        </section>
       )}
 
       {formOpen && canOpenForm && (

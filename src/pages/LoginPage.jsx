@@ -1,3 +1,5 @@
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -18,6 +20,7 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [submitting, setSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const from = location.state?.from?.pathname;
 
   return (
@@ -72,13 +75,24 @@ export default function LoginPage() {
               <label htmlFor="password">Password</label>
               <span>Minimum 8 characters</span>
             </div>
-            <Field
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              placeholder="Enter your password"
-            />
+            <div className="auth-password-wrap">
+              <Field
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                autoComplete="current-password"
+                placeholder="Enter your password"
+              />
+              <button
+                type="button"
+                className="auth-password-toggle"
+                onClick={() => setShowPassword((visible) => !visible)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-pressed={showPassword}
+              >
+                <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+              </button>
+            </div>
             <ErrorMessage name="password" component="div" className="auth-field-error" />
           </div>
           <button type="submit" className="auth-submit" disabled={submitting}>

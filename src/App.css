@@ -2684,6 +2684,38 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   box-shadow: 0 0 0 4px var(--color-primary-soft);
 }
 
+.auth-password-wrap {
+  position: relative;
+}
+
+.auth-password-wrap input {
+  padding-right: 46px;
+}
+
+.auth-password-toggle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: grid;
+  width: 46px;
+  height: 50px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-subtle);
+  cursor: pointer;
+}
+
+.auth-password-toggle:hover,
+.auth-password-toggle:focus-visible {
+  color: var(--color-text);
+}
+
+.auth-password-toggle:focus-visible {
+  outline: none;
+}
+
 .auth-field-error {
   margin-top: 5px;
   color: var(--color-danger);
