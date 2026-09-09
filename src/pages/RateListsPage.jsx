@@ -1,4 +1,5 @@
 import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
+import { faPrint } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import { Link } from "react-router-dom";
@@ -31,6 +32,7 @@ export default function RateListsPage() {
   const { can, activeBusiness } = useAuth();
   const { clients } = useClients();
   const [sendOpen, setSendOpen] = useState(false);
+  const [search, setSearch] = useState("");
   const [clientId, setClientId] = useState("");
   const [clientError, setClientError] = useState("");
   const [createRateList, createState] = useCreateRateListMutation();
@@ -42,6 +44,7 @@ export default function RateListsPage() {
     { skip: !can(PERMISSIONS.PRODUCTS_VIEW) }
   );
   const catalogProducts = productsData?.products || [];
+  const savePdf = isLocalhostOrigin();
 
   const closeSend = () => {
     setSendOpen(false);
@@ -132,15 +135,15 @@ export default function RateListsPage() {
                 className="btn save-changes w-full py-2 px-3 sm:w-auto"
                 disabled={catalogLoading || !catalogProducts.length}
                 onClick={() => {
-                  if (isLocalhostOrigin()) {
+                  if (savePdf) {
                     printCatalogPdf();
                     return;
                   }
                   setSendOpen(true);
                 }}
               >
-                <FontAwesomeIcon icon={faWhatsapp} className="me-1" />
-                Send rate list
+                <FontAwesomeIcon icon={savePdf ? faPrint : faWhatsapp} className="me-1" />
+                {savePdf ? "Save PDF" : "Send rate list"}
               </button>
             </Can>
             <Link to="/rate-lists/clients" className="btn save w-full py-2 px-3 sm:w-auto">
@@ -154,7 +157,12 @@ export default function RateListsPage() {
           </div>
         </div>
 
-        <CatalogRatesCard products={catalogProducts} isLoading={catalogLoading} />
+        <CatalogRatesCard
+          products={catalogProducts}
+          isLoading={catalogLoading}
+          search={search}
+          onSearchChange={setSearch}
+        />
       </section>
 
       <SendRateListModal

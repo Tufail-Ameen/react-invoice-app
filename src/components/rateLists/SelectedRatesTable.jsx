@@ -24,6 +24,7 @@ export default function SelectedRatesTable({
       <table className="product-table w-full min-w-[48rem] md:min-w-full">
         <thead>
           <tr>
+            <th className="col-index text-left">#</th>
             <th className="text-left">Product</th>
             <th className="text-left">Default</th>
             <th className="text-left">Custom rate</th>
@@ -32,10 +33,11 @@ export default function SelectedRatesTable({
           </tr>
         </thead>
         <tbody>
-          {items.map((item) => {
+          {items.map((item, index) => {
             const delta = formatDelta(item.customPrice, item.defaultPrice);
             return (
               <tr key={String(item.productId)}>
+                <td className="col-index text-left">{index + 1}</td>
                 <td className="text-left">
                   <div className="table-text-size">{item.productName}</div>
                   <div className="cell-muted small">

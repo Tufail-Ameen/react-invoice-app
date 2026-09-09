@@ -87,6 +87,7 @@ export default function ClientList({
       <table className="product-table w-full min-w-[48rem] md:min-w-full">
         <thead>
           <tr>
+            <th className="col-index text-left">#</th>
             <th className="text-left">Shop name</th>
             <th className="text-left">Phone</th>
             <th className="text-left">Area</th>
@@ -97,8 +98,9 @@ export default function ClientList({
           </tr>
         </thead>
         <tbody>
-          {visibleClients.map((client) => (
+          {visibleClients.map((client, index) => (
             <tr key={client.key || client._id || client.id}>
+              <td className="col-index text-left">{index + 1}</td>
               <td className="table-text-size text-left">
                 {client.id != null ? (
                   <Link

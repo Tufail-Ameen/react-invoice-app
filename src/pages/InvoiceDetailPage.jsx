@@ -176,6 +176,7 @@ export default function InvoiceDetailPage() {
           <table className="table m-0">
             <thead>
               <tr>
+                <th>#</th>
                 <th>Item Name</th>
                 <th>Qty.</th>
                 <th>Price</th>
@@ -184,8 +185,9 @@ export default function InvoiceDetailPage() {
               </tr>
             </thead>
             <tbody>
-              {(invoice.items || []).map((item) => (
+              {(invoice.items || []).map((item, index) => (
                 <tr key={`${item.productId}-${item.name}`}>
+                  <td>{index + 1}</td>
                   <td>{item.name}</td>
                   <td>{item.quantity}</td>
                   <td>{formatAmount(invoice.currency, item.unitPrice)}</td>
@@ -194,7 +196,7 @@ export default function InvoiceDetailPage() {
                 </tr>
               ))}
               <tr className="total">
-                <th className="py-4 px-2" colSpan={4}>
+                <th className="py-4 px-2" colSpan={5}>
                   Amount Due
                 </th>
                 <th className="total-price">{formatAmount(invoice.currency, invoice.total)}</th>

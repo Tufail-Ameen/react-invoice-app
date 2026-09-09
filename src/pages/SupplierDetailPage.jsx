@@ -221,6 +221,7 @@ export default function SupplierDetailPage() {
             <table className="table m-0">
               <thead>
                 <tr>
+                  <th>#</th>
                   <th>Date</th>
                   <th>Type</th>
                   <th>Reference</th>
@@ -230,8 +231,9 @@ export default function SupplierDetailPage() {
                 </tr>
               </thead>
               <tbody>
-                {entries.map((entry) => (
+                {entries.map((entry, index) => (
                   <tr key={entry.id}>
+                    <td>{index + 1}</td>
                     <td>{formatDate(entry.createdAt)}</td>
                     <td>{entry.entryType}</td>
                     <td>

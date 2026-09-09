@@ -1082,6 +1082,15 @@ textarea {
   text-align: left;
 }
 
+.product-table .col-index {
+  width: 2.4rem;
+  padding-left: 0.65rem;
+  padding-right: 0.45rem;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
 .product-table tbody tr {
   border-bottom: 1px solid var(--color-border);
 }

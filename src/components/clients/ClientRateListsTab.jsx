@@ -45,6 +45,7 @@ export default function ClientRateListsTab({ clientId }) {
       <table className="product-table w-full min-w-[48rem] md:min-w-full">
         <thead>
           <tr>
+            <th className="col-index text-left">#</th>
             <th className="text-left">Number</th>
             <th className="text-left">Title</th>
             <th className="text-left">Items</th>
@@ -53,12 +54,13 @@ export default function ClientRateListsTab({ clientId }) {
           </tr>
         </thead>
         <tbody>
-          {filtered.map((list) => (
+          {filtered.map((list, index) => (
             <tr
               key={list.id}
               className="cursor-pointer"
               onClick={() => navigate(`/rate-lists/${list.id}`)}
             >
+              <td className="col-index text-left">{index + 1}</td>
               <td className="table-text-size text-left">
                 <span className="hash-clr">#</span>
                 {list.number}

@@ -59,6 +59,7 @@ export default function ProductPicker({
                 aria-label="Select all visible products"
               />
             </th>
+            <th className="col-index text-left">#</th>
             <th className="text-left">Product</th>
             <th className="text-left">SKU</th>
             <th className="text-left">Default rate</th>
@@ -67,7 +68,7 @@ export default function ProductPicker({
           </tr>
         </thead>
         <tbody>
-          {products.map((product) => {
+          {products.map((product, index) => {
             const id = String(product.id);
             const isSelected = Boolean(selected[id]);
             const defaultPrice = selected[id]?.defaultPrice ?? productDefaultPrice(product);
@@ -91,6 +92,7 @@ export default function ProductPicker({
                     aria-label={`Select ${product.name}`}
                   />
                 </td>
+                <td className="col-index text-left">{index + 1}</td>
                 <td className="table-text-size text-left">
                   {product.name}
                   <div className="cell-muted small">{product.unit || "pcs"}</div>

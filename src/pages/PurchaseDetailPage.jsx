@@ -144,6 +144,7 @@ export default function PurchaseDetailPage() {
           <table className="table m-0">
             <thead>
               <tr>
+                <th>#</th>
                 <th>Item</th>
                 <th>Qty</th>
                 <th>Unit Cost</th>
@@ -155,6 +156,7 @@ export default function PurchaseDetailPage() {
             <tbody>
               {(purchase.items || []).map((item, index) => (
                 <tr key={`${item.productId}-${index}`}>
+                  <td>{index + 1}</td>
                   <td>{item.productNameSnapshot || `Product #${item.productId}`}</td>
                   <td>{item.quantity}</td>
                   <td>{formatAmount("Rs", item.unitCost)}</td>
@@ -164,37 +166,37 @@ export default function PurchaseDetailPage() {
                 </tr>
               ))}
               <tr>
-                <th className="py-2" colSpan={5}>
+                <th className="py-2" colSpan={6}>
                   Subtotal
                 </th>
                 <th>{formatAmount("Rs", purchase.subtotal)}</th>
               </tr>
               <tr>
-                <th className="py-2" colSpan={5}>
+                <th className="py-2" colSpan={6}>
                   Discount
                 </th>
                 <th>{formatAmount("Rs", purchase.discount)}</th>
               </tr>
               <tr>
-                <th className="py-2" colSpan={5}>
+                <th className="py-2" colSpan={6}>
                   Tax
                 </th>
                 <th>{formatAmount("Rs", purchase.tax)}</th>
               </tr>
               <tr className="total">
-                <th className="py-4 px-2" colSpan={5}>
+                <th className="py-4 px-2" colSpan={6}>
                   Grand Total
                 </th>
                 <th className="total-price">{formatAmount("Rs", purchase.grandTotal)}</th>
               </tr>
               <tr>
-                <th className="py-2" colSpan={5}>
+                <th className="py-2" colSpan={6}>
                   Paid
                 </th>
                 <th>{formatAmount("Rs", purchase.paidAmount)}</th>
               </tr>
               <tr>
-                <th className="py-2" colSpan={5}>
+                <th className="py-2" colSpan={6}>
                   Remaining
                 </th>
                 <th>{formatAmount("Rs", purchase.remainingAmount)}</th>

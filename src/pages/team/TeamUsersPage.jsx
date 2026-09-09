@@ -94,6 +94,7 @@ export default function TeamUsersPage() {
         <table className="table mb-0 rbac-table">
           <thead>
             <tr>
+              <th>#</th>
               <th>Name</th>
               <th>Email</th>
               <th>Role</th>
@@ -102,8 +103,9 @@ export default function TeamUsersPage() {
             </tr>
           </thead>
           <tbody>
-            {users.map((member) => (
+            {users.map((member, index) => (
               <tr key={member.id}>
+                <td>{index + 1}</td>
                 <td>{member.fullName || `${member.firstName} ${member.lastName}`}</td>
                 <td>{member.email}</td>
                 <td>{member.role?.name || "—"}</td>

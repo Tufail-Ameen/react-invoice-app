@@ -68,6 +68,7 @@ export default function ProductList({
       <table className="product-table w-full min-w-[52rem] md:min-w-full">
         <thead>
           <tr>
+            <th className="col-index text-left">#</th>
             <th className="text-left">Name</th>
             <th className="text-left">Category</th>
             <th className="text-left">Purchase</th>
@@ -80,8 +81,9 @@ export default function ProductList({
           </tr>
         </thead>
         <tbody>
-          {products.map((product) => (
+          {products.map((product, index) => (
             <tr key={product.key || product.id}>
+              <td className="col-index text-left">{index + 1}</td>
               <td className="table-text-size text-left">
                 <button
                   type="button"

@@ -38,6 +38,7 @@ export default function AuditLogPage() {
           <table className="table mb-0 rbac-table">
             <thead>
               <tr>
+                <th>#</th>
                 <th>When</th>
                 <th>Actor</th>
                 <th>Action</th>
@@ -45,8 +46,9 @@ export default function AuditLogPage() {
               </tr>
             </thead>
             <tbody>
-              {logs.map((log) => (
+              {logs.map((log, index) => (
                 <tr key={log.id}>
+                  <td>{index + 1}</td>
                   <td>{log.createdAt ? new Date(log.createdAt).toLocaleString() : "—"}</td>
                   <td>{log.actorName || log.actorId || "—"}</td>
                   <td>

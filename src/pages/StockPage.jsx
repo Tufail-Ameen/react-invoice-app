@@ -344,14 +344,16 @@ export default function StockPage() {
                 <table className="product-table w-full min-w-[48rem] md:min-w-full">
                   <thead>
                     <tr>
+                      <th className="col-index text-left">#</th>
                       <th className="text-left">Name</th>
                       <th className="text-left">Status</th>
                       <th className="w-[1%] whitespace-nowrap text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {visibleCategories.map((c) => (
+                    {visibleCategories.map((c, index) => (
                       <tr key={c.id}>
+                        <td className="col-index text-left">{index + 1}</td>
                         <td className="table-text-size text-left">{c.name}</td>
                         <td className="text-left">
                           <span className={`status-badge ${c.status === "active" ? "active" : "inactive"}`}>
@@ -491,6 +493,7 @@ export default function StockPage() {
                 <table className="product-table w-full min-w-[48rem] md:min-w-full">
                   <thead>
                     <tr>
+                      <th className="col-index">#</th>
                       <th>Date</th>
                       <th>Product</th>
                       <th>Type</th>
@@ -500,8 +503,9 @@ export default function StockPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {movements.map((m) => (
+                    {movements.map((m, index) => (
                       <tr key={`${m.id}-${m.createdAt}`}>
+                        <td className="col-index">{index + 1}</td>
                         <td className="cell-muted">
                           {m.createdAt ? String(m.createdAt).slice(0, 10) : "—"}
                         </td>

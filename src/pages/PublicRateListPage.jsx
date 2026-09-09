@@ -47,6 +47,7 @@ function chunkItems(items, size) {
 function ColumnHead() {
   return (
     <>
+      <th className={`${headClass} w-[1.5rem]`}>#</th>
       <th className={headClass}>Product</th>
       <th className={`${headClass} w-[2.6rem]`}>Unit</th>
       <th className={`${headClass} w-[4.6rem]`}>Rate</th>
@@ -58,15 +59,17 @@ function EmptyCells() {
   return (
     <>
       <td className={cellClass} />
+      <td className={cellClass} />
       <td className={unitClass} />
       <td className={rateClass} />
     </>
   );
 }
 
-function RateCells({ item }) {
+function RateCells({ item, index }) {
   return (
     <>
+      <td className={`${cellClass} text-[var(--color-text-muted)]`}>{index}</td>
       <td className={cellClass}>{item.productName}</td>
       <td className={unitClass}>{item.unit || "pcs"}</td>
       <td className={rateClass}>
@@ -161,7 +164,11 @@ export default function PublicRateListPage() {
                 {cols.map((item, col) => (
                   <Fragment key={`${index}-${col}`}>
                     {col > 0 ? <td className={gapClass} aria-hidden="true" /> : null}
-                    {item ? <RateCells item={item} /> : <EmptyCells />}
+                    {item ? (
+                      <RateCells item={item} index={index * COLUMNS + col + 1} />
+                    ) : (
+                      <EmptyCells />
+                    )}
                   </Fragment>
                 ))}
               </tr>

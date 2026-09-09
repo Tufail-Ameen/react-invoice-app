@@ -25,13 +25,14 @@ function escapeHtml(value) {
     .replace(/"/g, "&quot;");
 }
 
-function columnTable(products) {
+function columnTable(products, startIndex) {
   const rows = products
-    .map((product) => {
+    .map((product, index) => {
       const name = escapeHtml(product.name);
       const unit = escapeHtml(product.unit || "pcs");
       const rate = escapeHtml(formatPrice(productDefaultPrice(product)));
       return `<tr>
+        <td class="num">${startIndex + index}</td>
         <td class="name">${name}</td>
         <td class="unit">${unit}</td>
         <td class="rate">${rate}</td>
@@ -42,6 +43,7 @@ function columnTable(products) {
   return `<table>
     <thead>
       <tr>
+        <th class="num">#</th>
         <th>Product</th>
         <th>Unit</th>
         <th>Rate</th>
@@ -51,7 +53,7 @@ function columnTable(products) {
   </table>`;
 }
 
-function pageHtml(products, { title, pageIndex, pageCount }) {
+function pageHtml(products, { title, pageIndex, pageCount, startIndex }) {
   const { left, right } = splitCatalogColumns(products);
   const pageLabel = pageCount > 1 ? ` · ${pageIndex + 1}/${pageCount}` : "";
   return `<section class="sheet">
@@ -60,8 +62,8 @@ function pageHtml(products, { title, pageIndex, pageCount }) {
       <p>${escapeHtml(new Date().toLocaleDateString())}${pageLabel}</p>
     </header>
     <div class="cols">
-      ${columnTable(left)}
-      ${right.length ? `<div class="divider"></div>${columnTable(right)}` : ""}
+      ${columnTable(left, startIndex)}
+      ${right.length ? `<div class="divider"></div>${columnTable(right, startIndex + left.length)}` : ""}
     </div>
   </section>`;
 }
@@ -69,10 +71,18 @@ function pageHtml(products, { title, pageIndex, pageCount }) {
 function buildPrintHtml(products, title) {
   const rows = (products || []).map(toPrintRow);
   const pages = paginateCatalogProducts(rows, PRODUCTS_PER_PAGE, 8);
+  let startIndex = 1;
   const body = pages
-    .map((page, index) =>
-      pageHtml(page, { title, pageIndex: index, pageCount: pages.length })
-    )
+    .map((page, index) => {
+      const html = pageHtml(page, {
+        title,
+        pageIndex: index,
+        pageCount: pages.length,
+        startIndex,
+      });
+      startIndex += page.length;
+      return html;
+    })
     .join("");
 
   return `<!DOCTYPE html>
@@ -120,6 +130,7 @@ function buildPrintHtml(products, title) {
       background: #f7f5f0;
     }
     .unit { color: #5c6b64; width: 52px; }
+    .num { color: #8a958f; width: 28px; font-variant-numeric: tabular-nums; }
     .rate { font-weight: 700; white-space: nowrap; width: 84px; }
   </style>
 </head>
