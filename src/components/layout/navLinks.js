@@ -28,16 +28,16 @@ export const mainNavLinks = [
     permission: PERMISSIONS.CLIENTS_VIEW,
   },
   {
-    to: "/rate-lists",
-    label: "Rate lists",
-    icon: faTags,
-    permission: PERMISSIONS.RATE_LISTS_VIEW,
-  },
-  {
     to: "/stock",
     label: "Products & Stock",
     icon: faBoxesStacked,
     permission: PERMISSIONS.PRODUCTS_VIEW,
+  },
+  {
+    to: "/rate-lists",
+    label: "Rate lists",
+    icon: faTags,
+    permission: PERMISSIONS.RATE_LISTS_VIEW,
   },
   {
     to: "/suppliers",
@@ -97,6 +97,7 @@ export function getNavSectionLabel(pathname) {
 export function getNavPageTitle(pathname) {
   if (pathname.startsWith("/invoices/")) return "Invoice Details";
   if (pathname === "/rate-lists/new") return "New rate list";
+  if (pathname === "/rate-lists/clients") return "Client rate lists";
   if (pathname.startsWith("/rate-lists/") && pathname !== "/rate-lists") {
     return "Rate list";
   }

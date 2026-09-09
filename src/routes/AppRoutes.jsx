@@ -13,6 +13,7 @@ import PublicRateListPage from "../pages/PublicRateListPage";
 import PurchaseDetailPage from "../pages/PurchaseDetailPage";
 import PurchaseFormPage from "../pages/PurchaseFormPage";
 import PurchasesPage from "../pages/PurchasesPage";
+import ClientRateListsPage from "../pages/ClientRateListsPage";
 import RateListDetailPage from "../pages/RateListDetailPage";
 import RateListEditorPage from "../pages/RateListEditorPage";
 import RateListsPage from "../pages/RateListsPage";
@@ -83,6 +84,14 @@ export default function AppRoutes() {
             element={
               <RequirePermission permission={PERMISSIONS.RATE_LISTS_CREATE}>
                 <RateListEditorPage />
+              </RequirePermission>
+            }
+          />
+          <Route
+            path="/rate-lists/clients"
+            element={
+              <RequirePermission permission={PERMISSIONS.RATE_LISTS_VIEW}>
+                <ClientRateListsPage />
               </RequirePermission>
             }
           />

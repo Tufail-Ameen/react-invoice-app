@@ -85,7 +85,7 @@ export default function ProductList({
               <td className="table-text-size text-left">
                 <button
                   type="button"
-                  className="rate-list-client-link cursor-pointer border-0 bg-transparent p-0 text-left"
+                  className="cursor-pointer border-0 bg-transparent p-0 text-left font-bold text-[var(--color-primary)] hover:underline"
                   onClick={() => onSelectProduct?.(product)}
                 >
                   {product.name}

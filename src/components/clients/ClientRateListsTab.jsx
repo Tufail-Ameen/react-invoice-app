@@ -1,5 +1,3 @@
-import { faCirclePlus } from "@fortawesome/free-solid-svg-icons";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -31,80 +29,84 @@ export default function ClientRateListsTab({ clientId }) {
     );
   }, [rateLists, q]);
 
+  let body = null;
+  if (isLoading) {
+    body = <p className="textcklr m-0 px-4 py-5">Loading…</p>;
+  } else if (!filtered.length) {
+    body = (
+      <EmptyState
+        className="!border-0 !bg-transparent !shadow-none"
+        title="No rate lists yet"
+        message="Create a list with custom rates for this client."
+      />
+    );
+  } else {
+    body = (
+      <table className="product-table w-full min-w-[48rem] md:min-w-full">
+        <thead>
+          <tr>
+            <th className="text-left">Number</th>
+            <th className="text-left">Title</th>
+            <th className="text-left">Items</th>
+            <th className="text-left">Status</th>
+            <th className="text-left">Sent</th>
+          </tr>
+        </thead>
+        <tbody>
+          {filtered.map((list) => (
+            <tr
+              key={list.id}
+              className="cursor-pointer"
+              onClick={() => navigate(`/rate-lists/${list.id}`)}
+            >
+              <td className="table-text-size text-left">
+                <span className="hash-clr">#</span>
+                {list.number}
+              </td>
+              <td className="text-left">{list.title || "—"}</td>
+              <td className="text-left">{list.itemCount ?? 0}</td>
+              <td className="text-left">
+                <RateListStatusBadge status={list.status} />
+              </td>
+              <td className="cell-muted text-left">
+                {list.sentAt ? new Date(list.sentAt).toLocaleDateString() : "—"}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
+  }
+
   return (
     <div>
-      <div className="invoices-header">
-        <p className="count-invoices-tect mb-0">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <p className="mb-0 textcklr small">
           {rateLists.length} rate list{rateLists.length === 1 ? "" : "s"} for this client
         </p>
-        <div className="invoices-header-actions">
+        <Can permission={PERMISSIONS.RATE_LISTS_CREATE}>
+          <Link
+            to={`/rate-lists/new?clientId=${encodeURIComponent(clientId)}`}
+            className="btn save-changes w-full px-3 py-2 sm:w-auto"
+          >
+            New rate list
+          </Link>
+        </Can>
+      </div>
+
+      <div className="form-card product-list-card client-list-card">
+        <div className="flex items-center border-b border-[var(--color-border)] px-3 py-3">
           <input
-            className="form-control input-settings input-compact"
+            type="search"
+            className="form-control input-settings h-10 w-full rounded-[10px] md:max-w-[420px]"
             placeholder="Search lists…"
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            style={{ minWidth: 160 }}
+            aria-label="Search rate lists"
           />
-          <Can permission={PERMISSIONS.RATE_LISTS_CREATE}>
-            <Link
-              to={`/rate-lists/new?clientId=${encodeURIComponent(clientId)}`}
-              className="btn new-invoice"
-            >
-              <span className="circle-plus me-2">
-                <FontAwesomeIcon icon={faCirclePlus} />
-              </span>
-              New rate list
-            </Link>
-          </Can>
         </div>
+        <div className="product-table-scroll client-table-scroll">{body}</div>
       </div>
-
-      {isLoading ? (
-        <p className="textcklr mt-4">Loading…</p>
-      ) : !filtered.length ? (
-        <EmptyState
-          title="No rate lists yet"
-          message="Create a list with custom rates for this client."
-        />
-      ) : (
-        <div className="form-card product-list-card">
-          <div className="product-table-scroll">
-            <table className="product-table">
-              <thead>
-                <tr>
-                  <th>Number</th>
-                  <th>Title</th>
-                  <th>Items</th>
-                  <th>Status</th>
-                  <th>Sent</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.map((list) => (
-                  <tr
-                    key={list.id}
-                    className="cursor-pointer"
-                    onClick={() => navigate(`/rate-lists/${list.id}`)}
-                  >
-                    <td className="table-text-size">
-                      <span className="hash-clr">#</span>
-                      {list.number}
-                    </td>
-                    <td>{list.title || "—"}</td>
-                    <td>{list.itemCount ?? 0}</td>
-                    <td>
-                      <RateListStatusBadge status={list.status} />
-                    </td>
-                    <td className="cell-muted">
-                      {list.sentAt ? new Date(list.sentAt).toLocaleDateString() : "—"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

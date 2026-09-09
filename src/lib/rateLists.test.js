@@ -1,4 +1,13 @@
-import { catalogSelection, itemsFromRateList, productDefaultPrice, toMoneyNumber } from "./rateLists";
+import {
+  catalogSelection,
+  isLocalhostOrigin,
+  itemsFromRateList,
+  paginateCatalogProducts,
+  productDefaultPrice,
+  splitCatalogColumns,
+  toMoneyNumber,
+} from "./rateLists";
+import { toPrintRow } from "./rateListPrint";
 
 describe("productDefaultPrice", () => {
   test("uses salePrice first", () => {
@@ -44,5 +53,57 @@ describe("toMoneyNumber", () => {
   test("returns null for empty values", () => {
     expect(toMoneyNumber(null)).toBe(null);
     expect(toMoneyNumber("")).toBe(null);
+  });
+});
+
+describe("splitCatalogColumns", () => {
+  test("puts extra item on the left", () => {
+    const { left, right } = splitCatalogColumns([1, 2, 3]);
+    expect(left).toEqual([1, 2]);
+    expect(right).toEqual([3]);
+  });
+});
+
+describe("paginateCatalogProducts", () => {
+  test("chunks products into pages", () => {
+    expect(paginateCatalogProducts([1, 2, 3, 4, 5], 2)).toEqual([[1, 2], [3, 4], [5]]);
+  });
+
+  test("merges a tiny leftover page into the previous page", () => {
+    expect(paginateCatalogProducts([1, 2, 3, 4, 5], 2, 2)).toEqual([
+      [1, 2],
+      [3, 4, 5],
+    ]);
+  });
+});
+
+describe("isLocalhostOrigin", () => {
+  test("treats jsdom hostname as local", () => {
+    expect(isLocalhostOrigin()).toBe(true);
+  });
+});
+
+describe("toPrintRow", () => {
+  test("uses catalog name and sale price", () => {
+    expect(toPrintRow({ name: "Cap", unit: "pcs", salePrice: 45 })).toEqual({
+      name: "Cap",
+      unit: "pcs",
+      salePrice: 45,
+    });
+  });
+
+  test("uses custom rate from a client list item", () => {
+    expect(
+      toPrintRow({
+        productName: "Cap",
+        unit: "dz",
+        defaultPrice: 40,
+        customPrice: 55,
+      })
+    ).toEqual({
+      name: "Cap",
+      unit: "dz",
+      salePrice: 55,
+    });
   });
 });

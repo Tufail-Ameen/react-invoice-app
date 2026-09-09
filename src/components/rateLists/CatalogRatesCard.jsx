@@ -1,55 +1,72 @@
-import { Link } from "react-router-dom";
-import { Can } from "../../auth/guards";
-import { PERMISSIONS } from "../../lib/permissions";
-import { formatPrice, productDefaultPrice } from "../../lib/rateLists";
+import { formatPrice, productDefaultPrice, splitCatalogColumns } from "../../lib/rateLists";
+import EmptyState from "../ui/EmptyState";
+
+function CatalogColumn({ products }) {
+  return (
+    <table className="product-table w-full !min-w-0 border-separate border-spacing-0">
+      <thead>
+        <tr>
+          <th className="border-0 border-b border-solid border-[#d4cfc4] text-left">Product</th>
+          <th className="w-16 border-0 border-b border-solid border-[#d4cfc4] text-left">Unit</th>
+          <th className="w-24 border-0 border-b border-solid border-[#d4cfc4] text-left">Rate</th>
+        </tr>
+      </thead>
+      <tbody>
+        {products.map((product) => (
+          <tr key={product.key || product.id}>
+            <td className="table-text-size border-0 border-b border-solid border-[#d4cfc4] text-left">
+              {product.name}
+            </td>
+            <td className="cell-muted border-0 border-b border-solid border-[#d4cfc4] text-left">
+              {product.unit || "pcs"}
+            </td>
+            <td className="price whitespace-nowrap border-0 border-b border-solid border-[#d4cfc4] text-left">
+              {formatPrice(productDefaultPrice(product))}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
 
 export default function CatalogRatesCard({ products, isLoading }) {
-  return (
-    <section className="mb-4">
-      <div className="rate-list-catalog-head">
-        <div>
-          <h2 className="product-list-heading mb-1">Default rate list</h2>
-          <p className="textcklr small mb-0">
-            These are the rates already set on products. Client lists start from this catalog.
-          </p>
+  let body = null;
+  if (isLoading) {
+    body = <p className="textcklr m-0 px-4 py-5">Loading catalog…</p>;
+  } else if (!products.length) {
+    body = (
+      <EmptyState
+        className="!border-0 !bg-transparent !shadow-none"
+        title="No catalog rates"
+        message="Add product sale prices in Products & Stock first."
+      />
+    );
+  } else {
+    const { left, right } = splitCatalogColumns(products);
+    body = (
+      <div className="flex flex-col md:flex-row">
+        <div className="min-w-0 flex-1">
+          <CatalogColumn products={left} />
         </div>
-        <Can permission={PERMISSIONS.RATE_LISTS_CREATE}>
-          <Link to="/rate-lists/new" className="btn save-changes py-2 px-3">
-            Use for a client
-          </Link>
-        </Can>
+        {right.length ? (
+          <>
+            <div
+              className="h-px w-full shrink-0 bg-[var(--color-border-strong)] md:h-auto md:min-h-full md:w-[2px] md:self-stretch"
+              aria-hidden="true"
+            />
+            <div className="min-w-0 flex-1">
+              <CatalogColumn products={right} />
+            </div>
+          </>
+        ) : null}
       </div>
+    );
+  }
 
-      {isLoading ? (
-        <p className="textcklr mb-0">Loading catalog…</p>
-      ) : !products.length ? (
-        <p className="textcklr small mb-0">Add product sale prices in Products &amp; Stock first.</p>
-      ) : (
-        <div className="form-card product-list-card">
-          <div className="product-table-scroll rate-list-catalog-scroll">
-            <table className="product-table">
-              <thead>
-                <tr>
-                  <th>Product</th>
-                  <th>SKU</th>
-                  <th>Unit</th>
-                  <th>Default rate</th>
-                </tr>
-              </thead>
-              <tbody>
-                {products.map((product) => (
-                  <tr key={product.key || product.id}>
-                    <td className="table-text-size">{product.name}</td>
-                    <td className="cell-muted">{product.sku || "—"}</td>
-                    <td className="cell-muted">{product.unit || "pcs"}</td>
-                    <td className="price">{formatPrice(productDefaultPrice(product))}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-    </section>
+  return (
+    <div className="form-card product-list-card client-list-card">
+      <div className="product-table-scroll client-table-scroll">{body}</div>
+    </div>
   );
 }

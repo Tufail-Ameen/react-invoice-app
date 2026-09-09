@@ -11,11 +11,13 @@ import SendRateListModal from "../components/rateLists/SendRateListModal";
 import EmptyState from "../components/ui/EmptyState";
 import { useClients } from "../hooks/useClients";
 import { PERMISSIONS } from "../lib/permissions";
+import { openRateListPrint } from "../lib/rateListPrint";
 import {
   buildRateListItems,
   catalogSelection,
   copyText,
   getRateListShareUrl,
+  isLocalhostOrigin,
   itemFromProduct,
   itemsFromRateList,
   mailtoShareHref,
@@ -284,7 +286,7 @@ export default function RateListEditorPage() {
     try {
       await deleteRateList(id).unwrap();
       toast.success("Draft deleted");
-      navigate("/rate-lists");
+      navigate("/rate-lists/clients");
     } catch (err) {
       toast.error(getErrorMessage(err, "Delete failed"));
     }
@@ -292,7 +294,7 @@ export default function RateListEditorPage() {
 
   if (isEdit && existingLoading) {
     return (
-      <div className="page-wrap">
+      <div className="mx-auto w-full max-w-6xl">
         <p className="textcklr">Loading…</p>
       </div>
     );
@@ -305,33 +307,33 @@ export default function RateListEditorPage() {
   }
 
   return (
-    <div className="page-wrap rate-list-editor-page">
+    <div className="mx-auto w-full max-w-6xl">
       <button
         type="button"
         className="back-link"
-        onClick={() => navigate("/rate-lists")}
+        onClick={() => navigate(isEdit ? "/rate-lists/clients" : "/rate-lists")}
       >
         <FontAwesomeIcon className="icon me-2" icon={faAngleLeft} size="2xs" />
         Go back
       </button>
 
-      <div className="invoices-header">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="count-invoices-tect mb-1">
+          <h1 className="product-list-heading mb-1 !text-[1.35rem] !font-extrabold">
             {isEdit ? existing?.number || "Draft" : "New rate list"}
-          </p>
+          </h1>
           <p className="mb-0 textcklr small">
             Default rates come from Products. Change a custom rate for this client only.
           </p>
         </div>
-        <div className="invoices-header-actions">
+        <div className="flex flex-wrap items-center gap-2 sm:justify-end">
           <span className="textcklr small">
             {selectedCount} product{selectedCount === 1 ? "" : "s"} selected
           </span>
           <Can permission={isEdit ? PERMISSIONS.RATE_LISTS_UPDATE : PERMISSIONS.RATE_LISTS_CREATE}>
             <button
               type="button"
-              className="btn save py-2 px-3"
+              className="btn save px-3 py-2"
               disabled={saving || !selectedCount}
               onClick={saveDraft}
             >
@@ -341,9 +343,24 @@ export default function RateListEditorPage() {
           <Can permission={PERMISSIONS.RATE_LISTS_SEND}>
             <button
               type="button"
-              className="btn save-changes py-2 px-3"
+              className="btn save-changes px-3 py-2"
               disabled={saving || !selectedCount}
               onClick={() => {
+                if (isLocalhostOrigin()) {
+                  if (!selectedCount) {
+                    toast.error("Select at least one product");
+                    return;
+                  }
+                  const opened = openRateListPrint(selectedItems, {
+                    title: title.trim() || "Rate list",
+                  });
+                  if (!opened) {
+                    toast.error("Print dialog did not open. Try again.");
+                    return;
+                  }
+                  toast.success("Save as PDF, then send it on WhatsApp");
+                  return;
+                }
                 if (!validate()) return;
                 setSendOpen(true);
               }}
@@ -355,7 +372,7 @@ export default function RateListEditorPage() {
             <Can permission={PERMISSIONS.RATE_LISTS_DELETE}>
               <button
                 type="button"
-                className="btn delete py-2 px-3"
+                className="btn delete px-3 py-2"
                 disabled={deleteState.isLoading}
                 onClick={onDelete}
               >

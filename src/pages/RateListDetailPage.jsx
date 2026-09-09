@@ -17,9 +17,11 @@ import SelectedRatesTable from "../components/rateLists/SelectedRatesTable";
 import SendRateListModal from "../components/rateLists/SendRateListModal";
 import EmptyState from "../components/ui/EmptyState";
 import { PERMISSIONS } from "../lib/permissions";
+import { openRateListPrint } from "../lib/rateListPrint";
 import {
   copyText,
   getRateListShareUrl,
+  isLocalhostOrigin,
   mailtoShareHref,
   rateListStatus,
   shareMessage,
@@ -34,7 +36,29 @@ import {
 } from "../services/invoiceApi";
 import RateListEditorPage from "./RateListEditorPage";
 
+function printListPdf(list) {
+  const opened = openRateListPrint(list?.items || [], {
+    title: list?.title || "Rate list",
+  });
+  if (!opened) {
+    toast.error("Print dialog did not open. Try again.");
+    return;
+  }
+  toast.success("Save as PDF, then send it on WhatsApp");
+}
+
 function ShareActions({ list }) {
+  if (isLocalhostOrigin()) {
+    return (
+      <Can permission={PERMISSIONS.RATE_LISTS_SEND}>
+        <button type="button" className="btn edit py-2 px-3" onClick={() => printListPdf(list)}>
+          <FontAwesomeIcon icon={faPrint} className="me-1" />
+          Save PDF
+        </button>
+      </Can>
+    );
+  }
+
   const shareUrl = getRateListShareUrl(list);
   if (!shareUrl) return null;
   const message = shareMessage(list);
@@ -92,7 +116,7 @@ export default function RateListDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="page-wrap">
+      <div className="mx-auto w-full max-w-6xl">
         <p className="textcklr">Loading…</p>
       </div>
     );
@@ -173,31 +197,35 @@ export default function RateListDetailPage() {
     try {
       await deleteRateList(id).unwrap();
       toast.success(isHardDelete ? "Draft deleted" : "Archived");
-      navigate("/rate-lists");
+      navigate("/rate-lists/clients");
     } catch (err) {
       toast.error(getErrorMessage(err, "Delete failed"));
     }
   };
 
   return (
-    <div className="page-wrap invoice-detail rate-list-print">
-      <button type="button" className="back-link no-print" onClick={() => navigate("/rate-lists")}>
+    <div className="invoice-detail mx-auto w-full max-w-6xl">
+      <button
+        type="button"
+        className="back-link print:hidden"
+        onClick={() => navigate("/rate-lists/clients")}
+      >
         <FontAwesomeIcon className="icon me-2" icon={faAngleLeft} size="2xs" />
         Go back
       </button>
 
       {isSent && (
-        <div className="rate-list-banner no-print">
+        <div className="mb-4 rounded-xl bg-[var(--color-accent-soft)] px-4 py-3 text-sm font-semibold text-[var(--color-text)] print:hidden">
           Sent lists cannot be edited. Duplicate to make a new draft.
         </div>
       )}
       {isArchived && (
-        <div className="rate-list-banner rate-list-banner-muted no-print">
+        <div className="mb-4 rounded-xl bg-[var(--color-draft-soft)] px-4 py-3 text-sm font-semibold text-[var(--color-text-muted)] print:hidden">
           This list is archived. Duplicate it to make a new draft.
         </div>
       )}
 
-      <div className="detail-toolbar no-print">
+      <div className="detail-toolbar print:hidden">
         <div className="flex items-center gap-3">
           <span className="edit-discription mb-0">Status</span>
           <RateListStatusBadge status={status} compact={false} />
@@ -209,7 +237,13 @@ export default function RateListDetailPage() {
               <button
                 type="button"
                 className="btn save-changes py-2 px-3"
-                onClick={() => setSendOpen(true)}
+                onClick={() => {
+                  if (isLocalhostOrigin()) {
+                    printListPdf(list);
+                    return;
+                  }
+                  setSendOpen(true);
+                }}
               >
                 {isSent ? "Resend" : "Send"}
               </button>
@@ -242,7 +276,7 @@ export default function RateListDetailPage() {
         </div>
       </div>
 
-      <div className="detail-card">
+      <div className="detail-card print:max-w-none print:border-0 print:p-0 print:shadow-none">
         <div className="grid grid-cols-12 gap-4">
           <div className="col-span-12 md:col-span-6">
             <p className="edit-id">#{list.number}</p>

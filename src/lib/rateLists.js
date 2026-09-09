@@ -63,6 +63,30 @@ export function catalogSelection(products) {
   return next;
 }
 
+export function splitCatalogColumns(products) {
+  const list = products || [];
+  const rows = Math.ceil(list.length / 2);
+  return {
+    left: list.slice(0, rows),
+    right: list.slice(rows),
+  };
+}
+
+export function paginateCatalogProducts(products, perPage, mergeIfLastBelow = 0) {
+  const list = products || [];
+  const size = Math.max(1, perPage);
+  const pages = [];
+  for (let i = 0; i < list.length; i += size) {
+    pages.push(list.slice(i, i + size));
+  }
+  const threshold = Math.max(0, mergeIfLastBelow);
+  if (threshold && pages.length > 1 && pages[pages.length - 1].length < threshold) {
+    const last = pages.pop();
+    pages[pages.length - 1] = pages[pages.length - 1].concat(last);
+  }
+  return pages;
+}
+
 export function rateListStatus(list) {
   return String(list?.status || "DRAFT").toUpperCase();
 }
@@ -79,6 +103,11 @@ export function getRateListShareUrl(rateList) {
   const token = getShareToken(rateList);
   if (!token) return null;
   return `${window.location.origin}/share/rate-lists/${token}`;
+}
+
+export function isLocalhostOrigin() {
+  const host = window.location.hostname;
+  return host === "localhost" || host === "127.0.0.1" || host === "[::1]";
 }
 
 export function priceDelta(customPrice, defaultPrice) {
@@ -148,8 +177,17 @@ export function shareMessage(rateList) {
   return `${title}${client}`;
 }
 
+export function catalogShareMessage(products) {
+  const lines = (products || []).map((product) => {
+    const unit = product.unit || "pcs";
+    return `${product.name} — ${unit} — ${formatPrice(productDefaultPrice(product))}`;
+  });
+  return ["Rate list", "", ...lines].join("\n");
+}
+
 export function whatsappShareHref(message, shareUrl) {
-  return `https://wa.me/?text=${encodeURIComponent(`${message}\n${shareUrl}`)}`;
+  const text = shareUrl ? `${message}\n${shareUrl}` : message;
+  return `https://wa.me/?text=${encodeURIComponent(text)}`;
 }
 
 export function mailtoShareHref(rateList, shareUrl) {

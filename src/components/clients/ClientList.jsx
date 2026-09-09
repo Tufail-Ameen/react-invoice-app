@@ -101,7 +101,10 @@ export default function ClientList({
             <tr key={client.key || client._id || client.id}>
               <td className="table-text-size text-left">
                 {client.id != null ? (
-                  <Link to={`/clients/${client.id}`} className="rate-list-client-link">
+                  <Link
+                    to={`/clients/${client.id}`}
+                    className="font-bold text-[var(--color-primary)] no-underline hover:underline"
+                  >
                     {formatCell(client.name)}
                   </Link>
                 ) : (

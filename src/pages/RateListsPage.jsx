@@ -1,180 +1,176 @@
-import { faCirclePlus } from "@fortawesome/free-solid-svg-icons";
+import { faWhatsapp } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { Can } from "../auth/guards";
 import { useAuth } from "../auth/AuthContext";
 import CatalogRatesCard from "../components/rateLists/CatalogRatesCard";
-import RateListStatusBadge from "../components/rateLists/RateListStatusBadge";
-import EmptyState from "../components/ui/EmptyState";
-import FilterMenu from "../components/ui/FilterMenu";
+import SendRateListModal from "../components/rateLists/SendRateListModal";
 import { useClients } from "../hooks/useClients";
 import { PERMISSIONS } from "../lib/permissions";
+import { openRateListPrint } from "../lib/rateListPrint";
+import {
+  buildRateListItems,
+  catalogSelection,
+  copyText,
+  getRateListShareUrl,
+  isLocalhostOrigin,
+  mailtoShareHref,
+  shareMessage,
+  whatsappShareHref,
+} from "../lib/rateLists";
 import { getErrorMessage } from "../lib/rtkBaseQuery";
-import { useGetProductsQuery, useGetRateListsQuery } from "../services/invoiceApi";
-
-const STATUS_OPTIONS = [
-  { label: "All statuses", value: "" },
-  { label: "Draft", value: "DRAFT" },
-  { label: "Sent", value: "SENT" },
-  { label: "Archived", value: "ARCHIVED" },
-];
+import {
+  useCreateRateListMutation,
+  useGetProductsQuery,
+  useSendRateListMutation,
+} from "../services/invoiceApi";
 
 export default function RateListsPage() {
-  const navigate = useNavigate();
-  const { can } = useAuth();
+  const { can, activeBusiness } = useAuth();
   const { clients } = useClients();
-  const [statusFilter, setStatusFilter] = useState("");
+  const [sendOpen, setSendOpen] = useState(false);
   const [clientId, setClientId] = useState("");
-  const [q, setQ] = useState("");
-  const [page, setPage] = useState(1);
+  const [clientError, setClientError] = useState("");
+  const [createRateList, createState] = useCreateRateListMutation();
+  const [sendRateList, sendState] = useSendRateListMutation();
+  const sending = createState.isLoading || sendState.isLoading;
 
-  const params = useMemo(() => {
-    const next = { page, limit: 50 };
-    if (statusFilter) next.status = statusFilter;
-    if (clientId) next.clientId = clientId;
-    if (q.trim()) next.q = q.trim();
-    return next;
-  }, [statusFilter, clientId, q, page]);
-
-  const { data, isLoading, isError, error } = useGetRateListsQuery(params);
   const { data: productsData, isLoading: catalogLoading } = useGetProductsQuery(
     { status: "active" },
     { skip: !can(PERMISSIONS.PRODUCTS_VIEW) }
   );
-  const rateLists = data?.rateLists || [];
-  const pagination = data?.pagination;
   const catalogProducts = productsData?.products || [];
 
-  useEffect(() => {
-    setPage(1);
-  }, [statusFilter, clientId, q]);
+  const closeSend = () => {
+    setSendOpen(false);
+    setClientError("");
+  };
 
-  useEffect(() => {
-    if (isError) toast.error(getErrorMessage(error, "Failed to load rate lists"));
-  }, [isError, error]);
+  const printCatalogPdf = () => {
+    if (!catalogProducts.length) {
+      toast.error("No products to send");
+      return;
+    }
+    const title = activeBusiness?.name
+      ? `${activeBusiness.name} — Rate list`
+      : "Rate list";
+    const opened = openRateListPrint(catalogProducts, { title });
+    if (!opened) {
+      toast.error("Print dialog did not open. Try again.");
+      return;
+    }
+    toast.success("Save as PDF, then send it on WhatsApp");
+  };
+
+  const sendCatalogLink = async (options) => {
+    if (!catalogProducts.length) {
+      toast.error("No products to send");
+      return;
+    }
+    if (!clientId) {
+      setClientError("Client required");
+      toast.error("Choose a client");
+      return;
+    }
+    if (!can(PERMISSIONS.RATE_LISTS_CREATE)) {
+      toast.error("You cannot create a rate list");
+      return;
+    }
+
+    setClientError("");
+    try {
+      const created = await createRateList({
+        clientId: Number(clientId),
+        title: activeBusiness?.name ? `${activeBusiness.name} — Rate list` : "Rate list",
+        items: buildRateListItems(catalogSelection(catalogProducts)),
+      }).unwrap();
+      const sent = await sendRateList({
+        id: created.id,
+        channel: options.channel,
+        expiresAt: options.expiresAt,
+        rotateToken: options.rotateToken,
+      }).unwrap();
+      const list = { ...created, ...(sent?.rateList ?? sent) };
+      const shareUrl = getRateListShareUrl(list);
+      if (!shareUrl) {
+        toast.error("Share link missing from server");
+        return;
+      }
+
+      const copied = await copyText(shareUrl);
+      if (options.channel === "whatsapp") {
+        window.open(whatsappShareHref(shareMessage(list), shareUrl), "_blank", "noopener,noreferrer");
+      }
+      if (options.channel === "email") {
+        window.open(mailtoShareHref(list, shareUrl), "_blank", "noopener,noreferrer");
+      }
+      toast.success(copied ? "Share link copied" : shareUrl);
+      closeSend();
+    } catch (err) {
+      toast.error(getErrorMessage(err, "Send failed"));
+    }
+  };
 
   return (
-    <div className="page-wrap">
-      <div className="invoices-header">
-        <p className="count-invoices-tect mb-0">
-          There {rateLists.length === 1 ? "is" : "are"} {pagination?.total ?? rateLists.length} total
-          Rate lists
-        </p>
-        <div className="invoices-header-actions">
-          <input
-            className="form-control input-settings input-compact"
-            placeholder="Search title or number…"
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            style={{ minWidth: 160 }}
-          />
-          <select
-            className="form-select input-settings input-compact"
-            value={clientId}
-            onChange={(e) => setClientId(e.target.value)}
-            aria-label="Filter by client"
-          >
-            <option value="">All clients</option>
-            {clients.map((client) => (
-              <option key={client.key || client.id} value={String(client.id)}>
-                {client.name}
-              </option>
-            ))}
-          </select>
-          <FilterMenu
-            options={STATUS_OPTIONS}
-            value={statusFilter}
-            onChange={setStatusFilter}
-          />
-          <Can permission={PERMISSIONS.RATE_LISTS_CREATE}>
-            <Link to="/rate-lists/new" className="btn new-invoice">
-              <span className="circle-plus me-2">
-                <FontAwesomeIcon icon={faCirclePlus} />
-              </span>
-              New rate list
+    <div className="clients-page mx-auto w-full max-w-6xl">
+      <section className="clients-page-section">
+        <div className="mb-4 flex shrink-0 flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h1 className="product-list-heading mb-1 !text-[1.35rem] !font-extrabold">
+              Rate list
+            </h1>
+            <p className="textcklr small mb-0">
+              These are the rates already set on products. Client lists start from this catalog.
+            </p>
+          </div>
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+            <Can permission={PERMISSIONS.RATE_LISTS_SEND}>
+              <button
+                type="button"
+                className="btn save-changes w-full py-2 px-3 sm:w-auto"
+                disabled={catalogLoading || !catalogProducts.length}
+                onClick={() => {
+                  if (isLocalhostOrigin()) {
+                    printCatalogPdf();
+                    return;
+                  }
+                  setSendOpen(true);
+                }}
+              >
+                <FontAwesomeIcon icon={faWhatsapp} className="me-1" />
+                Send rate list
+              </button>
+            </Can>
+            <Link to="/rate-lists/clients" className="btn save w-full py-2 px-3 sm:w-auto">
+              Client rate lists
             </Link>
-          </Can>
-        </div>
-      </div>
-
-      <CatalogRatesCard products={catalogProducts} isLoading={catalogLoading} />
-
-      <h2 className="product-list-heading mb-2">Client rate lists</h2>
-
-      {isLoading ? (
-        <p className="textcklr mt-4">Loading…</p>
-      ) : !rateLists.length ? (
-        <EmptyState
-          title="No client lists yet"
-          message="Use the default catalog above, then save a list for a client."
-        />
-      ) : (
-        <div className="form-card product-list-card">
-          <div className="product-table-scroll">
-            <table className="product-table">
-              <thead>
-                <tr>
-                  <th>Number</th>
-                  <th>Title</th>
-                  <th>Client</th>
-                  <th>Items</th>
-                  <th>Status</th>
-                  <th>Sent</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rateLists.map((list) => (
-                  <tr
-                    key={list.id}
-                    className="cursor-pointer"
-                    onClick={() => navigate(`/rate-lists/${list.id}`)}
-                  >
-                    <td className="table-text-size">
-                      <span className="hash-clr">#</span>
-                      {list.number}
-                    </td>
-                    <td>{list.title || "—"}</td>
-                    <td>{list.clientName || `Client #${list.clientId}`}</td>
-                    <td>{list.itemCount ?? 0}</td>
-                    <td>
-                      <RateListStatusBadge status={list.status} />
-                    </td>
-                    <td className="cell-muted">
-                      {list.sentAt ? new Date(list.sentAt).toLocaleDateString() : "—"}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <Can permission={PERMISSIONS.RATE_LISTS_CREATE}>
+              <Link to="/rate-lists/new" className="btn save w-full py-2 px-3 sm:w-auto">
+                Use for a client
+              </Link>
+            </Can>
           </div>
         </div>
-      )}
 
-      {pagination?.pages > 1 && (
-        <div className="flex items-center justify-end gap-2 mt-3">
-          <button
-            type="button"
-            className="btn cancel py-1 px-3"
-            disabled={page <= 1}
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-          >
-            Previous
-          </button>
-          <span className="textcklr small">
-            Page {pagination.page} of {pagination.pages}
-          </span>
-          <button
-            type="button"
-            className="btn cancel py-1 px-3"
-            disabled={page >= pagination.pages}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            Next
-          </button>
-        </div>
-      )}
+        <CatalogRatesCard products={catalogProducts} isLoading={catalogLoading} />
+      </section>
+
+      <SendRateListModal
+        open={sendOpen}
+        onClose={closeSend}
+        onSend={sendCatalogLink}
+        sending={sending}
+        defaultChannel="whatsapp"
+        clients={clients}
+        clientId={clientId}
+        onClientIdChange={(value) => {
+          setClientId(value);
+          setClientError("");
+        }}
+        clientError={clientError}
+      />
     </div>
   );
 }
